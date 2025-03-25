@@ -1,0 +1,169 @@
+<%- include("../../views/partials/user/profile/profile") %>
+
+        <div class="main-content">
+            <div class="header">
+                <h2>My Profile</h2>
+                <div class="actions">
+                    <a href="/updateProfile" class="btn">Edit Profile</a>
+                </div>
+            </div>
+
+            <div class="profile-details">
+                <div class="detail-section">
+                    <h3>Personal Information</h3>
+                    <div class="detail-row">
+                        <div class="detail-label">Name</div>
+                        <div class="detail-value" id="detail-name"><%=user.name %></div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Email</div>
+                        <div class="detail-value" id="detail-email"><%= user.email %></div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Phone</div>
+                        <div class="detail-value" id="detail-phone"><%= user.phone %></div>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h3>Default Shipping Address</h3>
+                    <div class="detail-row">
+                        <div class="detail-value address" id="detail-address">
+                            <%= defaultAddress.landMark%><br>
+                            <%=defaultAddress.city%>,<%=defaultAddress.state%><br>
+                            <%=defaultAddress.pincode%><br>
+                            <%=defaultAddress.country %>
+                        </div>
+                    </div>
+                    <div class="action-links">
+                        <a href="/myAddress" class="link">View all addresses</a>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h3>Recent Orders</h3>
+                    <div class="order-preview">
+                        <div class="order-item">
+                            <div class="order-id">Order #12345</div>
+                            <div class="order-date">March 10, 2025</div>
+                            <div class="order-status">Delivered</div>
+                            <div class="order-total">$125.99</div>
+                            <a href="orders.html" class="view-btn">View</a>
+                        </div>
+                        <div class="order-item">
+                            <div class="order-id">Order #12346</div>
+                            <div class="order-date">March 15, 2025</div>
+                            <div class="order-status">Processing</div>
+                            <div class="order-total">$89.50</div>
+                            <a href="orders.html" class="view-btn">View</a>
+                        </div>
+                    </div>
+                    <div class="action-links">
+                        <a href="orders.html" class="link">View all orders</a>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h3>Account Security</h3>
+                    <div class="detail-row">
+                        <div class="detail-label">Password</div>
+                        <div class="detail-value">••••••••</div>
+                        <a href="change-password.html" class="action-btn">Change</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Need help?</h2>
+            <p>If you're having trouble accessing your account, please try the following:</p>
+            <ul>
+                <li><a href="forgot-password.html">Forgot Password</a></li>
+                <li><a href="#">Contact Support</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="profile.js"></script>
+</body>
+</html>
+<script>
+
+document.addEventListener('DOMContentLoaded', function() {
+    
+    const modal = document.getElementById('modal');
+    const recoveryBtn = document.getElementById('recovery-options');
+    const closeBtn = document.getElementsByClassName('close')[0];
+    const logoutBtn = document.getElementById('logout');
+
+    if (recoveryBtn) {
+        recoveryBtn.addEventListener('click', function() {
+            modal.style.display = 'block';
+        });
+    }
+
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function() {
+            modal.style.display = 'none';
+        });
+    }
+
+    window.addEventListener('click', function(event) {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (confirm('Are you sure you want to logout?')) {
+                
+                sessionStorage.clear();
+                
+                window.location.href = 'login.html';
+            }
+        });
+    }
+
+  
+    loadUserData();
+});
+
+
+function updateUserInterface(userData) {
+    // Update profile sidebar
+    const userNameElement = document.getElementById('user-name');
+    const userEmailElement = document.getElementById('user-email');
+    
+    if (userNameElement) userNameElement.textContent = userData.name;
+    if (userEmailElement) userEmailElement.textContent = userData.email;
+
+    // Update main profile details
+    const detailElements = {
+        name: document.getElementById('detail-name'),
+        email: document.getElementById('detail-email'),
+        phone: document.getElementById('detail-phone'),
+        dob: document.getElementById('detail-dob'),
+        address: document.getElementById('detail-address')
+    };
+
+    if (detailElements.name) detailElements.name.textContent = userData.name;
+    if (detailElements.email) detailElements.email.textContent = userData.email;
+    if (detailElements.phone) detailElements.phone.textContent = userData.phone;
+    if (detailElements.dob) detailElements.dob.textContent = userData.dob;
+    
+    if (detailElements.address) {
+        detailElements.address.innerHTML = `
+            ${userData.address.street}<br>
+            ${userData.address.city}, ${userData.address.state} ${userData.address.zip}<br>
+            ${userData.address.country}
+        `;
+    }
+}
+</script>
+
+<%- include("../../views/partials/user/footer") %>

@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders</title>
+    <link rel="stylesheet" href="/css/user-profile.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* [Keep your existing styles unchanged] */
+        .orders-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .orders-table thead {
+            background: #4a90e2;
+            color: #ffffff;
+        }
+
+        .orders-table th,
+        .orders-table td {
+            padding: 16px 20px;
+            text-align: left;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .orders-table th {
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .orders-table tbody tr {
+            border-bottom: 1px solid #f1f3f5;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        .orders-table tbody tr:hover {
+            background-color: #f8f9fa;
+            transform: translateY(-2px);
+        }
+
+        .orders-table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .orders-table td {
+            color: #2d3436;
+        }
+
+        .order-status {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            text-transform: capitalize;
+            transition: transform 0.2s ease;
+        }
+
+        .order-status:hover {
+            transform: scale(1.05);
+        }
+
+        .order-status.pending {
+            background-color: #ffeaa7;
+            color: #d63031;
+        }
+
+        .order-status.processing {
+            background-color: #74b9ff;
+            color: #ffffff;
+        }
+
+        .order-status.shipped {
+            background-color: #a29bfe;
+            color: #ffffff;
+        }
+
+        .order-status.delivered {
+            background-color: #55efc4;
+            color: #2d3436;
+        }
+
+        .order-status.cancelled {
+            background-color: #ff7675;
+            color: #ffffff;
+        }
+
+        .btn-view {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #4a90e2;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        .btn-view:hover {
+            background: #4a90e2;
+            transform: translateY(-2px);
+        }
+
+        .no-orders {
+            text-align: center;
+            padding: 40px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .no-orders p {
+            font-size: 16px;
+            color: #7f8c8d;
+            margin: 0;
+        }
+
+        @media (max-width: 768px) {
+            .orders-table thead {
+                display: none;
+            }
+
+            .orders-table tbody tr {
+                display: block;
+                margin-bottom: 20px;
+                border: 1px solid #dfe6e9;
+                border-radius: 8px;
+                padding: 15px;
+                background-color: #ffffff;
+            }
+
+            .orders-table td {
+                display: flex;
+                justify-content: space-between;
+                padding: 10px 0;
+                font-size: 14px;
+                border-bottom: 1px solid #f1f3f5;
+            }
+
+            .orders-table td:last-child {
+                border-bottom: none;
+            }
+
+            .orders-table td:before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: #2d3436;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <%- include("../../views/partials/admin/header") %>
+    <div class="main-content">
+        <div class="header">
+            <h2>My Orders</h2>
+            <div class="filter-controls">
+                <select id="order-filter">
+                    <option value="all">All Orders</option>
+                    <option value="processing">Processing</option>
+                    <option value="shipped">Shipped</option>
+                    <option value="delivered">Delivered</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="orders-list">
+            <% if (orders && orders.length > 0) { %>
+                <table class="orders-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Total Amount</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% orders.forEach(order => { %>
+                            <tr>
+                                <td data-label="Order ID">#<%= order.orderMainId %></td>
+                                <td data-label="Total Amount">₹<%= order.totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></td>
+                                <td data-label="Date"><%= new Date(order.orderDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) %></td>
+                                <td data-label="Status">
+                                    <span class="order-status <%= order.orderStatus.toLowerCase() %>">
+                                        <%= order.orderStatus %>
+                                    </span>
+                                </td>
+                                <td data-label="Action">
+                                    <a href="/order-detail/<%= order.orderMainId %>" class="btn-view">View Details</a>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            <% } else { %>
+                <div class="no-orders">
+                    <p>You don't have any orders yet.</p>
+                </div>
+            <% } %>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const orderFilter = document.getElementById('order-filter');
+
+            if (orderFilter) {
+                orderFilter.addEventListener('change', function() {
+                    const selectedStatus = this.value.toLowerCase();
+                    const orderRows = document.querySelectorAll('.orders-table tbody tr');
+
+                    orderRows.forEach(row => {
+                        const statusElement = row.querySelector('.order-status');
+                        const orderStatus = statusElement.textContent.trim().toLowerCase();
+
+                        if (selectedStatus === 'all' || orderStatus === selectedStatus) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>

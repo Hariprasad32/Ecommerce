@@ -1,0 +1,547 @@
+<head>
+    <title>Checkout</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        :root {
+            --primary-color: #3b82f6;
+            --secondary-color: #f1f5f9;
+            --accent-color: #22c55e;
+            --text-color: #1e293b;
+            --border-color: #e5e7eb;
+            --shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--secondary-color), #dbeafe);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 20px;
+            display: flex;
+            gap: 30px;
+        }
+
+        .main-content {
+            flex: 2;
+        }
+
+        .sidebar {
+            flex: 1;
+            position: sticky;
+            top: 30px;
+            height: fit-content;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            padding: 25px;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        h2 {
+            color: var(--primary-color);
+            font-size: 24px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: var(--accent-color);
+        }
+
+        .address-option, .payment-option {
+            padding: 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .address-option:hover, .payment-option:hover {
+            border-color: var(--primary-color);
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .address-option.selected, .payment-option.selected {
+            border-color: var(--accent-color);
+            background: rgba(34, 197, 94, 0.1);
+        }
+
+        .btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            width: 100%;
+            font-weight: 600;
+        }
+
+        .btn:hover {
+            background: #2563eb;
+            transform: scale(1.02);
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+        }
+
+        .order-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(243, 244, 246, 0.5);
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .order-item img {
+            width: 70px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-right: 15px;
+        }
+
+        .total-breakdown {
+            padding: 20px 0;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 15px;
+        }
+
+        .grand-total {
+            font-weight: bold;
+            font-size: 20px;
+            color: var(--primary-color);
+            padding-top: 15px;
+            border-top: 2px dashed var(--border-color);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(3px);
+        }
+
+        .modal-content {
+            background: white;
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 450px;
+            box-shadow: var(--shadow);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 5px rgba(59, 130, 246, 0.3);
+        }
+
+        .success-message {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            margin: 30px auto;
+            max-width: 500px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .success-message svg {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 25px;
+        }
+
+        @media (max-width: 900px) {
+            .container {
+                flex-direction: column;
+                padding: 15px;
+            }
+            .sidebar {
+                position: static;
+            }
+        }
+    </style>
+</head>
+<%- include("../../views/partials/user/header") %>
+<body>
+    <div class="container">
+        <div class="main-content">
+            <div class="card">
+                <h2>Shipping Address</h2>
+                <div id="address-list">
+                    <% if (addresses && addresses.length > 0) { %>
+                        <% addresses.forEach((address, index) => { %>
+                            <div class="address-option <%= address.isDefault ? 'selected' : '' %>">
+                                <input type="radio" name="address" <%= address.isDefault ? 'checked' : '' %> data-id="<%= address._id || index %>">
+                                <div>
+                                    <strong><%= address.name %></strong> (<%= address.addressType %>)<br>
+                                    <%= address.street || '' %><%= address.landMark ? ', ' + address.landMark : '' %>, 
+                                    <%= address.city %>, <%= address.state %> <%= address.pincode %><br>
+                                    Phone: <%= address.phone || 'N/A' %>
+                                    <% if (address.altPhone) { %> | Alt: <%= address.altPhone %> <% } %>
+                                </div>
+                            </div>
+                        <% }) %>
+                    <% } else { %>
+                        <p>No addresses found. Please add one.</p>
+                    <% } %>
+                </div>
+                <button class="btn btn-secondary" id="add-address-btn">Add New Address</button>
+            </div>
+
+            <div class="card">
+                <h2>Payment Method</h2>
+                <div id="payment-section">
+                    <div class="payment-option selected" data-method="cod">
+                        <input type="radio" name="payment-method" id="cod" checked>
+                        <label for="cod">Cash on Delivery</label>
+                    </div>
+                    <!-- Disabled options removed or kept as visual-only -->
+                    <div class="payment-option" data-method="card" disabled>
+                        <input type="radio" name="payment-method" id="card" disabled>
+                        <label for="card">Credit/Debit Card (Coming Soon)</label>
+                    </div>
+                    <div class="payment-option" data-method="paypal" disabled>
+                        <input type="radio" name="payment-method" id="paypal" disabled>
+                        <label for="paypal">PayPal (Coming Soon)</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <div class="card">
+                <h2>Your Order</h2>
+                <div id="order-items">
+                    <% if (cartItems && cartItems.length > 0) { %>
+                        <% cartItems.forEach(item => { %>
+                            <div class="order-item">
+                                <img src="<%= item.productId.productImage[0] %>" alt="<%= item.productId.productName %>">
+                                <div>
+                                    <strong><%= item.productId.productName %></strong><br>
+                                    Size: <%= item.sizes[0].size %> | Qty: <%= item.sizes[0].quantity %> | ₹<%= item.totalPrice.toFixed(2) %>
+                                    <% if (item.productId.productOffer > 0) { %>
+                                        <br><span style="color: #22c55e;">(<%= item.productId.productOffer %>% off)</span>
+                                    <% } %>
+                                </div>
+                            </div>
+                        <% }) %>
+                    <% } else { %>
+                        <p>Your cart is empty.</p>
+                    <% } %>
+                </div>
+                <div class="total-breakdown">
+                    <div class="total-row">
+                        <span>Subtotal:</span>
+                        <span id="subtotal">₹<%= totals.subtotal %></span>
+                    </div>
+                    <div class="total-row">
+                        <span>Discount:</span>
+                        <span id="discount">-₹<%= totals.discount %></span>
+                    </div>
+                    <div class="total-row grand-total">
+                        <span>Total:</span>
+                        <span id="grand-total">₹<%= totals.total %></span>
+                    </div>
+                </div>
+                <button class="btn" id="place-order-btn">Place Order</button>
+            </div>
+        </div>
+
+        <!-- Address Modal -->
+        <div id="address-modal" class="modal">
+            <div class="modal-content">
+                <h2 id="modal-title">Add Address</h2>
+                <form id="address-form">
+                    <input type="hidden" id="address-id">
+                    <div class="form-group">
+                        <label>Address Type</label>
+                        <input type="text" class="form-control" id="address-type" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" class="form-control" id="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone</label>
+                        <input type="tel" class="form-control" id="phone" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Alternate Phone</label>
+                        <input type="tel" class="form-control" id="alt-phone">
+                    </div>
+                    <div class="form-group">
+                        <label>Street Address</label>
+                        <input type="text" class="form-control" id="street">
+                    </div>
+                    <div class="form-group">
+                        <label>Landmark</label>
+                        <input type="text" class="form-control" id="landmark" required>
+                    </div>
+                    <div class="form-group">
+                        <label>City</label>
+                        <input type="text" class="form-control" id="city" required>
+                    </div>
+                    <div class="form-group">
+                        <label>State</label>
+                        <input type="text" class="form-control" id="state" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Pincode</label>
+                        <input type="text" class="form-control" id="pincode" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Country</label>
+                        <input type="text" class="form-control" id="country">
+                    </div>
+                    <button type="submit" class="btn">Save Address</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const addresses = `<%- JSON.stringify(addresses || []) %>`;
+        const cartItems = `<%- JSON.stringify(cartItems || []) %>`;
+        const cartItemsData = JSON.parse(cartItems);
+
+        const TAX_RATE = 0;
+        const SHIPPING_COST = 0;
+
+        const addressList = document.getElementById('address-list');
+        const orderItems = document.getElementById('order-items');
+        const addAddressBtn = document.getElementById('add-address-btn');
+        const placeOrderBtn = document.getElementById('place-order-btn');
+        const addressModal = document.getElementById('address-modal');
+        const addressForm = document.getElementById('address-form');
+
+        function updateTotals() {
+            let subtotal = 0;
+            let discount = 0;
+
+            cartItemsData.forEach(item => {
+                subtotal += parseFloat(item.totalPrice || 0);
+                if (item.productId && item.productId.productOffer > 0) {
+                    discount += (item.totalPrice * item.productId.productOffer / 100);
+                }
+            });
+
+            let tax = (subtotal - discount) * TAX_RATE;
+            let total = subtotal - discount + tax + SHIPPING_COST;
+
+            document.getElementById('subtotal').textContent = `₹${subtotal.toFixed(2)}`;
+            document.getElementById('discount').textContent = `-₹${discount.toFixed(2)}`;
+            document.getElementById('grand-total').textContent = `₹${total.toFixed(2)}`;
+        }
+
+        function openModal() {
+            addressModal.style.display = 'block';
+            document.getElementById('modal-title').textContent = 'Add New Address';
+            addressForm.reset();
+        }
+
+        function closeModal() {
+            addressModal.style.display = 'none';
+        }
+
+        function saveAddress(e) {
+            e.preventDefault();
+            const formData = new FormData(addressForm);
+            fetch('/add-address', {
+                method: 'POST',
+                body: formData
+            }).then(response => response.json())
+              .then(data => {
+                  if (data.success) {
+                      window.location.reload();
+                  }
+              }).catch(err => console.error("Error saving address:", err));
+        }
+
+        function placeOrder() {
+            const selectedAddress = document.querySelector('input[name="address"]:checked');
+            const selectedPayment = document.querySelector('input[name="payment-method"]:checked');
+
+            if (!selectedAddress) {
+                Swal.fire({
+                    title: 'Missing Address',
+                    text: 'Please select a shipping address',
+                    icon: 'warning',
+                    confirmButtonColor: '#3b82f6'
+                });
+                return;
+            }
+
+            if (!selectedPayment || selectedPayment.id !== 'cod') {
+                Swal.fire({
+                    title: 'Invalid Payment Method',
+                    text: 'Only Cash on Delivery is available at this time',
+                    icon: 'warning',
+                    confirmButtonColor: '#3b82f6'
+                });
+                return;
+            }
+
+            Swal.fire({
+                title: 'Confirm Order',
+                text: 'Are you sure you want to place this order?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#22c55e',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Yes, place order!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const orderData = {
+                        addressId: selectedAddress.dataset.id,
+                        paymentMethod: 'cod' // Hardcode to COD
+                    };
+
+                    Swal.fire({
+                        title: 'Processing...',
+                        html: 'Please wait while we process your order.',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    fetch('/place-order', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(orderData)
+                    }).then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                title: 'Order Confirmed!',
+                                html: `Your order #<strong>${data.orderId}</strong> has been placed successfully.<br>Thank you for shopping with us!`,
+                                icon: 'success',
+                                confirmButtonColor: '#22c55e',
+                                confirmButtonText: 'View Order Details'
+                            }).then(() => {
+                                window.location.href = `/order-success?orderId=${data.orderId}`;
+                            });
+                        } else {
+                            Swal.fire({
+                                title: 'Order Failed',
+                                text: data.message || 'Something went wrong. Please try again.',
+                                icon: 'error',
+                                confirmButtonColor: '#3b82f6'
+                            });
+                        }
+                    }).catch(err => {
+                        console.error("Error placing order:", err);
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'An unexpected error occurred. Please try again later.',
+                            icon: 'error',
+                            confirmButtonColor: '#3b82f6'
+                        });
+                    });
+                }
+            });
+        }
+
+        addAddressBtn.addEventListener('click', openModal);
+        addressForm.addEventListener('submit', saveAddress);
+        placeOrderBtn.addEventListener('click', placeOrder);
+        window.addEventListener('click', (e) => {
+            if (e.target === addressModal) closeModal();
+        });
+
+        document.querySelectorAll('.payment-option:not([data-method="cod"])').forEach(option => {
+            option.style.cursor = 'not-allowed';
+            option.style.opacity = '0.6';
+        });
+
+        document.querySelectorAll('.address-option').forEach(option => {
+            option.addEventListener('click', () => {
+                document.querySelectorAll('.address-option').forEach(opt => opt.classList.remove('selected'));
+                option.classList.add('selected');
+                option.querySelector('input').checked = true;
+            });
+        });
+
+        updateTotals();
+    </script>
+</body>
+<%- include("../../views/partials/user/footer") %>

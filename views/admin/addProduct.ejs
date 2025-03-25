@@ -1,0 +1,866 @@
+<%- include("../../views/partials/admin/header") %>
+<head>
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+     
+     
+   <link rel="stylesheet" href="/css/add-product.css">
+   <style>
+    :root {
+        --primary-color: #4f46e5;
+        --secondary-color: #4338ca;
+        --text-color: #e9ecef;
+        --text-muted: #94a3b8;
+        --bg-color: #1e293b;
+        --card-bg: #2d3748;
+        --border-color: #475569;
+        --error-color: #ef4444;
+        --success-color: #10b981;
+        --border-radius: 20px;
+        --box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    .content-wrapper {
+        padding: 50px; /* Larger padding */
+        max-width: 1600px; /* Even wider */
+        margin: 0 auto;
+    }
+
+    .page-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        padding: 40px 50px; /* Larger header */
+        border-radius: var(--border-radius);
+        margin-bottom: 50px;
+        box-shadow: var(--box-shadow);
+        transition: all 0.4s ease;
+        cursor: pointer;
+    }
+
+    .page-header:hover {
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 12px 30px rgba(79, 70, 229, 0.3);
+    }
+
+    .page-title {
+        color: white;
+        margin: 0;
+        font-size: 1.6rem; /* Smaller font */
+        font-weight: 600;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .form-container {
+        background: var(--card-bg);
+        border-radius: var(--border-radius);
+        padding: 50px; /* Larger padding */
+        box-shadow: var(--box-shadow);
+        transition: all 0.4s ease;
+    }
+
+    .form-container:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+    }
+
+    .form-section {
+        margin-bottom: 50px; /* More spacing */
+        padding: 30px; /* Larger inner padding */
+        background: rgba(255,255,255,0.02);
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+
+    .form-section:hover {
+        background: rgba(79, 70, 229, 0.05);
+        transform: translateX(5px);
+    }
+
+    .form-section-title {
+        color: var(--text-color);
+        font-size: 1.1rem; /* Smaller font */
+        margin-bottom: 30px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid var(--primary-color);
+        font-weight: 500;
+        letter-spacing: 0.5px;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); /* Wider columns */
+        gap: 40px; /* Larger gap */
+    }
+
+    .form-group {
+        position: relative;
+        transition: all 0.3s ease;
+        padding: 15px; /* Added padding to increase size */
+    }
+
+    .form-group:hover {
+        transform: translateY(-4px) rotate(1deg);
+        background: rgba(79, 70, 229, 0.03);
+        border-radius: 8px;
+    }
+
+    .form-label {
+        color: var(--text-color);
+        font-size: 0.85rem; /* Smaller font */
+        margin-bottom: 12px;
+        font-weight: 400;
+        display: block;
+        transition: all 0.3s ease;
+    }
+
+    .form-group:hover .form-label {
+        color: var(--primary-color);
+        transform: translateX(5px);
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 16px 20px; /* Larger input size */
+        background: var(--bg-color);
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        color: var(--text-color);
+        font-size: 0.9rem; /* Smaller font */
+        transition: all 0.4s ease;
+        box-shadow: inset 0 3px 6px rgba(0,0,0,0.1);
+    }
+
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 5px rgba(79, 70, 229, 0.3);
+        transform: scale(1.03);
+        background: rgba(255,255,255,0.02);
+    }
+
+    .form-control::placeholder {
+        color: var(--text-muted);
+        font-size: 0.85rem;
+    }
+
+    .form-control:focus::placeholder {
+        opacity: 0.6;
+    }
+
+    textarea.form-control {
+        min-height: 180px; /* Larger textarea */
+    }
+
+    .form-select {
+        width: 100%;
+        padding: 16px 20px;
+        background: var(--bg-color);
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        color: var(--text-color);
+        font-size: 0.9rem;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23e9ecef' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 20px center;
+        transition: all 0.4s ease;
+    }
+
+    .form-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 5px rgba(79, 70, 229, 0.3);
+        transform: scale(1.03);
+    }
+
+    .size-quantity-wrapper {
+        background: var(--bg-color);
+        padding: 25px; /* Larger padding */
+        border-radius: 10px;
+        border: 1px solid var(--border-color);
+        transition: all 0.4s ease;
+    }
+
+    .size-quantity-wrapper:hover {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 15px rgba(79, 70, 229, 0.2);
+        transform: scale(1.01);
+    }
+
+    .size-quantity-table {
+        display: grid;
+        gap: 20px; /* Larger gap */
+    }
+
+    .size-row {
+        display: grid;
+        grid-template-columns: 70px 1fr; /* Wider label column */
+        align-items: center;
+        gap: 25px;
+        padding: 10px;
+        transition: all 0.3s ease;
+    }
+
+    .size-row:hover {
+        background: rgba(79, 70, 229, 0.15);
+        border-radius: 8px;
+        transform: translateX(5px);
+    }
+
+    .size-label {
+        color: var(--text-color);
+        font-weight: 500;
+        text-align: right;
+        font-size: 0.9rem; /* Smaller font */
+    }
+
+    .quantity-input {
+        width: 100%;
+        max-width: 160px; /* Larger input */
+    }
+
+    .form-control[type="number"] {
+        -moz-appearance: textfield;
+    }
+
+    .form-control::-webkit-outer-spin-button,
+    .form-control::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    .image-upload-section {
+        background: var(--bg-color);
+        padding: 30px; /* Larger padding */
+        border-radius: 10px;
+        border: 1px solid var(--border-color);
+        transition: all 0.4s ease;
+    }
+
+    .image-upload-section:hover {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 20px rgba(79, 70, 229, 0.15);
+        transform: scale(1.01);
+    }
+
+    .image-preview-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Larger thumbnails */
+        gap: 25px;
+        padding: 25px;
+        min-height: 200px; /* Taller container */
+        border: 2px dashed var(--border-color);
+        border-radius: 10px;
+        margin-bottom: 30px;
+        transition: all 0.3s ease;
+    }
+
+    .image-upload-section:hover .image-preview-container {
+        border-color: var(--primary-color);
+        background: rgba(79, 70, 229, 0.02);
+    }
+
+    .thumbnail {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 1;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .thumbnail:hover {
+        transform: scale(1.08) rotate(2deg);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    }
+
+    .thumbnail img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    }
+
+    .remove-icon {
+        position: absolute;
+        top: -10px;
+        right: -10px;
+        background: var(--error-color);
+        color: white;
+        border-radius: 50%;
+        width: 24px; /* Larger remove button */
+        height: 24px;
+        text-align: center;
+        line-height: 24px;
+        cursor: pointer;
+        font-size: 12px;
+        box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+        transition: all 0.3s ease;
+    }
+
+    .remove-icon:hover {
+        transform: scale(1.15) rotate(90deg);
+        background: #ff6666;
+    }
+
+    .cropper-container {
+        background: var(--bg-color);
+        padding: 30px;
+        border-radius: 10px;
+        border: 1px solid var(--border-color);
+        margin-top: 40px;
+        transition: all 0.4s ease;
+    }
+
+    .cropper-container:hover {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 20px rgba(79, 70, 229, 0.15);
+    }
+
+    #imageToCrop {
+        max-width: 100%;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+    }
+
+    .cropper-container:hover #imageToCrop {
+        transform: scale(1.02);
+    }
+
+    .cropper-buttons {
+        margin-top: 25px;
+        display: flex;
+        gap: 20px;
+    }
+
+    .btn {
+        padding: 14px 30px; /* Larger buttons */
+        border-radius: 10px;
+        font-weight: 500;
+        font-size: 0.9rem; /* Smaller font */
+        cursor: pointer;
+        transition: all 0.4s ease;
+        border: none;
+    }
+
+    .btn-primary {
+        background: var(--primary-color);
+        color: white;
+        box-shadow: 0 5px 15px rgba(79, 70, 229, 0.3);
+    }
+
+    .btn-primary:hover {
+        background: var(--secondary-color);
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4);
+    }
+
+    .btn-secondary {
+        background: var(--border-color);
+        color: var(--text-color);
+    }
+
+    .btn-secondary:hover {
+        background: #5b6b88;
+        transform: translateY(-3px) scale(1.05);
+    }
+
+    .submit-btn {
+        background: var(--primary-color);
+        padding: 18px 50px; /* Larger submit button */
+        width: 100%;
+        margin-top: 40px;
+        font-size: 1rem; /* Slightly larger but still minimal */
+        box-shadow: 0 6px 20px rgba(79, 70, 229, 0.3);
+        transition: all 0.4s ease;
+    }
+
+    .submit-btn:hover {
+        background: var(--secondary-color);
+        transform: translateY(-5px) scale(1.03);
+        box-shadow: 0 10px 25px rgba(79, 70, 229, 0.4);
+    }
+
+    .error-message {
+        color: var(--error-color);
+        font-size: 0.8rem; /* Smaller font */
+        margin-top: 10px;
+        min-height: 20px;
+        padding: 5px 10px;
+        background: rgba(239, 68, 68, 0.1);
+        border-radius: 6px;
+        transition: opacity 0.3s ease;
+    }
+
+    .form-group:hover .error-message {
+        opacity: 0.8;
+    }
+
+    @media (max-width: 768px) {
+        .content-wrapper {
+            padding: 30px;
+        }
+        
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .size-row {
+            gap: 20px;
+        }
+        
+        .quantity-input {
+            max-width: 140px;
+        }
+        
+        .size-label {
+            font-size: 0.85rem;
+        }
+        
+        .page-title {
+            font-size: 1.4rem;
+        }
+        
+        .form-section-title {
+            font-size: 1rem;
+        }
+    }
+</style>
+</head>
+<section class="content-wrapper">
+    <header class="page-header">
+        <h2 class="page-title">Add New Product</h2>
+    </header>
+
+    <div class="form-container">
+        <form method="POST" action="/admin/addProducts" enctype="multipart/form-data" onsubmit="return validateForm()">
+            <div class="form-section">
+                <h3 class="form-section-title">Basic Information</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="product_name" class="form-label">Product Name</label>
+                        <input type="text" placeholder="Enter product name" name="productName" class="form-control" id="product_name">
+                        <div id="productName-error" class="error-message"></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <textarea placeholder="Product description" id="descriptionid" name="description" class="form-control"></textarea>
+                        <div id="description-error" class="error-message"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3 class="form-section-title">Pricing & Inventory</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Regular Price</label>
+                        <input placeholder="$" name="regularPrice" type="text" class="form-control">
+                        <div id="regularPrice-error" class="error-message"></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Sale Price</label>
+                        <input placeholder="$" name="salePrice" type="text" class="form-control">
+                        <div id="salePrice-error" class="error-message"></div>
+                    </div>
+                    <div class="form-group">
+                        <div class="size-quantity-wrapper">
+                            <label class="form-label">Size & Quantity</label>
+                            <div class="size-quantity-table">
+                                <div class="size-row">
+                                    <span class="size-label">S</span>
+                                    <input placeholder="Qty" name="quantity-s" type="number" min="0" class="form-control quantity-input">
+                                </div>
+                                <div class="size-row">
+                                    <span class="size-label">M</span>
+                                    <input placeholder="Qty" name="quantity-m" type="number" min="0" class="form-control quantity-input">
+                                </div>
+                                <div class="size-row">
+                                    <span class="size-label">L</span>
+                                    <input placeholder="Qty" name="quantity-l" type="number" min="0" class="form-control quantity-input">
+                                </div>
+                                <div class="size-row">
+                                    <span class="size-label">XL</span>
+                                    <input placeholder="Qty" name="quantity-xl" type="number" min="0" class="form-control quantity-input">
+                                </div>
+                                <div class="size-row">
+                                    <span class="size-label">XXL</span>
+                                    <input placeholder="Qty" name="quantity-xxl" type="number" min="0" class="form-control quantity-input">
+                                </div>
+                            </div>
+                            <div id="quantity-error" class="error-message"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3 class="form-section-title">Additional Details</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Color</label>
+                        <input name="color" type="text" class="form-control" placeholder="Enter color">
+                        <div id="color-error" class="error-message"></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Category</label>
+                        <select class="form-select" name="category">
+                            <% for(let i=category.length-1; i>=0; i--){ %>
+                                <option value="<%=category[i].name%>"><%=category[i].name%></option>
+                            <% } %>
+                        </select>
+                        <div id="category-error" class="error-message"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3 class="form-section-title">Product Images</h3>
+                <div class="image-upload-section">
+                    <div id="image-preview-container" class="image-preview-container"></div>
+                    <div class="form-group">
+                        <input type="file" name="imageFile" id="imageInput" accept="image/png, image/jpeg, image/jpg" class="form-control">
+                        <div id="images-error" class="error-message"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+                        <span style="color: var(--text-muted); font-size: 0.9rem;">Up to 8 images (min 3)</span>
+                        <button type="button" class="btn btn-primary" onclick="document.getElementById('imageInput').click()">Add Image</button>
+                    </div>
+                </div>
+
+                <div id="cropperContainer" class="cropper-container" style="display: none;">
+                    <img id="imageToCrop" src="" alt="Image to crop">
+                    <div class="cropper-buttons">
+                        <button type="button" id="saveButton" class="btn btn-primary" style="display: none;">Save</button>
+                        <button type="button" id="cancelCropButton" class="btn btn-secondary">Cancel</button>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn btn-primary submit-btn" type="submit">Publish Product</button>
+        </form>
+    </div>
+</section>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+let uploadedImages = [];
+const MAX_IMAGES = 8;
+const MIN_IMAGES = 3;
+let cropper = null;
+
+document.addEventListener('DOMContentLoaded', function () {
+    const imageInput = document.getElementById('imageInput');
+    imageInput.addEventListener('change', handleImageUpload);
+    
+    document.getElementById('cancelCropButton').addEventListener('click', function() {
+        document.getElementById('cropperContainer').style.display = 'none';
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+        document.getElementById('imageInput').value = '';
+    });
+    
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You are about to publish this product!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, publish it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                if (validateForm()) {
+                    submitFormWithFiles();
+                }
+            }
+        });
+    });
+    
+    if (!document.getElementById('image-counter')) {
+        const counterElement = document.createElement('div');
+        counterElement.id = 'image-counter';
+        counterElement.style.marginTop = '10px';
+        counterElement.style.fontSize = '14px';
+        document.querySelector('.image-upload-section').appendChild(counterElement);
+    }
+    
+    updateImageCounter();
+});
+
+function updateImageCounter() {
+    const counter = document.getElementById('image-counter');
+    if (counter) {
+        counter.textContent = `Images: ${uploadedImages.length}/${MAX_IMAGES} (minimum ${MIN_IMAGES} required)`;
+        counter.style.color = uploadedImages.length < MIN_IMAGES ? '#dc3545' : '#198754';
+    }
+}
+
+function handleImageUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    if (uploadedImages.length >= MAX_IMAGES) {
+        displayErrorMessage('images-error', `You can only upload a maximum of ${MAX_IMAGES} images`);
+        event.target.value = '';
+        return;
+    }
+    
+    if (!file.type.match('image.*')) {
+        displayErrorMessage('images-error', 'Please upload only image files');
+        event.target.value = '';
+        return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        const cropperContainer = document.getElementById('cropperContainer');
+        const saveButton = document.getElementById('saveButton');
+        cropperContainer.style.display = 'block';
+        saveButton.style.display = 'block';
+        document.getElementById('imageToCrop').src = e.target.result;
+        
+        if (cropper) {
+            cropper.destroy();
+        }
+        
+        cropper = new Cropper(document.getElementById('imageToCrop'), {
+            aspectRatio: 1,
+            viewMode: 1,
+            guides: true,
+            background: false,
+            autoCropArea: 1,
+            zoomable: true,
+        });
+    };
+    
+    reader.readAsDataURL(file);
+    
+    const saveButton = document.getElementById('saveButton');
+    const newSaveButton = saveButton.cloneNode(true);
+    saveButton.parentNode.replaceChild(newSaveButton, saveButton);
+    
+    newSaveButton.addEventListener('click', function () {
+        if (!cropper) return;
+        
+        const croppedCanvas = cropper.getCroppedCanvas();
+        
+        croppedCanvas.toBlob(
+            (blob) => {
+                const croppedFile = new File([blob], `cropped-image-${Date.now()}.png`, { type: 'image/png' });
+                
+                const reader2 = new FileReader();
+                reader2.onloadend = function() {
+                    uploadedImages.push({
+                        file: croppedFile,
+                        dataUrl: reader2.result
+                    });
+                    
+                    document.getElementById('images-error').innerText = '';
+                    
+                    const thumbnail = document.createElement('div');
+                    thumbnail.classList.add('thumbnail');
+                    
+                    const thumbImg = document.createElement('img');
+                    thumbImg.src = reader2.result;
+                    thumbImg.alt = 'thumbnail';
+                    
+                    const removeIcon = document.createElement('span');
+                    removeIcon.classList.add('remove-icon');
+                    removeIcon.innerHTML = '×';
+                    
+                    removeIcon.addEventListener('click', function() {
+                        thumbnail.remove();
+                        uploadedImages = uploadedImages.filter(img => img.dataUrl !== reader2.result);
+                        updateImageCounter();
+                    });
+                    
+                    thumbnail.appendChild(thumbImg);
+                    thumbnail.appendChild(removeIcon);
+                    document.getElementById('image-preview-container').appendChild(thumbnail);
+                    
+                    updateImageCounter();
+                    
+                    document.getElementById('cropperContainer').style.display = 'none';
+                    cropper.destroy();
+                    cropper = null;
+                    document.getElementById('imageInput').value = '';
+                };
+                reader2.readAsDataURL(croppedFile);
+            },
+            'image/png',
+            0.9 
+        );
+    });
+}
+function submitFormWithFiles() {
+    const form = document.querySelector('form');
+    const formData = new FormData();
+    
+    // Collect all form inputs
+    const formElements = form.elements;
+    for (let i = 0; i < formElements.length; i++) {
+        const element = formElements[i];
+        if (element.name && element.type !== 'submit' && element.type !== 'file') {
+            if (element.name.startsWith('quantity-')) {
+                formData.append(element.name, element.value || '0');
+            } else if (element.name) {
+                formData.append(element.name, element.value);
+            }
+        }
+    }
+    
+    // Add image files
+    uploadedImages.forEach((imgData, index) => {
+        formData.append('imageFile', imgData.file);  // Changed from 'imageFile[]' to 'imageFile'
+    });
+    
+    // Send fetch request
+    fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+        // Don't set Content-Type header - the browser will set it correctly with the boundary for multipart/form-data
+    })
+    .then(response => {
+        if (!response.ok) {
+            // Handle non-2xx responses
+            return response.text().then(text => {
+                console.error('Server Error Response:', text);
+                throw new Error(`Server error: ${response.status} ${response.statusText}`);
+            });
+        }
+        
+        // Try to parse as JSON, but handle if it's not JSON
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            return response.json();
+        } else {
+            // If server returns success but not JSON, still treat as success
+            return { success: true, message: 'Product added successfully' };
+        }
+    })
+    .then(data => {
+        console.log('Success:', data);
+        Swal.fire({
+            title: 'Success!',
+            text: 'Product added successfully!',
+            icon: 'success',
+            confirmButtonText: 'OK'
+        }).then(() => {
+            window.location.href = '/admin/products';
+        });
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            title: 'Error!',
+            text: 'Error adding product: ' + error.message,
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
+    });
+}
+function validateForm() {
+    clearErrorMessages();
+    let isValid = true;
+    
+    const name = document.getElementsByName('productName')[0].value.trim();
+    const description = document.getElementById('descriptionid').value.trim();
+    const regularPrice = document.getElementsByName('regularPrice')[0].value.trim();
+    const salePrice = document.getElementsByName('salePrice')[0].value.trim();
+    const color = document.getElementsByName('color')[0].value.trim();
+    
+    if (!name) {
+        displayErrorMessage('productName-error', 'Please enter a product name.');
+        isValid = false;
+    } else if (!/^[a-zA-Z\s]+$/.test(name)) {
+        displayErrorMessage('productName-error', 'Product name should contain only alphabetic characters.');
+        isValid = false;
+    }
+    
+    if (!description) {
+        displayErrorMessage('description-error', 'Please enter a product description.');
+        isValid = false;
+    } else if (!/^[a-zA-Z\s]+$/.test(description)) {
+        displayErrorMessage('description-error', 'Product description should contain only alphabetic characters.');
+        isValid = false;
+    }
+    
+    if (!regularPrice || !/^\d+(\.\d{1,2})?$/.test(regularPrice) || parseFloat(regularPrice) < 0) {
+        displayErrorMessage('regularPrice-error', 'Please enter a valid non-negative price.');
+        isValid = false;
+    }
+    
+    if (salePrice && (!/^\d+(\.\d{1,2})?$/.test(salePrice) || parseFloat(salePrice) < 0)) {
+        displayErrorMessage('salePrice-error', 'Please enter a valid non-negative price.');
+        isValid = false;
+    }
+    
+    if (salePrice && regularPrice && parseFloat(regularPrice) <= parseFloat(salePrice)) {
+        displayErrorMessage('regularPrice-error', 'Regular price must be greater than sale price.');
+        isValid = false;
+    }
+    
+    if (!color) {
+        displayErrorMessage('color-error', 'Please enter a color.');
+        isValid = false;
+    }
+    
+    const sizes = ['s', 'm', 'l', 'xl', 'xxl'];
+    let totalQuantity = 0;
+    sizes.forEach(size => {
+        const qtyInput = document.getElementsByName(`quantity-${size}`)[0];
+        const value = qtyInput.value.trim();
+        if (value) {
+            if (!/^\d+$/.test(value) || parseInt(value) < 0) {
+                displayErrorMessage('quantity-error', `Please enter a valid non-negative quantity for size ${size.toUpperCase()}.`);
+                isValid = false;
+            } else {
+                totalQuantity += parseInt(value);
+            }
+        }
+    });
+    
+    if (totalQuantity === 0) {
+        displayErrorMessage('quantity-error', 'Please enter at least one size quantity.');
+        isValid = false;
+    }
+    
+    if (uploadedImages.length === 0) {
+        displayErrorMessage("images-error", 'Please select at least one image.');
+        isValid = false;
+    } else if (uploadedImages.length < MIN_IMAGES) {
+        displayErrorMessage("images-error", `Please upload at least ${MIN_IMAGES} images for the product.`);
+        isValid = false;
+    }
+    
+    return isValid;
+}
+
+function displayErrorMessage(elementId, message) {
+    const errorElement = document.getElementById(elementId);
+    if (errorElement) {
+        errorElement.innerText = message;
+        errorElement.style.display = "block";
+    }
+}
+
+function clearErrorMessages() {
+    const errorElements = document.getElementsByClassName('error-message');
+    Array.from(errorElements).forEach(element => {
+        element.innerText = '';
+        element.style.display = 'none';
+    });
+}
+</script>
+
+        <%- include("../../views/partials/admin/footer") %>

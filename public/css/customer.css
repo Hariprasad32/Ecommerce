@@ -1,0 +1,251 @@
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+:root {
+    --primary: #0070f3;
+    --primary-hover: #0060df;
+    --danger: #e11d48;
+    --danger-hover: #be123c;
+    --success: #10b981;
+    --success-hover: #059669;
+    --background: #ffffff;
+    --foreground: hsl(222, 47%, 11%);
+    --muted: #f1f5f9;
+    --muted-foreground: #64748b;
+    --border: #e2e8f0;
+    --radius: 0.5rem;
+}
+
+/* ✅ Fix layout alignment */
+body {
+    background-color: #f8fafc;
+    color: var(--foreground);
+    min-height: 100vh;
+}
+
+/* ✅ Ensures the main container is centered properly */
+.container {
+    max-width: 1200px;
+    margin: 100px auto 20px auto;
+    padding: 2rem 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* ✅ Card for better spacing and alignment */
+.card {
+    width: 100%;
+    background-color: var(--background);
+    border-radius: var(--radius);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    margin-bottom: 2rem; 
+    color: beige;/* Adds spacing between table and pagination */
+}
+
+/* ✅ Table container fixes */
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+    color: #0f172a;
+}
+
+/* ✅ Table styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    color: #0f172a  ;
+}
+
+th, td {
+    padding: 0.75rem 1.5rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+}
+
+th {
+    font-weight: 500;
+    color: var(--muted-foreground);
+    font-size: 0.875rem;
+}
+
+/* ✅ Fix button alignment */
+td button {
+    display: inline-block;
+    margin: 5px;
+}
+
+/* ✅ Pagination Fix: Centered properly */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-top: 1rem;
+}
+
+/* ✅ Pagination styles */
+.pagination {
+    display: flex;
+    gap: 5px;
+    list-style: none;
+}
+
+.page-item {
+    padding: 5px 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+}
+
+.page-item.active {
+    background-color: var(--primary);
+    color: white;
+}
+
+.page-link {
+    text-decoration: none;
+    color: var(--foreground);
+}
+
+/* ✅ Fixes buttons */
+.button {
+    padding: 8px 12px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.button-primary {
+    background-color: var(--primary);
+    color: white;
+    border: none;
+}
+
+.button-primary:hover {
+    background-color: var(--primary-hover);
+}
+
+.button-danger {
+    background-color: var(--danger);
+    color: white;
+    border: none;
+}
+
+.button-danger:hover {
+    background-color: var(--danger-hover);
+}
+
+.button-success {
+    background-color: var(--success);
+    color: white;
+    border: none;
+}
+
+.button-success:hover {
+    background-color: var(--success-hover);
+}
+
+/* ✅ Fixes for smaller screens */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+
+    th, td {
+        padding: 0.5rem 1rem;
+    }
+
+    .pagination {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .card {
+        width: 100%;
+    }
+}
+.layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* ✅ Sidebar/Header */
+.sidebar {
+    width: 250px;
+    background: var(--muted);
+    padding: 1rem;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    overflow-y: auto;
+}
+.main-container {
+    margin-left: 250px; 
+    flex-grow: 1;
+    padding: 2rem;
+}
+.search-container {
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: flex-start;
+}
+
+.search-box {
+    width: 200px;;
+    max-width: 200px;
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 1rem;
+}
+.pagination-container .pagination {
+        font-size: 0.5rem; 
+    }
+
+    .pagination-container .page-item {
+        margin: 0 2px; 
+    }
+
+    .pagination-container .page-link {
+        padding: 0.25rem 0.5rem;
+        border-radius: 1px;
+    }
+
+    .pagination-container .page-item.active .page-link {
+        background-color: #007bff; /* Active item background color */
+        border-color: #007bff;
+    }
+    .btn-submit {
+        background-color: #28a745; /* Green background color */
+        color: white; /* White text color */
+        padding: 0.5rem 1rem; /* Padding for better spacing */
+        border-radius: 50%; /* Rounded corners */
+        font-size: 1rem; /* Font size */
+        font-weight: 500; /* Font weight */
+        cursor: pointer; /* Pointer cursor on hover */
+        transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+        border: none; /* Remove default border */
+        outline: none; /* Remove outline on focus */
+    }
+
+    .btn-submit:hover {
+        background-color: #218838; /* Darker green on hover */
+    }
+
+    .btn-submit:active {
+        background-color: #1e7e34; /* Even darker green on active */
+    }
+
+    .btn-submit:focus {
+        box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.5); /* Add a focus ring */
+    }

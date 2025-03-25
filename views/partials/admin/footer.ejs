@@ -1,0 +1,95 @@
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+  // DOM Elements
+  const sidebar = document.getElementById("sidebar");
+  const sidebarToggle = document.getElementById("sidebar-toggle");
+  const sidebarClose = document.getElementById("sidebar-close");
+  const tabButtons = document.querySelectorAll(".tab-btn");
+  const tabPanes = document.querySelectorAll(".tab-pane");
+  const userProfile = document.querySelector(".user-profile");
+  const navLinks = document.querySelectorAll(".sidebar-nav a");
+
+  // Sidebar Toggle for Mobile
+  if (sidebarToggle) {
+      sidebarToggle.addEventListener("click", () => {
+          sidebar.classList.toggle("active");
+      });
+  }
+
+  if (sidebarClose) {
+      sidebarClose.addEventListener("click", () => {
+          sidebar.classList.remove("active");
+      });
+  }
+
+  // Handle Tab Switching
+  tabButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+          tabButtons.forEach((btn) => btn.classList.remove("active"));
+          tabPanes.forEach((pane) => pane.classList.remove("active"));
+
+          button.classList.add("active");
+          const tabId = button.getAttribute("data-tab");
+          document.getElementById(tabId).classList.add("active");
+      });
+  });
+
+  // User Profile Dropdown Toggle
+  if (userProfile) {
+      userProfile.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const dropdown = userProfile.querySelector(".dropdown-content");
+          dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+      });
+
+      document.addEventListener("click", () => {
+          const dropdown = userProfile.querySelector(".dropdown-content");
+          if (dropdown.style.display === "block") {
+              dropdown.style.display = "none";
+          }
+      });
+  }
+
+  // Sidebar Auto Close on Large Screens
+  function handleResize() {
+      if (window.innerWidth > 768) {
+          sidebar.classList.remove("active");
+      }
+  }
+
+  window.addEventListener("resize", handleResize);
+
+  // Report Download Alert
+  document.querySelectorAll(".report-item button").forEach((button) => {
+      button.addEventListener("click", () => {
+          alert("Report downloaded successfully!");
+      });
+  });
+
+  // ✅ Highlight Active Sidebar Item Based on URL
+  let currentPath = window.location.pathname;
+
+  navLinks.forEach((link) => {
+      if (link.getAttribute("href") === currentPath) {
+          // Remove active class from all links first
+          navLinks.forEach((nav) => nav.parentElement.classList.remove("active"));
+
+          // Add active class to the correct link
+          link.parentElement.classList.add("active");
+      }
+  });
+
+  // Prevent default behavior and manually set active class when clicking links
+  navLinks.forEach((link) => {
+      link.addEventListener("click", function (e) {
+          e.preventDefault();
+          navLinks.forEach((nav) => nav.parentElement.classList.remove("active"));
+          this.parentElement.classList.add("active");
+
+          // Redirect to clicked page after setting active class
+          window.location.href = this.getAttribute("href");
+      });
+  });
+});
+</script>

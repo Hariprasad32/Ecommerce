@@ -1,0 +1,257 @@
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <!-- Your original CSS remains unchanged -->
+  
+</head>
+<body>
+  <div class="main">
+    <%- include("../../views/partials/user/profile/profile") %>
+    <div class="main-content">
+
+
+        <div class="header">
+            <h2>Edit Profile</h2>
+        </div>
+
+        <div class="profile-details">
+            <form id="edit-profile-form">
+                <div class="detail-section">
+                    <h3>Personal Information</h3>
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" name="name" value="<%= user.name %>" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" value="<%= user.email %>" required>
+                        <small class="form-text">Note: Changing your email will require verification.</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" value="<%= user.phone || '' %>">
+                    </div>
+
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancel-edit">Cancel</button>
+                    <button type="submit" class="btn">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="verification-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">×</span>
+            <h2>Email Verification</h2>
+            <p>We've sent a verification code to your new email address. Please enter the code below to confirm your email change.</p>
+            <div class="form-group">
+                <label for="verification-code">Verification Code</label>
+                <input type="text" id="verification-code" name="verification-code" maxlength="6">
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" id="resend-code">Resend Code</button>
+                <button type="button" class="btn" id="verify-email">Verify</button>
+            </div>
+        </div>
+    </div>
+</div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('edit-profile-form');
+            const cancelBtn = document.getElementById('cancel-edit');
+            const verificationModal = document.getElementById('verification-modal');
+            const closeVerificationBtn = verificationModal.querySelector('.close');
+            const verifyEmailBtn = document.getElementById('verify-email');
+            const resendCodeBtn = document.getElementById('resend-code');
+            let originalEmail = '<%= user.email %>';
+            let newEmail = '';
+
+            // Handle form submission
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const name = document.getElementById('name').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const phone = document.getElementById('phone').value.trim();
+                
+
+                // Client-side validation
+                if (!name || name.length < 2 || name.length > 50) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Validation Error',
+                        text: 'Name must be between 2 and 50 characters',
+                    });
+                    return;
+                }
+
+                if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Validation Error',
+                        text: 'Please enter a valid email address',
+                    });
+                    return;
+                }
+
+                if (phone && !/^\d{10,15}$/.test(phone)) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Validation Error',
+                        text: 'Phone number must be 10-15 digits',
+                    });
+                    return;
+                }
+
+               
+
+                const formData = {
+                    name: name,
+                    email: email,
+                    phone: phone || null,
+                   
+                };
+
+                // AJAX request to update profile
+                fetch('/edit-profile', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: data.message,
+                        }).then(() => {
+                            newEmail = email;
+                            if (newEmail && newEmail !== originalEmail) {
+                                verificationModal.style.display = 'block';
+                            } else {
+                                window.location.reload();
+                            }
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.message,
+                        });
+                    }
+                })
+                .catch(error => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Something went wrong: ' + error.message,
+                    });
+                });
+            });
+
+            // Handle cancel button
+            cancelBtn.addEventListener('click', function() {
+                window.location.href = '/profile'; // Adjust redirect as needed
+            });
+
+            // Handle verification modal
+            closeVerificationBtn.addEventListener('click', function() {
+                verificationModal.style.display = 'none';
+            });
+
+            verifyEmailBtn.addEventListener('click', function() {
+                const code = document.getElementById('verification-code').value;
+                if (code.length !== 6 || !/^\d{6}$/.test(code)) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Invalid Code',
+                        text: 'Please enter a valid 6-digit code',
+                    });
+                    return;
+                }
+
+                // AJAX to verify email (placeholder)
+                fetch('/verify-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email: newEmail, code: code })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Email Verified',
+                            text: 'Your email has been updated successfully',
+                        }).then(() => {
+                            verificationModal.style.display = 'none';
+                            window.location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Verification Failed',
+                            text: data.message || 'Invalid verification code',
+                        });
+                    }
+                })
+                .catch(error => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Something went wrong: ' + error.message,
+                    });
+                });
+            });
+
+            resendCodeBtn.addEventListener('click', function() {
+                // AJAX to resend code (placeholder)
+                fetch('/resend-verification-code', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email: newEmail })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Code Resent',
+                        text: 'A new verification code has been sent to ' + newEmail,
+                    });
+                })
+                .catch(error => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to resend code: ' + error.message,
+                    });
+                });
+            });
+
+            // Close modal on outside click
+            window.addEventListener('click', function(event) {
+                if (event.target === verificationModal) {
+                    verificationModal.style.display = 'none';
+                }
+            });
+        });
+    </script>
+   
+</body>
+</html>
+<%- include("../../views/partials/user/footer") %>

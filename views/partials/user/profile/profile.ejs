@@ -1,0 +1,47 @@
+
+<%- include("../../views/partials/user/header") %>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <link rel="stylesheet" href="/css/user-profile.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="profile-preview">
+                <div class="profile-image">
+                    <svg width="90" height="95" viewBox="0 0 150 150" fill="none" xmlns="http://www.w3.org/2000/svg" id="profile-pic">
+                        <circle cx="75" cy="75" r="75" fill="#D9D9D9"/>
+                        <path d="M75 30C60.64 30 49 41.64 49 56C49 70.36 60.64 82 75 82C89.36 82 101 70.36 101 56C101 41.64 89.36 30 75 30ZM75 106C58.43 106 45 119.43 45 136V150H105V136C105 119.43 91.57 106 75 106Z" fill="#666666"/>
+                    </svg>
+                </div>
+                <h3 id="user-name"><%=user.name.toUpperCase() %></h3>
+            </div>
+            <nav>
+                <ul>
+                    <li class="<%= (page === 'profilePage') ? 'active' : '' %>">
+                        <a href="/profile"><i class="fas fa-user"></i> Profile Details</a>
+                    </li>
+                    <li class="<%= (page === 'addressPage') ? 'active' : '' %>">
+                        <a href="/myAddress"><i class="fas fa-map-marker-alt"></i> Address</a>
+                    </li>
+                    <li class="<%= (page === 'ordersPage') ? 'active' : '' %>">
+                        <a href="/orders"><i class="fas fa-shopping-bag"></i> Orders</a>
+                    </li>
+                    <li class="<%= (page === 'editProfilePage') ? 'active' : '' %>">
+                        <a href="/updateProfile "><i class="fas fa-edit"></i> Edit Profile</a>
+                    </li>
+                    <li>
+                        <a href="change-password.html"><i class="fas fa-key"></i> Change Password</a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="logout-btn">
+                <a href="/logout" id="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+        </div>

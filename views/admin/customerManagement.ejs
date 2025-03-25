@@ -1,0 +1,123 @@
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/customer.css" type="text/css">
+</head>
+
+        <%-include("../../views/partials/admin/header")%> 
+
+    <div class="main-container">  
+        <div class="search-container">
+            <form action="/admin/users/" method="get" class="d-inline">
+                <div  class="input-group border-0 border border-1 border-grey " >
+                    <input type="text" class="form-control border-0 " placeholder="Search customers..." name="search">
+                    <input class="btn-submit btn-submit-success border-0" type="submit">
+                </div>
+            </form>
+
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <h2 class="card-title" style="color: beige;">Customers</h2>
+                    <p class="card-description" style="color: beige;">Manage your customer accounts and permissions.</p>
+                </div>
+                <!-- <button class="button button-primary">Add Customer</button> -->
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone no</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% for(let i =data.length-1 ; i >=0 ; i--) { %>
+                        <tr>
+                            <td><%= data[i].name %></td>
+                            <td><%= data[i].email %></td>
+                            <td><%= data[i].phone %></td>
+                            <td>
+                                <% if (data[i].isBlocked === false) { %>
+                                    <button data-id="<%= data[i]._id %>" class="btn btn-danger block-btn">
+                                        Block
+                                    </button>
+                                <% } else { %>
+                                    <button class="btn btn-success unblock-btn" data-id="<%= data[i]._id %>">
+                                       Unblock
+                                    </button>
+                                <% } %>
+                            </td>
+                        </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination-container">
+            <ul class="pagination">
+                <% for (let i = 1; i <= totalPages; i++) { %>
+                    <li class="page-item <%= (i === page) ? 'active' : '' %>">
+                        <a class="page-link border-0" href="?page=<%= i %>"><%= i %></a>
+                    </li>
+                <% } %>
+            </ul>
+        </div>
+    </div>  
+</div>  
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.querySelectorAll(".block-btn").forEach((button)=>{
+        
+        button.addEventListener('click',()=>{
+            const id = button.getAttribute("data-id")
+        
+            Swal.fire({
+            title: 'Are you sure?',
+            text: "Do you want to block this user?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes'
+            })
+            .then((reslt)=> {
+                if(reslt.isConfirmed){
+                    window.location.href = "/admin/blockUser?id=" + id
+                }
+            })
+        })
+    })
+
+    document.querySelectorAll(".unblock-btn").forEach((button)=>{
+        
+        button.addEventListener('click',()=>{
+            const id = button.getAttribute("data-id")
+            Swal.fire({
+            title: 'Are you sure?',
+            text: "Do you want to unblock this user?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes'
+            })
+            .then((reslt)=> {
+                if(reslt.isConfirmed){
+                    window.location.href = "/admin/unblockUser?id=" + id
+                }
+            })
+        })
+    })
+
+
+
+
+</script>
+<%-include("../../views/partials/admin/footer")%>

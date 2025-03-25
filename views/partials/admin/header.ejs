@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/admin-dashboard.css" type="text/css">
+
+</head>
+<body class="dark-theme">
+  <div class="dashboard-container">
+
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <h2><i class="fas fa-cube"></i> Admin</h2>
+        <button id="sidebar-close" class="sidebar-toggle mobile-only">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <nav class="sidebar-nav">
+        <ul>
+          <li class="<%= (page === 'dashboard') ? 'active' : '' %>">
+            <a href="/admin/dashboard"><i class="fas fa-home"></i> Dashboard</a>
+          </li>
+          <li>
+           
+          </li>
+          <li class="<%= (page === 'products' || page === 'addProducts') ? 'active' : '' %>">
+            <a href="/admin/products"><i class="fas fa-box"></i> Products</a>
+          </li>
+          <li>
+            <a href="/admin/users"><i class="fas fa-users"></i> Customers</a>
+          </li>
+          <li class="<%= (page === 'category') ? 'active' : '' %>">
+            <a href="/admin/category"><i class="fas fa-chart-line"></i>Category</a>
+          </li>
+          <li class="<%= (page === 'Orders') ? 'active' : '' %>">
+            <a href="/admin/order-list"><i class="fas fas fa-box"></i>Orders</a>
+          </li>
+          <li>
+            <a href="#"><i class="fas fa-cog"></i> Settings</a>
+          </li>
+        </ul>
+      </nav>
+    </aside>

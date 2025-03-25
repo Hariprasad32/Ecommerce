@@ -1,0 +1,310 @@
+:root {
+    --primary-color: #6366F1;
+    --primary-hover: #818CF8;
+    --secondary-color: #1E293B;
+    --accent-color: #94A3B8;
+    --success-color: #10B981;
+    --danger-color: #EF4444;
+    --warning-color: #F59E0B;
+    --info-color: #3B82F6;
+    --dark-bg:#1a1d21;
+    --card-bg:  #242830;;
+    --text-primary: #F1F5F9;
+    --text-secondary: #94A3B8;
+    --border-color: #334155;
+    --border-radius: 0.75rem;
+    --box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+}
+
+body {
+    background-color: var(--dark-bg);
+    color: var(--text-primary);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.main-content {
+    margin-left: 250px;
+    padding: 2rem;
+    transition: all 0.3s ease;
+}
+
+.content-title {
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.025em;
+    margin-bottom: 0.5rem;
+}
+
+.premium-card {
+    background: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    border: 1px solid var(--border-color);
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.premium-search {
+    position: relative;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.premium-search .form-control {
+    padding: 0.75rem 1.5rem;
+    background-color: var(--secondary-color);
+    border: 1px solid var(--border-color);
+    font-size: 0.95rem;
+    height: 50px;
+    transition: all 0.3s ease;
+    color: var(--text-primary);
+    border-radius: 50px;
+}
+
+.premium-search .form-control::placeholder {
+    color: var(--text-secondary);
+}
+
+.premium-search .form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.premium-search .search-btn {
+    position: absolute;
+    right: 253px;
+    top: 0px;
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.premium-search .search-btn:hover {
+    background-color: var(--primary-hover);
+}
+
+.premium-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+}
+
+.premium-table th {
+    font-weight: 600;
+    padding: 1rem;
+    background-color: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-color);
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+}
+
+.premium-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+}
+
+.premium-table tr:hover {
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+.form-select {
+    background-color: var(--secondary-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: 0.5rem;
+}
+
+.btn-premium {
+    border-radius: 50px;
+    padding: 0.5rem 1.25rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-width: 100px;
+}
+
+.btn-premium-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-premium-primary:hover {
+    background-color: var(--primary-hover);
+}
+
+.btn-premium-success {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.btn-premium-success:hover {
+    background-color: #059669;
+}
+
+.btn-premium-danger {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+.btn-premium-danger:hover {
+    background-color: #DC2626;
+}
+
+.btn-premium-info {
+    background-color: var(--info-color);
+    color: white;
+}
+
+.btn-premium-info:hover {
+    background-color: #2563EB;
+}
+
+.badge {
+    padding: 0.35em 0.75em;
+    font-size: 0.75em;
+    font-weight: 500;
+    border-radius: 50px;
+    letter-spacing: 0.025em;
+}
+
+.badge-success {
+    background-color: rgba(16, 185, 129, 0.2);
+    color: #34D399;
+}
+
+.badge-danger {
+    background-color: rgba(239, 68, 68, 0.2);
+    color: #F87171;
+}
+
+.badge-warning {
+    background-color: rgba(245, 158, 11, 0.2);
+    color: #FBBF24;
+}
+
+.empty-cell {
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.page-subtitle {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Subtle glow effect */
+.glow-effect {
+    box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
+    transition: all 0.3s ease;
+}
+
+.glow-effect:hover {
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+}
+
+/* Status indicator */
+.status-indicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 6px;
+}
+
+.status-active {
+    background-color: var(--success-color);
+}
+
+.status-inactive {
+    background-color: var(--danger-color);
+}
+
+/* Button styles */
+.icon-btn {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    border: none;
+    transition: all 0.2s ease;
+}
+
+.icon-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.header-actions {
+    display: flex;
+    gap: 1rem;
+}
+.pagination-container {
+    text-align: center;
+    margin-top: 2rem;
+}
+
+.pagination {
+    display: flex; /* Changed from inline-block to flex for better control */
+    justify-content: center; /* Center the items horizontally */
+    align-items: center; /* Align items vertically */
+    list-style: none; /* Remove default list styling */
+    padding: 0; /* Remove default padding */
+}
+
+.page-item {
+    margin: 0 0.25rem; /* Consistent spacing between items */
+}
+
+.pagination a,
+.pagination .current-page {
+    display: inline-block;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border-color);
+    text-decoration: none;
+    color: var(--text-color);
+    border-radius: var(--radius);
+    background-color: var(--card-bg);
+    transition: background-color 0.2s;
+}
+
+.pagination a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.pagination .current-page {
+    background-color: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
