@@ -2,36 +2,86 @@ const Products = require('../../models/productSchema');
 const Categorie = require('../../models/categorySchema');
 const User = require('../../models/userSchema');
 const Cart = require('../../models/cartSchema')
+const Wishlist = require('../../models/wishlistSchema')
 
 
 const getCart = async (req, res) => {
     const userId = req.session.user;
     const userData = await User.findById(userId);
     const cartProducts = await Cart.findOne({ userId: userId }).populate('items.productId');
-    // console.log("products in the cart", cartProducts);
 
-    if (userId) {
-        // Calculate total price from cart items
-        const totalPrice = cartProducts && cartProducts.items && cartProducts.items.length > 0
-            ? cartProducts.items.reduce((total, item) => {
-                const itemTotal = item.sizes.reduce((sum, size) => sum + (size.quantity * item.price), 0);
-                return total + itemTotal;
-            }, 0)
-            : 0;
+    if (!userId) {
+        return res.status(401).json({ message: "User not logged in" });
+    }
 
-        res.render('cart', {
+    if (!cartProducts || !cartProducts.items.length) {
+        return res.render('cart', {
             user: userData,
-            cart: cartProducts,
+            cart: null,
             page: "cartPage",
-            totalPrice: totalPrice.toFixed(2), // Pass total price to the template
-            calculateSubtotal: function(items) {
-                return items.reduce((total, item) => {
-                    const itemTotal = item.sizes.reduce((sum, size) => sum + (size.quantity * item.price), 0);
-                    return total + itemTotal;
-                }, 0);
-            }
+            totalPrice: "0.00",
+            calculateSubtotal: () => 0
         });
     }
+
+    const cartItems = cartProducts.items.map(item => {
+       
+        const product = item.productId;
+
+        const isBlocked = product && product.isBlocked === true;
+        const isUnlisted = product && (product.status === "Out Of Stock" || product.status === "Discontinued");
+
+      
+        const updatedSizes = item.sizes.map(sizeItem => {
+            const productSize = product && product.sizes ? product.sizes.find(ps => ps.size === sizeItem.size) : null;
+            const isSizeOutOfStock = !productSize || productSize.quantity === 0 || sizeItem.quantity > productSize.quantity;
+
+            return {
+                ...sizeItem.toObject(),
+                isOutOfStock: isSizeOutOfStock || isBlocked || isUnlisted,
+                availableQuantity: productSize ? productSize.quantity : 0
+            };
+        });
+
+      
+        const isItemOutOfStock = updatedSizes.every(size => size.isOutOfStock) || isBlocked || isUnlisted;
+
+        return {
+            ...item.toObject(),
+            sizes: updatedSizes,
+            isOutOfStock: isItemOutOfStock,
+            isBlocked: isBlocked,  
+            isUnlisted: isUnlisted 
+        };
+    });
+
+    const totalPrice = cartItems.reduce((total, item) => {
+        if (!item.isOutOfStock) {
+            const itemTotal = item.sizes
+                .filter(size => !size.isOutOfStock)
+                .reduce((sum, size) => sum + (size.quantity * item.price), 0);
+            return total + itemTotal;
+        }
+        return total;
+    }, 0);
+
+    res.render('cart', {
+        user: userData,
+        cart: { ...cartProducts.toObject(), items: cartItems },
+        page: "cartPage",
+        totalPrice: totalPrice.toFixed(2),
+        calculateSubtotal: function(items) {
+            return items.reduce((total, item) => {
+                if (!item.isOutOfStock) {
+                    const itemTotal = item.sizes
+                        .filter(size => !size.isOutOfStock)
+                        .reduce((sum, size) => sum + (size.quantity * item.price), 0);
+                    return total + itemTotal;
+                }
+                return total;
+            }, 0);
+        }
+    });
 };
 
 const addToCart = async (req, res) => {
@@ -55,7 +105,7 @@ const addToCart = async (req, res) => {
             });
         }
 
-        // Convert quantity to number and validate
+      
         const requestedQuantity = parseInt(quantity);
         if (isNaN(requestedQuantity) || requestedQuantity <= 0) {
             return res.status(400).json({
@@ -64,7 +114,7 @@ const addToCart = async (req, res) => {
             });
         }
 
-        // Check if product exists, get price, and verify it's listed and not blocked
+     
         const product = await Products.findById(productId);
         if (!product) {
             return res.status(404).json({
@@ -72,7 +122,7 @@ const addToCart = async (req, res) => {
                 message: "Product not found"
             });
         }
-        // Verify size availability in product stock
+     
         const sizeAvailable = product.sizes.find(s => 
             s.size === size && s.quantity >= requestedQuantity
         );
@@ -92,19 +142,19 @@ const addToCart = async (req, res) => {
             });
         }
 
-        // Check if product already exists in cart
+   
         const existingItemIndex = cart.items.findIndex(item => 
             item.productId.toString() === productId
         );
 
         if (existingItemIndex > -1) {
-            // Product exists, check if size exists
+      
             const sizeIndex = cart.items[existingItemIndex].sizes.findIndex(
                 s => s.size === size
             );
             
             if (sizeIndex > -1) {
-                // Size exists, check total quantity against limit
+              
                 const currentQuantity = cart.items[existingItemIndex].sizes[sizeIndex].quantity;
                 const newTotalQuantity = currentQuantity + requestedQuantity;
 
@@ -115,7 +165,7 @@ const addToCart = async (req, res) => {
                     });
                 }
 
-                // Check against product stock
+            
                 if (newTotalQuantity > sizeAvailable.quantity) {
                     return res.status(400).json({
                         success: false,
@@ -123,10 +173,10 @@ const addToCart = async (req, res) => {
                     });
                 }
 
-                // Update quantity
+               
                 cart.items[existingItemIndex].sizes[sizeIndex].quantity = newTotalQuantity;
             } else {
-                // Add new size, check against limit
+              
                 if (requestedQuantity > MAX_QUANTITY) {
                     return res.status(400).json({
                         success: false,
@@ -140,12 +190,12 @@ const addToCart = async (req, res) => {
                 });
             }
             
-            // Update total price
+          
             cart.items[existingItemIndex].totalPrice = 
                 cart.items[existingItemIndex].price * 
                 cart.items[existingItemIndex].sizes.reduce((sum, s) => sum + s.quantity, 0);
         } else {
-            // Add new product to cart, check against limit
+     
             if (requestedQuantity > MAX_QUANTITY) {
                 return res.status(400).json({
                     success: false,
@@ -171,7 +221,12 @@ const addToCart = async (req, res) => {
 
         await cart.save();
 
-        // Calculate cart count (total items across all sizes)
+        await Wishlist.updateOne(
+            { userId },
+            { $pull: { products: { productId } } }
+          );
+
+     
         const cartCount = cart.items.reduce((total, item) => 
             total + item.sizes.reduce((sum, s) => sum + s.quantity, 0), 0);
 
@@ -190,18 +245,19 @@ const addToCart = async (req, res) => {
         });
     }
 };
+
 const productStatus = async (req, res) => {
     try {
-        // Using populate to get the category data
+       
         const product = await Products.findById(req.params.productId)
-            .populate('category', 'isListed') // Populate only the needed fields
-            .select('isBlocked'); // Select only the fields we need from the product
+            .populate('category', 'isListed') 
+            .select('isBlocked'); 
         
         if (!product) {
             return res.status(404).json({ isListed: false, isBlocked: true });
         }
         
-        // Now we can directly check the category's isListed field
+        
         const isListed = product.category ? product.category.isListed !== false : true;
         const isBlocked = product.isBlocked || false;
         
@@ -219,6 +275,7 @@ const productStatus = async (req, res) => {
         res.status(500).json({ isListed: false, isBlocked: true });
     }
 }
+
 const getProductSizes = async (req, res) => {
     try {
         const productId = req.params.id;
@@ -247,7 +304,6 @@ const getProductSizes = async (req, res) => {
     }
 };
 
-
 const updateCartItem = async (req, res) => {
     try {
         const { productId, size, quantity } = req.body;
@@ -268,7 +324,7 @@ const updateCartItem = async (req, res) => {
             });
         }
 
-        // Find the product in the cart
+        
         const itemIndex = cart.items.findIndex(item => 
             item.productId.toString() === productId
         );
@@ -280,7 +336,7 @@ const updateCartItem = async (req, res) => {
             });
         }
 
-        // Find the size in the product
+        
         const sizeIndex = cart.items[itemIndex].sizes.findIndex(
             s => s.size === size
         );
@@ -292,7 +348,7 @@ const updateCartItem = async (req, res) => {
             });
         }
 
-        // Check if the requested quantity is available
+       
         const product = await Products.findById(productId);
         const sizeAvailable = product.sizes.find(s => 
             s.size === size && s.quantity >= quantity
@@ -305,17 +361,17 @@ const updateCartItem = async (req, res) => {
             });
         }
 
-        // Update quantity
+       
         cart.items[itemIndex].sizes[sizeIndex].quantity = quantity;
         
-        // Recalculate total price
+       
         cart.items[itemIndex].totalPrice = 
             cart.items[itemIndex].price * 
             cart.items[itemIndex].sizes.reduce((sum, s) => sum + s.quantity, 0);
 
         await cart.save();
 
-        // Fetch updated cart with populated products
+       
         const updatedCart = await Cart.findOne({ userId })
             .populate('items.productId')
             .exec();
@@ -323,7 +379,7 @@ const updateCartItem = async (req, res) => {
         res.status(200).json({
             success: true,
             message: "Cart updated successfully",
-            cart: updatedCart // Return the updated cart data
+            cart: updatedCart 
         });
 
     } catch (error) {
@@ -367,28 +423,28 @@ const removeCartItem = async (req, res) => {
                 });
             }
 
-            // Filter out the specific size
+           
             cart.items[itemIndex].sizes = cart.items[itemIndex].sizes.filter(
                 s => s.size !== size
             );
 
-            // If no sizes remain, remove the entire item
+           
             if (cart.items[itemIndex].sizes.length === 0) {
                 cart.items.splice(itemIndex, 1);
             } else {
-                // Recalculate total price for remaining sizes
+                
                 cart.items[itemIndex].totalPrice = 
                     cart.items[itemIndex].price * 
                     cart.items[itemIndex].sizes.reduce((sum, s) => sum + s.quantity, 0);
             }
         } else {
-            // Remove entire product if no size specified
+            
             cart.items = cart.items.filter(item => 
                 item.productId.toString() !== productId
             );
         }
 
-        // Save and populate the updated cart
+       
         await cart.save();
         const updatedCart = await Cart.findOne({ userId }).populate('items.productId');
 
@@ -406,6 +462,7 @@ const removeCartItem = async (req, res) => {
         });
     }
 };
+
 module.exports = {
     getCart,
     addToCart,

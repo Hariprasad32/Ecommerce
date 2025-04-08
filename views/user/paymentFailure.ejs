@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Failed</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <link rel="stylesheet" href="/css/user-profile.css">
+    <style>
+        :root {
+            --primary-color: #3b82f6;
+            --secondary-color: #f1f5f9;
+            --accent-color: #22c55e;
+            --text-color: #1e293b;
+            --border-color: #e5e7eb;
+            --shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            --error-color: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--secondary-color), #dbeafe);
+            color: var(--text-color);
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .failure-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .failure-icon {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: var(--error-color);
+            font-size: 28px;
+            margin-bottom: 15px;
+        }
+
+        p {
+            font-size: 16px;
+            color: #64748b;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            width: 100%;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .btn:hover {
+            background: #2563eb;
+            transform: scale(1.02);
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        .order-info {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(243, 244, 246, 0.5);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .order-info span {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="failure-container">
+        <svg class="failure-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--error-color);">
+            <path d="M12 2C6.visualized12 22 2 2"></path>
+            <path d="M15 9L9 15"></path>
+            <path d="M9 9L15 15"></path>
+        </svg>
+        <h1>Payment Failed</h1>
+        <p>Sorry, there was an issue processing your payment. Please try again or check your order details.</p>
+        <div class="order-info">
+            Order ID: <span id="order-id"></span>
+        </div>
+        <button class="btn" id="retry-btn">Retry Payment</button>
+        <button class="btn btn-secondary" id="order-details-btn">View Order Details</button>
+    </div>
+
+    <script>
+        // Get orderId from URL query parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const orderId = urlParams.get('orderId') || 'N/A';
+        document.getElementById('order-id').textContent = orderId;
+
+        // Retry Payment Function (from your previous code)
+        function retryPayment(orderId) {
+            console.log('Retrying payment for order:', orderId);
+
+            Swal.fire({
+                title: 'Retry Payment',
+                text: 'Preparing to retry your payment...',
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonColor: '#22c55e',
+                cancelButtonColor: '#ef4444',
+                confirmButtonText: 'Proceed',
+                cancelButtonText: 'Cancel Order'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch('/retry-payment', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ orderId })
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Retry payment request failed with status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            const options = {
+                                key: data.key,
+                                amount: data.amount,
+                                currency: 'INR',
+                                name: 'Your Store Name',
+                                description: 'Order Payment Retry',
+                                order_id: data.orderId,
+                                handler: function (response) {
+                                    console.log('Retry payment completed:', response);
+                                    verifyPayment(response, data.originalOrderId);
+                                },
+                                prefill: {
+                                    name: 'Customer Name',
+                                    email: 'customer@example.com',
+                                    contact: '9999999999'
+                                },
+                                theme: { color: '#3b82f6' },
+                                modal: {
+                                    ondismiss: function () {
+                                        console.log('Retry payment modal dismissed');
+                                        Swal.fire({
+                                            title: 'Payment Cancelled',
+                                            text: 'Would you like to retry again or cancel the order?',
+                                            icon: 'warning',
+                                            showCancelButton: true,
+                                            confirmButtonColor: '#22c55e',
+                                            cancelButtonColor: '#ef4444',
+                                            confirmButtonText: 'Retry Again',
+                                            cancelButtonText: 'Cancel Order'
+                                        }).then((result) => {
+                                            if (result.isConfirmed) {
+                                                retryPayment(orderId);
+                                            } else if (result.isDismissed) {
+                                                cancelPendingOrder(orderId);
+                                            }
+                                        });
+                                    }
+                                }
+                            };
+                            const rzp = new Razorpay(options);
+                            rzp.open();
+                        } else {
+                            throw new Error(data.message || 'Failed to initiate retry payment');
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Retry payment error:', err);
+                        Swal.fire({
+                            title: 'Retry Failed',
+                            text: 'Failed to retry payment: ' + err.message,
+                            icon: 'error',
+                            confirmButtonColor: '#3b82f6'
+                        });
+                    });
+                } else if (result.isDismissed) {
+                    cancelPendingOrder(orderId);
+                }
+            });
+        }
+
+        // Verify Payment Function
+        function verifyPayment(response, orderId) {
+            const paymentData = {
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                orderId: orderId
+            };
+
+            Swal.fire({
+                title: 'Verifying Payment...',
+                html: 'Please wait.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            fetch('/verify-razorpay-payment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(paymentData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        title: 'Payment Successful!',
+                        html: `Your order #<strong>${data.orderId}</strong> has been placed successfully.<br>Thank you for shopping with us!`,
+                        icon: 'success',
+                        confirmButtonColor: '#22c55e',
+                        confirmButtonText: 'View Order Details'
+                    }).then(() => {
+                        window.location.href = `/order-success?orderId=${data.orderId}`;
+                    });
+                } else {
+                    throw new Error(data.message || 'Payment verification failed');
+                }
+            })
+            .catch(err => {
+                Swal.fire({
+                    title: 'Payment Failed',
+                    text: 'Payment verification failed: ' + err.message,
+                    icon: 'error',
+                    confirmButtonColor: '#3b82f6'
+                });
+            });
+        }
+
+        // Cancel Order Function
+        function cancelPendingOrder(orderId) {
+            fetch('/cancel-order', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ orderId, productId: null, orderMainId: orderId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        title: 'Order Cancelled',
+                        text: 'Your order has been cancelled successfully.',
+                        icon: 'info',
+                        confirmButtonColor: '#3b82f6'
+                    }).then(() => {
+                        window.location.href = '/'; // Redirect to homepage or cart
+                    });
+                } else {
+                    throw new Error(data.message || 'Failed to cancel order');
+                }
+            })
+            .catch(err => {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Failed to cancel order: ' + err.message,
+                    icon: 'error',
+                    confirmButtonColor: '#3b82f6'
+                });
+            });
+        }
+
+        // Event Listeners
+        document.getElementById('retry-btn').addEventListener('click', () => {
+            retryPayment(orderId);
+        });
+
+        document.getElementById('order-details-btn').addEventListener('click', () => {
+            window.location.href = `/order-details?orderId=${orderId}`;
+        });
+    </script>
+</body>
+</html>

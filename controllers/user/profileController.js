@@ -1,12 +1,11 @@
 const User = require('../../models/userSchema')
 const Address = require('../../models/addressSchema')
 const Cart = require('../../models/cartSchema')
+const uploads = require('../../helpers/multer');
 const nodemailer = require('nodemailer')
 const bcrypt = require('bcrypt')
 const env = require('dotenv').config()
 const mongoose = require('mongoose')
-
-
 
 
 
@@ -20,7 +19,7 @@ async function securePassword (password){
         console.log("Password do not hashed")
         
     }
-}
+};
 
 function generateOtp(){
     const digits = "1234567890"
@@ -31,7 +30,7 @@ function generateOtp(){
     }
     return otp
 
-}
+};
 
 const sendVerificationEmail = async(email,otp)=>{
     try {
@@ -64,7 +63,7 @@ const sendVerificationEmail = async(email,otp)=>{
         return false
         
     }
-}
+};
 
 const getForgotPassword = async(req,res)=>{
     try {
@@ -73,8 +72,7 @@ const getForgotPassword = async(req,res)=>{
     } catch (error) {
         res.redirect('/pageNotFound')
     }
-}
-
+};
 
 const forgotEmailValid = async (req, res) => {
     try {
@@ -105,7 +103,6 @@ const forgotEmailValid = async (req, res) => {
     }
 };
 
-
 const verifyForgotPassOtp = async (req, res) => {
     try {
         const { otp, timer } = req.body;
@@ -126,8 +123,6 @@ const verifyForgotPassOtp = async (req, res) => {
     }
 };
 
-
-
 const getResetPassword = async(req,res)=>{
     try {
 
@@ -137,9 +132,7 @@ const getResetPassword = async(req,res)=>{
         res.redirect('/pageNotFound')
         
     }
-}
-
-
+};
 
 const resetPassword = async (req,res)=>{
     try {
@@ -165,8 +158,7 @@ const resetPassword = async (req,res)=>{
         
     }
 
-}
-
+};
 
 const resendOtp = async (req, res) => {
     try {
@@ -204,6 +196,62 @@ const resendOtp = async (req, res) => {
     }
 };
 
+const sendEmailOtp = async (req, res) => {
+    try {
+        const { email } = req.body;
+        if (!email) {
+            return res.status(400).json({ success: false, message: "Email is required" });
+        }
+
+        const otp = generateOtp();
+        const emailSent = await sendVerificationEmail(email, otp);
+        
+        console.log("Your verification OTP:", otp);
+
+        if (emailSent) {
+            req.session.emailOtp = otp;
+            req.session.emailOtpEmail = email;
+            req.session.otpGeneratedAt = Date.now();
+            res.json({ success: true, message: "OTP sent successfully" });
+        } else {
+            res.status(500).json({ success: false, message: "Failed to send OTP" });
+        }
+    } catch (error) {
+        console.error("Error sending OTP:", error);
+        res.status(500).json({ success: false, message: "Failed to send OTP" });
+    }
+};
+
+const verifyEmailOtp = async (req,res)=>{
+    try {
+        const {email,otp} = req.body;
+        if(!email||!otp){
+            return res.status(400).json({success:false,message:"OTP and email are required"})
+        }
+
+        const otpAge = Date.now() - (req.session.otpGeneratedAt || 0);
+        if (otpAge > 60 * 1000) { 
+            return res.status(400).json({ success: false, message: "OTP has expired" });
+        }
+        console.log("your otp",otp);
+        console.log("your email",email);
+        console.log("otp in session",req.session.otp)
+        console.log("req.session.emailOtpEmail",req.session.emailOtpEmail)
+        if(otp===req.session.emailOtp&&email=== req.session.emailOtpEmail){
+            delete req.session.emailOtp;
+            delete req.session.emailOtpEmail;
+            delete req.session.otpGeneratedAt;
+            res.json({success:true,message:'OTP verified successfully'})
+        }else{
+            res.status(400).json({success:false,message:"Invalid OTP or email"})
+        }
+    } catch (error) {
+         console.log("error verfying OTP",error);
+         res.status(500).json({success:false,message:'error validating email'})   
+        
+    }
+}
+
 const getProfile = async (req, res) => {
     try {
         const userId = req.session.user;
@@ -229,7 +277,7 @@ const updateProfile = async (req,res)=>{
     try {
        const userId = req.session.user;
        const userData = await User.findById(userId);
-    //    console.log("user data to the edit profile page",userData)
+
        res.render('userEdit-profile',{user:userData,page:"editProfilePage"})
    } catch (error) {
     res.redirect('/404-page')
@@ -275,8 +323,6 @@ const editProfile = async (req,res)=>{
     }
 };
 
-
-
 const myAddress = async (req, res) => {
     try {
         const userId = req.session.user;
@@ -285,7 +331,7 @@ const myAddress = async (req, res) => {
         const objectIdUserId = new mongoose.Types.ObjectId(userId);
         
         const user = await User.findById(objectIdUserId);
-        // console.log("user data", user);
+       
         
         const homePageNumber = parseInt(req.query.homePageNumber) || 1;
         const workPageNumber = parseInt(req.query.workPageNumber) || 1;
@@ -301,27 +347,27 @@ const myAddress = async (req, res) => {
                 workAddresses: [],
                 homePagination: { totalPages: 0, currentPage: 1 },
                 workPagination: { totalPages: 0, currentPage: 1 },
-                user: req.user,
+                user:user,
                 page:'addressPage',
             });
         }
 
-        // Filter home and work addresses
+        
         const allHomeAddresses = userAddressDoc.address.filter(addr => addr.addressType === 'Home');
         const allWorkAddresses = userAddressDoc.address.filter(addr => addr.addressType === 'Work');
         
-        // Calculate total pages
+        
         const homeTotalPages = Math.ceil(allHomeAddresses.length / limit);
         const workTotalPages = Math.ceil(allWorkAddresses.length / limit);
         
-        // Get the addresses for the current page
+        
         const homeStartIdx = (homePageNumber - 1) * limit;
         const workStartIdx = (workPageNumber - 1) * limit;
         
         const homeAddresses = allHomeAddresses.slice(homeStartIdx, homeStartIdx + limit);
         const workAddresses = allWorkAddresses.slice(workStartIdx, workStartIdx + limit);
         
-        // Pagination data
+        
         const homePagination = {
             totalPages: homeTotalPages,
             currentPage: homePageNumber,
@@ -349,6 +395,7 @@ const myAddress = async (req, res) => {
         res.status(500).send('Server error');
     }
 };
+
 const deleteAddress = async (req, res) => {
     try {
         const userId = req.session.user || req.body.userId;
@@ -378,7 +425,6 @@ const deleteAddress = async (req, res) => {
     }
 };
 
-
 const editAddress = async (req, res) => {
     try {
         const userId = req.session.user || req.body.userId;
@@ -400,7 +446,7 @@ const editAddress = async (req, res) => {
             return res.status(400).json({ message: 'Missing userId or addressId' });
         }
 
-        // Validate required fields
+        
         if (!addressType || !name || !addressLine1 || !city || !state || !pincode) {
             return res.status(400).json({ message: 'Missing required fields' });
         }
@@ -415,7 +461,7 @@ const editAddress = async (req, res) => {
             return res.status(404).json({ message: 'Address not found' });
         }
 
-        // Update address fields
+        
         address.addressType = addressType;
         address.name = name;
         address.addressLine1 = addressLine1;
@@ -439,7 +485,6 @@ const editAddress = async (req, res) => {
     }
 };
 
-
 const setDefaultAddress = async (req, res) => {
     try {
         const userId = req.session.user || req.body.userId;
@@ -459,7 +504,7 @@ const setDefaultAddress = async (req, res) => {
             return res.status(404).json({ message: 'Address not found' });
         }
 
-        // Set all addresses to non-default first
+       
         addressDoc.address.forEach(addr => addr.isDefault = false);
         address.isDefault = true;
 
@@ -470,7 +515,6 @@ const setDefaultAddress = async (req, res) => {
         res.status(500).json({ message: 'Failed to set default address', error: error.message });
     }
 };
-
 
 const getAddress = async (req, res) => {
     try {
@@ -491,7 +535,6 @@ const getAddress = async (req, res) => {
             return res.status(404).json({ message: 'Address not found' });
         }
 
-        // Return address with field names matching frontend
         res.status(200).json({ 
             address: {
                 _id: address._id,
@@ -595,9 +638,41 @@ const addAddress = async (req, res) => {
     }
 };
 
+const uploadProfileImage = async (req, res) => {
+    try {
+        const userId = req.session.user;
+        if (!userId) {
+            return res.status(401).json({ success: false, message: 'Please log in to upload an image' });
+        }
 
+        uploads.single('profileImage')(req, res, async (err) => {
+            if (err) {
+                console.error('Multer Error:', err);
+                return res.status(400).json({ success: false, message: err.message || 'Failed to upload image' });
+            }
 
+            if (!req.file) {
+                return res.status(400).json({ success: false, message: 'No image file provided' });
+            }
 
+            const imageUrl = `/uploads/productImage/${req.file.filename}`; // Adjusted path to match your storage
+            const user = await User.findByIdAndUpdate(
+                userId,
+                { profileImage: imageUrl },
+                { new: true }
+            );
+
+            if (!user) {
+                return res.status(404).json({ success: false, message: 'User not found' });
+            }
+
+            res.status(200).json({ success: true, message: 'Profile image updated successfully', imageUrl });
+        });
+    } catch (error) {
+        console.error('Error uploading profile image:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+};
 module.exports = {
     getForgotPassword ,
     forgotEmailValid ,
@@ -614,5 +689,8 @@ module.exports = {
     deleteAddress,
     setDefaultAddress,
     editProfile,
-    
-}
+    sendEmailOtp,
+    verifyEmailOtp,
+    uploadProfileImage
+};
+

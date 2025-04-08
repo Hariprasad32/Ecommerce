@@ -1,21 +1,80 @@
-
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Profile</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-    <!-- Your original CSS remains unchanged -->
-  
+    <style>
+        #timer {
+            font-weight: bold;
+            color: #3085d6;
+        }
+
+        .btn.btn-secondary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .profile-image-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .profile-image-container {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background-color: #3085d6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            font-size: 48px;
+            color: white;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+
+        .profile-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-image-container input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
   <div class="main">
     <%- include("../../views/partials/user/profile/profile") %>
     <div class="main-content">
-
-
         <div class="header">
             <h2>Edit Profile</h2>
+        </div>
+
+        <!-- Profile Image Editing Section -->
+        <div class="profile-image-section">
+            <div class="profile-image-container" id="profile-image-container">
+                <% if (user.profileImage) { %>
+                    <img src="<%= user.profileImage %>" alt="Profile Image" id="profile-image">
+                <% } else { %>
+                    <span><%= user.name.charAt(0) %></span>
+                <% } %>
+                <input type="file" id="profile-image-input" accept="image/*">
+            </div>
         </div>
 
         <div class="profile-details">
@@ -28,14 +87,13 @@
                     </div>
                     <div class="form-group">
                         <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" value="<%= user.email %>" required>
-                        <small class="form-text">Note: Changing your email will require verification.</small>
+                        <input type="email" id="email" name="email" value="<%= user.email %>" class="email-input" required>
+                        <small class="form-text">Note: Changing your email will require OTP verification.</small>
                     </div>
                     <div class="form-group">
                         <label for="phone">Phone Number</label>
                         <input type="tel" id="phone" name="phone" value="<%= user.phone || '' %>">
                     </div>
-
                 </div>
 
                 <div class="form-actions">
@@ -55,8 +113,11 @@
                 <label for="verification-code">Verification Code</label>
                 <input type="text" id="verification-code" name="verification-code" maxlength="6">
             </div>
+            <div class="form-group">
+                <p>Time remaining: <span id="timer">60</span> seconds</p>
+            </div>
             <div class="form-actions">
-                <button type="button" class="btn btn-secondary" id="resend-code">Resend Code</button>
+                <button type="button" class="btn btn-secondary" id="resend-code" disabled>Resend Code</button>
                 <button type="button" class="btn" id="verify-email">Verify</button>
             </div>
         </div>
@@ -67,68 +128,185 @@
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.getElementById('edit-profile-form');
             const cancelBtn = document.getElementById('cancel-edit');
+            const emailInput = document.querySelector('.email-input');
             const verificationModal = document.getElementById('verification-modal');
             const closeVerificationBtn = verificationModal.querySelector('.close');
             const verifyEmailBtn = document.getElementById('verify-email');
             const resendCodeBtn = document.getElementById('resend-code');
+            const timerDisplay = document.getElementById('timer');
+            const profileImageInput = document.getElementById('profile-image-input');
+            const profileImageContainer = document.getElementById('profile-image-container');
             let originalEmail = '<%= user.email %>';
             let newEmail = '';
+            let pendingProfileData = null;
+            let timerInterval = null;
 
-            // Handle form submission
-            form.addEventListener('submit', function(e) {
+            // Function to start the 60-second timer
+            function startTimer() {
+                let timeLeft = 60;
+                timerDisplay.textContent = timeLeft;
+                resendCodeBtn.disabled = true;
+
+                if (timerInterval) {
+                    clearInterval(timerInterval);
+                }
+
+                timerInterval = setInterval(() => {
+                    timeLeft--;
+                    timerDisplay.textContent = timeLeft;
+
+                    if (timeLeft <= 0) {
+                        clearInterval(timerInterval);
+                        resendCodeBtn.disabled = false;
+                    }
+                }, 1000);
+            }
+
+            // Function to send OTP
+            function sendOtp(email) {
+                return fetch('/send-email-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                })
+                .then(response => {
+                    console.log('Send OTP Response Status:', response.status);
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            console.error('Send OTP Response Text:', text);
+                            throw new Error(`Server error: ${response.status}`);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'OTP Sent',
+                            text: `A verification code has been sent to ${email}`,
+                        });
+                        newEmail = email;
+                        verificationModal.style.display = 'block';
+                        startTimer();
+                        return true;
+                    } else {
+                        throw new Error(data.message || 'Failed to send OTP');
+                    }
+                })
+                .catch(error => {
+                    console.error('Send OTP Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: error.message,
+                    });
+                    return false;
+                });
+            }
+
+            // Handle profile image upload
+            profileImageInput.addEventListener('change', function() {
+                const file = this.files[0];
+                if (file) {
+                    const formData = new FormData();
+                    formData.append('profileImage', file);
+
+                    fetch('/upload-profile-image', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => {
+                        console.log('Upload Image Response Status:', response.status);
+                        if (!response.ok) {
+                            return response.text().then(text => {
+                                console.error('Upload Image Response Text:', text);
+                                throw new Error(`Server error: ${response.status}`);
+                            });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            const img = document.createElement('img');
+                            img.src = data.imageUrl;
+                            img.alt = 'Profile Image';
+                            img.id = 'profile-image';
+                            profileImageContainer.innerHTML = '';
+                            profileImageContainer.appendChild(img);
+                            profileImageContainer.appendChild(profileImageInput);
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success',
+                                text: 'Profile image updated successfully',
+                            });
+                        } else {
+                            throw new Error(data.message || 'Failed to upload image');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Upload Image Error:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Failed to upload image: ' + error.message,
+                        });
+                    });
+                }
+            });
+
+            // Form submission handler
+            form.addEventListener('submit', async function(e) {
                 e.preventDefault();
 
                 const name = document.getElementById('name').value.trim();
                 const email = document.getElementById('email').value.trim();
                 const phone = document.getElementById('phone').value.trim();
-                
 
                 // Client-side validation
                 if (!name || name.length < 2 || name.length > 50) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Validation Error',
-                        text: 'Name must be between 2 and 50 characters',
-                    });
+                    Swal.fire({ icon: 'error', title: 'Validation Error', text: 'Name must be between 2 and 50 characters' });
                     return;
                 }
-
                 if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Validation Error',
-                        text: 'Please enter a valid email address',
-                    });
+                    Swal.fire({ icon: 'error', title: 'Validation Error', text: 'Please enter a valid email address' });
                     return;
                 }
-
                 if (phone && !/^\d{10,15}$/.test(phone)) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Validation Error',
-                        text: 'Phone number must be 10-15 digits',
-                    });
+                    Swal.fire({ icon: 'error', title: 'Validation Error', text: 'Phone number must be 10-15 digits' });
                     return;
                 }
 
-               
+                const formData = { name, email, phone: phone || null };
+                pendingProfileData = formData;
 
-                const formData = {
-                    name: name,
-                    email: email,
-                    phone: phone || null,
-                   
-                };
+                if (email === originalEmail) {
+                    updateProfile(formData);
+                } else {
+                    const otpSent = await sendOtp(email);
+                    if (!otpSent) {
+                        pendingProfileData = null;
+                    }
+                }
+            });
 
-                // AJAX request to update profile
+            // Function to update profile
+            function updateProfile(data) {
                 fetch('/edit-profile', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
                 })
-                .then(response => response.json())
+                .then(response => {
+                    console.log('Edit Profile Response Status:', response.status);
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            console.error('Edit Profile Response Text:', text);
+                            throw new Error(`Server error: ${response.status}`);
+                        });
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.success) {
                         Swal.fire({
@@ -136,122 +314,85 @@
                             title: 'Success',
                             text: data.message,
                         }).then(() => {
-                            newEmail = email;
-                            if (newEmail && newEmail !== originalEmail) {
-                                verificationModal.style.display = 'block';
-                            } else {
-                                window.location.reload();
-                            }
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: data.message,
-                        });
-                    }
-                })
-                .catch(error => {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Something went wrong: ' + error.message,
-                    });
-                });
-            });
-
-            // Handle cancel button
-            cancelBtn.addEventListener('click', function() {
-                window.location.href = '/profile'; // Adjust redirect as needed
-            });
-
-            // Handle verification modal
-            closeVerificationBtn.addEventListener('click', function() {
-                verificationModal.style.display = 'none';
-            });
-
-            verifyEmailBtn.addEventListener('click', function() {
-                const code = document.getElementById('verification-code').value;
-                if (code.length !== 6 || !/^\d{6}$/.test(code)) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Invalid Code',
-                        text: 'Please enter a valid 6-digit code',
-                    });
-                    return;
-                }
-
-                // AJAX to verify email (placeholder)
-                fetch('/verify-email', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ email: newEmail, code: code })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Email Verified',
-                            text: 'Your email has been updated successfully',
-                        }).then(() => {
-                            verificationModal.style.display = 'none';
                             window.location.reload();
                         });
                     } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Verification Failed',
-                            text: data.message || 'Invalid verification code',
-                        });
+                        throw new Error(data.message || 'Failed to update profile');
                     }
                 })
                 .catch(error => {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Something went wrong: ' + error.message,
-                    });
+                    console.error('Update Profile Error:', error);
+                    Swal.fire({ icon: 'error', title: 'Error', text: 'Something went wrong: ' + error.message });
                 });
-            });
+            }
 
-            resendCodeBtn.addEventListener('click', function() {
-                // AJAX to resend code (placeholder)
-                fetch('/resend-verification-code', {
+            // Verify OTP
+            verifyEmailBtn.addEventListener('click', function() {
+                const code = document.getElementById('verification-code').value;
+                if (code.length !== 6 || !/^\d{6}$/.test(code)) {
+                    Swal.fire({ icon: 'error', title: 'Invalid Code', text: 'Please enter a valid 6-digit code' });
+                    return;
+                }
+
+                fetch('/verify-email-otp', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ email: newEmail })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: newEmail, otp: code })
                 })
-                .then(response => response.json())
+                .then(response => {
+                    console.log('Verify OTP Response Status:', response.status);
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            console.error('Verify OTP Response Text:', text);
+                            throw new Error(`Server error: ${response.status}`);
+                        });
+                    }
+                    return response.json();
+                })
                 .then(data => {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Code Resent',
-                        text: 'A new verification code has been sent to ' + newEmail,
-                    });
+                    if (data.success) {
+                        if (pendingProfileData) {
+                            updateProfile(pendingProfileData);
+                            pendingProfileData = null;
+                            originalEmail = newEmail;
+                        }
+                        clearInterval(timerInterval);
+                        verificationModal.style.display = 'none';
+                    } else {
+                        throw new Error(data.message || 'Invalid OTP');
+                    }
                 })
                 .catch(error => {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Failed to resend code: ' + error.message,
-                    });
+                    console.error('Verify OTP Error:', error);
+                    Swal.fire({ icon: 'error', title: 'Error', text: 'Something went wrong: ' + error.message });
                 });
             });
 
-            // Close modal on outside click
+            // Resend OTP
+            resendCodeBtn.addEventListener('click', function() {
+                if (!resendCodeBtn.disabled) {
+                    sendOtp(newEmail);
+                }
+            });
+
+            // Cancel button
+            cancelBtn.addEventListener('click', function() {
+                window.location.href = '/profile';
+            });
+
+            // Close modal
+            closeVerificationBtn.addEventListener('click', function() {
+                clearInterval(timerInterval);
+                verificationModal.style.display = 'none';
+            });
             window.addEventListener('click', function(event) {
                 if (event.target === verificationModal) {
+                    clearInterval(timerInterval);
                     verificationModal.style.display = 'none';
                 }
             });
         });
     </script>
-   
 </body>
-</html>
 <%- include("../../views/partials/user/footer") %>
+</html>

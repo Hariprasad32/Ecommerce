@@ -24,7 +24,7 @@
                         <div class="detail-value" id="detail-phone"><%= user.phone %></div>
                     </div>
                 </div>
-
+                <%if(defaultAddress){%>
                 <div class="detail-section">
                     <h3>Default Shipping Address</h3>
                     <div class="detail-row">
@@ -39,38 +39,7 @@
                         <a href="/myAddress" class="link">View all addresses</a>
                     </div>
                 </div>
-
-                <div class="detail-section">
-                    <h3>Recent Orders</h3>
-                    <div class="order-preview">
-                        <div class="order-item">
-                            <div class="order-id">Order #12345</div>
-                            <div class="order-date">March 10, 2025</div>
-                            <div class="order-status">Delivered</div>
-                            <div class="order-total">$125.99</div>
-                            <a href="orders.html" class="view-btn">View</a>
-                        </div>
-                        <div class="order-item">
-                            <div class="order-id">Order #12346</div>
-                            <div class="order-date">March 15, 2025</div>
-                            <div class="order-status">Processing</div>
-                            <div class="order-total">$89.50</div>
-                            <a href="orders.html" class="view-btn">View</a>
-                        </div>
-                    </div>
-                    <div class="action-links">
-                        <a href="orders.html" class="link">View all orders</a>
-                    </div>
-                </div>
-
-                <div class="detail-section">
-                    <h3>Account Security</h3>
-                    <div class="detail-row">
-                        <div class="detail-label">Password</div>
-                        <div class="detail-value">••••••••</div>
-                        <a href="change-password.html" class="action-btn">Change</a>
-                    </div>
-                </div>
+            <%}%>
             </div>
         </div>
     </div>

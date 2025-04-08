@@ -1,6 +1,7 @@
 const Product = require('../../models/productSchema');
 const Categorie = require('../../models/categorySchema');
 const User = require('../../models/userSchema');
+const Wishlist = require('../../models/wishlistSchema');
 
 
 
@@ -34,15 +35,26 @@ const productDetails = async (req, res) => {
                  }
      });        
     
-    
+     let isInWishlist =  0;
+     if ( userId) {
+         const wishlist = await Wishlist.findOne({ userId:  userId });
+         
+         if (wishlist) {
+             isInWishlist = wishlist.products.some(item => 
+                 item.productId.toString() === productId
+             );
+         }
+     }
+    console.log("isInWishlist:",isInWishlist)
      const recommendedProducts = await Product.find({ category: product.category._id, _id: { $ne: product._id } }).limit(4).exec();
-    //  console.log(recommendedProducts)
+     console.log(recommendedProducts)
         if(product.isBlocked === false){
             res.render('product-details',{
                 user:userData,
                 product:product,
                 totalOffer:totalOffer,
                 category:findCategory,
+                isInWishlist:isInWishlist,
                 size: sizeQuantities,
                 recommendedProducts: recommendedProducts,
                 

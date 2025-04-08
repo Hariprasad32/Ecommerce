@@ -18,7 +18,7 @@ body {
 
 /* Sidebar styles */
 .sidebar {
-    width: 250px;
+    width: 300px;
     background-color: #fff;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     display: flex;
@@ -498,7 +498,7 @@ nav ul li.active a {
     }
 }
 .pagination {
-    margin-left: 320px;
+    margin-left: 0px;
 }
 
 /* Form validation styles */

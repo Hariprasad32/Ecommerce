@@ -172,6 +172,10 @@ const editCategory = async (req, res) => {
         // console.log("id:", id);
         // console.log("name:", categoryName);
         // console.log("description:", description);
+        const products = await Product.deleteMany({category:id,sizes:{$elemMatch:{quantity:{$gt:5}}}})
+
+
+    
 
         if (!id || !mongoose.Types.ObjectId.isValid(id)) {
             return res.status(400).json({ error: "Invalid category ID" });

@@ -387,139 +387,113 @@
         }
         
         // Form submission
-        if (addressForm) {
-            addressForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                if (!validateForm()) {
-                    return;
-                }
-                
-                // Show loading state
-                Swal.fire({
-                    title: 'Saving address',
-                    text: 'Please wait...',
-                    allowOutsideClick: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
-                
-                const formData = {
-                    addressType: document.getElementById('address-type').value,
-                    name: document.getElementById('address-full-name').value,
-                    addressLine1: document.getElementById('address-line1').value,
-                    landMark: document.getElementById('address-line2').value,
-                    city: document.getElementById('address-city').value,
-                    state: document.getElementById('address-state').value,
-                    pincode: document.getElementById('address-zip').value,
-                    country: document.getElementById('address-country').value,
-                    phone: document.getElementById('address-phone').value,
-                    isDefault: document.getElementById('address-default').checked
-                };
-                
-                try {
-                    const addressId = addressIdInput.value;
-                    const endpoint = addressId ? '/updateAddress' : '/addAddress';
-                    const method = addressId ? 'PUT' : 'POST';
-                    
-                    // Include addressId in the payload if editing an existing address
-                    if (addressId) {
-                        formData.addressId = addressId;
-                    }
-                    
-                    const response = await fetch(endpoint, {
-                        method: method,
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(formData)
-                    });
-                    
-                    const result = await response.json();
-                    
-                    if (response.ok) {
+                        if (addressForm) {
+                    addressForm.addEventListener('submit', async function(e) {
+                        e.preventDefault();
+
+                        if (!validateForm()) {
+                            return;
+                        }
+
                         Swal.fire({
-                            icon: 'success',
-                            title: 'Success!',
-                            text: result.message || `${addressId ? 'Address updated' : 'Address added'} successfully!`,
-                            confirmButtonColor: '#3085d6'
-                        }).then(() => {
-                            addressModal.style.display = 'none';
-                            window.location.reload(); // Refresh the page to reflect changes
+                            title: 'Saving address',
+                            text: 'Please wait...',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
                         });
-                    } else {
-                        // Handle field-specific validation errors from backend
-                        if (result.errors && Array.isArray(result.errors)) {
-                            clearValidationErrors();
-                            result.errors.forEach(err => {
-                                switch(err.field) {
-                                    case 'name':
-                                        nameError.textContent = err.message;
-                                        nameInput.classList.add('input-error');
-                                        break;
-                                    case 'addressLine1':
-                                        line1Error.textContent = err.message;
-                                        line1Input.classList.add('input-error');
-                                        break;
-                                    case 'city':
-                                        cityError.textContent = err.message;
-                                        cityInput.classList.add('input-error');
-                                        break;
-                                    case 'state':
-                                        stateError.textContent = err.message;
-                                        stateInput.classList.add('input-error');
-                                        break;
-                                    case 'pincode':
-                                        zipError.textContent = err.message;
-                                        zipInput.classList.add('input-error');
-                                        break;
-                                    case 'phone':
-                                        phoneError.textContent = err.message;
-                                        phoneInput.classList.add('input-error');
-                                        break;
-                                    case 'country':
-                                        countryError.textContent = err.message;
-                                        countryInput.classList.add('input-error');
-                                        break;
+
+                        const formData = {
+                            addressType: document.getElementById('address-type').value,
+                            name: document.getElementById('address-full-name').value,
+                            addressLine1: document.getElementById('address-line1').value,
+                            landMark: document.getElementById('address-line2').value,
+                            city: document.getElementById('address-city').value,
+                            state: document.getElementById('address-state').value,
+                            pincode: document.getElementById('address-zip').value,
+                            country: document.getElementById('address-country').value,
+                            phone: document.getElementById('address-phone').value,
+                            isDefault: document.getElementById('address-default').checked
+                        };
+
+                        try {
+                            const addressId = addressIdInput.value;
+                            const endpoint = addressId ? '/editAddress' : '/addAddress'; 
+                            const method = 'POST';          
+
+                            if (addressId) {
+                                formData.addressId = addressId;
+                            }
+
+                            const response = await fetch(endpoint, {
+                                method: method,
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(formData)
+                            });
+
+                            const result = await response.json();
+
+                            if (response.ok) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Success!',
+                                    text: result.message || `${addressId ? 'Address updated' : 'Address added'} successfully!`,
+                                    confirmButtonColor: '#3085d6'
+                                }).then(() => {
+                                    addressModal.style.display = 'none';
+                                    window.location.reload();
+                                });
+                            } else {
+                                if (result.errors && Array.isArray(result.errors)) {
+                                    clearValidationErrors();
+                                    result.errors.forEach(err => {
+                                        switch(err.field) {
+                                            case 'name': nameError.textContent = err.message; nameInput.classList.add('input-error'); break;
+                                            case 'addressLine1': line1Error.textContent = err.message; line1Input.classList.add('input-error'); break;
+                                            case 'city': cityError.textContent = err.message; cityInput.classList.add('input-error'); break;
+                                            case 'state': stateError.textContent = err.message; stateInput.classList.add('input-error'); break;
+                                            case 'pincode': zipError.textContent = err.message; zipInput.classList.add('input-error'); break;
+                                            case 'phone': phoneError.textContent = err.message; phoneInput.classList.add('input-error'); break;
+                                            case 'country': countryError.textContent = err.message; countryInput.classList.add('input-error'); break;
+                                        }
+                                    });
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Validation Error',
+                                        text: 'Please check the form and fix all errors.',
+                                        confirmButtonColor: '#3085d6'
+                                    });
+                                } else if (result.error === 'duplicate') {
+                                    Swal.fire({
+                                        icon: 'warning',
+                                        title: 'Duplicate Address',
+                                        text: 'This address appears to be similar to one you already have.',
+                                        confirmButtonColor: '#3085d6'
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error',
+                                        text: result.message || 'Failed to save address',
+                                        confirmButtonColor: '#3085d6'
+                                    });
                                 }
-                            });
-                            
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Validation Error',
-                                text: 'Please check the form and fix all errors.',
-                                confirmButtonColor: '#3085d6'
-                            });
-                        } else if (result.error === 'duplicate') {
-                            Swal.fire({
-                                icon: 'warning',
-                                title: 'Duplicate Address',
-                                text: 'This address appears to be similar to one you already have.',
-                                confirmButtonColor: '#3085d6'
-                            });
-                        } else {
+                            }
+                        } catch (error) {
+                            console.error('Error:', error);
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Error',
-                                text: result.message || 'Failed to save address',
+                                text: 'Failed to save address. Please try again.',
                                 confirmButtonColor: '#3085d6'
                             });
                         }
-                    }
-                } catch (error) {
-                    console.error('Error:', error);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Failed to save address. Please try again.',
-                        confirmButtonColor: '#3085d6'
                     });
                 }
-            });
-        }
         
-        // Edit address events
         document.querySelectorAll('.edit-address').forEach(button => {
             button.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -528,7 +502,7 @@
             });
         });
         
-        // Delete address events
+        
         document.querySelectorAll('.delete-address').forEach(button => {
             button.addEventListener('click', async function(e) {
                 e.preventDefault();
@@ -545,7 +519,7 @@
                 }).then(async (result) => {
                     if (result.isConfirmed) {
                         try {
-                            // Show loading state
+                            
                             Swal.fire({
                                 title: 'Deleting address',
                                 text: 'Please wait...',
@@ -570,7 +544,7 @@
                                     text: 'Address deleted successfully!',
                                     confirmButtonColor: '#3085d6'
                                 }).then(() => {
-                                    window.location.reload(); // Refresh the page
+                                    window.location.reload(); 
                                 });
                             } else {
                                 const result = await response.json();
@@ -595,13 +569,13 @@
             });
         });
         
-        // Set as default buttons
+        
         document.querySelectorAll('.make-default').forEach(button => {
             button.addEventListener('click', async function(e) {
                 e.preventDefault();
                 const addressId = this.getAttribute('data-id');
                 try {
-                    // Show loading state
+                    
                     Swal.fire({
                         title: 'Updating default address',
                         text: 'Please wait...',
@@ -626,7 +600,7 @@
                             text: 'Default address updated successfully!',
                             confirmButtonColor: '#3085d6'
                         }).then(() => {
-                            window.location.reload(); // Refresh the page
+                            window.location.reload(); 
                         });
                     } else {
                         const result = await response.json();
@@ -649,10 +623,10 @@
             });
         });
         
-        // Edit address function
+        
         async function editAddress(addressId) {
             try {
-                // Show loading state
+               
                 Swal.fire({
                     title: 'Loading address data',
                     text: 'Please wait...',
@@ -670,7 +644,7 @@
                 });
                 const result = await response.json();
                 
-                // Close loading dialog
+                
                 Swal.close();
                 
                 if (response.ok && result.address) {
@@ -679,7 +653,7 @@
                     addressIdInput.value = address._id;
                     document.getElementById('address-type').value = address.addressType || 'Home';
                     document.getElementById('address-full-name').value = address.name;
-                    document.getElementById('address-line1').value = address.addressLine1;
+                    document.getElementById('address-line1').value = address.city;
                     document.getElementById('address-line2').value = address.landMark || '';
                     document.getElementById('address-city').value = address.city;
                     document.getElementById('address-state').value = address.state;

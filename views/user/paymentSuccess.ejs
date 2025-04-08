@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Successful</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" />
+    <style>
+        :root {
+            --primary: #4361ee;
+            --success: #10b981;
+            --dark: #1f2937;
+            --light: #f9fafb;
+            --body-bg: #f8fafc;
+            --body-color: #334155;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Inter", sans-serif;
+            background-color: var(--body-bg);
+            color: var(--body-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            margin: 20px;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: var(--card-shadow);
+            text-align: center;
+        }
+
+        .success-icon {
+            font-size: 60px;
+            color: var(--success);
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: var(--dark);
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+
+        p {
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+
+        .order-id {
+            font-weight: 500;
+            color: var(--primary);
+            margin-bottom: 25px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: background-color 0.3s;
+            margin: 0 10px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #3651d4;
+        }
+
+        .btn-secondary {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #0d9488;
+        }
+
+        .button-group {
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <i class="fas fa-check-circle success-icon"></i>
+        <h1>Payment Success!</h1>
+        <p>Thank you for your purchase. Your order has been successfully processed.</p>
+        <p class="order-id">Order ID: <%= orderId %></p>
+        <div class="button-group">
+            <a href="/order-detail/<%= orderId %>" class="btn btn-primary">
+                <i class="fas fa-eye"></i> View Order Details
+            </a>
+            <a href="/orders" class="btn btn-secondary">
+                <i class="fas fa-shopping-bag"></i> View All Orders
+            </a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+    <script>
+        // Optional: Add some celebration effect or auto-redirect
+        document.addEventListener('DOMContentLoaded', () => {
+            Swal.fire({
+                title: 'Success!',
+                text: 'Payment Successful !',
+                icon: 'success',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        });
+    </script>
+</body>
+</html>

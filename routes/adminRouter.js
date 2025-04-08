@@ -4,15 +4,20 @@ const adminController = require('../controllers/admin/adminController');
 const customerController = require('../controllers/admin/customerController');
 const categoryController = require("../controllers/admin/categoryController");
 const productController = require("../controllers/admin/productController");
-const orderController = require('../controllers/admin/orderController')
+const orderController = require('../controllers/admin/orderController');
+const couponController = require('../controllers/admin/couponController');
 const { userAuth, adminAuth } = require('../middlewares/auth');
 const uploads = require("../helpers/multer");
 
 router.get('/login', adminController.loadLogin);
 router.post('/login', adminController.login);
 router.get('/dashboard', adminAuth, adminController.loadDashboard);
+router.get('/sales-report', adminAuth, adminController.loadSalesReport);
 router.get('/logout', adminController.logout);
-router.get
+router.get('/error-page',adminController.errorPage)
+
+
+
 // customer management
 router.get('/users', adminAuth, customerController.customerInfo);
 router.get('/blockUser', adminAuth, customerController.customerBlocked);
@@ -31,6 +36,8 @@ router.post('/editCategory/:id', adminAuth, categoryController.editCategory);
 // product management
 router.get("/products", adminAuth, productController.productInfo);
 router.get("/addProducts", adminAuth, productController.getProductAddProduct);
+router.post('/addOffer',adminAuth,productController.addOffer)
+router.post('/removeOffer',adminAuth,productController.removeOffer)
 router.post("/addProducts", adminAuth, uploads.array("imageFile", 8), productController.addProducts);
 router.get("/editProduct", adminAuth, productController.getEditProduct);
 router.post('/editProduct/:id',adminAuth,uploads.array("imageFile", 8),productController.editProduct);
@@ -43,6 +50,21 @@ router.get('/unblockProduct',adminAuth,productController.unblockProduct);
 
 //order Management
 
-router.get('/order-list',adminAuth,orderController.getOrders)
+router.get('/order-list', adminAuth, orderController.getOrders);
+router.get('/admin-order-details/:orderId', adminAuth, orderController.getOrderDetails);
+router.post('/orders/:orderId/status', orderController.updateOrderStatus);
+router.post('/orders/:orderId/:productId/status',orderController.updateProductItemStatus);
+router.post('/orders/:orderId/return',orderController.processReturnRequest);
+
+//coupon mangemnet
+
+router.get('/coupon', adminAuth, couponController.getAdminCoupons);
+router.get('/coupons/:couponName',adminAuth,couponController.getCouponDetails);
+router.post('/editCoupon',adminAuth,couponController.editCoupon);
+router.post('/addCoupon',adminAuth,couponController.addCoupon);
+router.patch('/deleteCoupon',adminAuth,couponController.deleteCoupon);
+
+
+
 
 module.exports = router;

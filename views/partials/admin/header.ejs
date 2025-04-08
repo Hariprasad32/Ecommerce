@@ -37,10 +37,13 @@
             <a href="/admin/category"><i class="fas fa-chart-line"></i>Category</a>
           </li>
           <li class="<%= (page === 'Orders') ? 'active' : '' %>">
-            <a href="/admin/order-list"><i class="fas fas fa-box"></i>Orders</a>
+            <a href="/admin/order-list"><i class="fas fas	fa-shopping-cart"></i>Orders</a>
+          </li>
+          <li class="<%= (page === 'Coupon') ? 'active' : '' %>">
+            <a href="/admin/coupon"><i class="fas fas fa-ticket"></i>Coupon</a>
           </li>
           <li>
-            <a href="#"><i class="fas fa-cog"></i> Settings</a>
+            <a href="/admin/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
           </li>
         </ul>
       </nav>

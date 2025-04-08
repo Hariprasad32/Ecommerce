@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +8,6 @@
 
   <script src="https://kit.fontawesome.com/your-fontawesome-kit.js" crossorigin="anonymous"></script>
   <style>
-  
     :root {
       --dark-bg: #121212;
       --card-bg: #1e1e1e;
@@ -31,10 +31,7 @@
       min-height: 100vh;
     }
 
-    /* Layout */
-    .main-content {
-      padding: 2rem;
-    }
+
 
     .header {
       display: flex;
@@ -102,7 +99,6 @@
       font-size: 0.75rem;
     }
 
-
     .user-profile {
       position: relative;
       cursor: pointer;
@@ -155,6 +151,7 @@
     .dropdown-content a i {
       margin-right: 0.5rem;
     }
+
     .dashboard-content {
       padding: 2rem;
     }
@@ -211,6 +208,10 @@
       color: #28a745;
     }
 
+    .trend.negative {
+      color: #dc3545;
+    }
+
     .charts-section {
       display: grid;
       grid-template-columns: 2fr 1fr;
@@ -241,7 +242,8 @@
       margin-top: 1rem;
     }
 
-    .data-table th, .data-table td {
+    .data-table th,
+    .data-table td {
       padding: 0.75rem;
       border-bottom: 1px solid var(--border-color);
       text-align: left;
@@ -253,18 +255,33 @@
       font-size: 0.875rem;
     }
 
-    .status.completed {
+    .status.Delivered {
       background-color: #28a745;
       color: white;
     }
 
-    .status.processing {
+    .status.Processing {
       background-color: #ffc107;
       color: black;
     }
 
-    .status.pending {
+    .status.Pending {
       background-color: #dc3545;
+      color: white;
+    }
+
+    .status.Shipped {
+      background-color: #17a2b8;
+      color: white;
+    }
+
+    .status.Cancelled {
+      background-color: #6c757d;
+      color: white;
+    }
+
+    .status.Returned {
+      background-color: #ff6b6b;
       color: white;
     }
 
@@ -286,13 +303,131 @@
       background-color: var(--primary);
       color: white;
     }
+
+    .filter-container {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .filter-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .filter-btn {
+      padding: 0.5rem 1rem;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .filter-btn:hover {
+      background: #2b65cc;
+    }
+
+    .custom-date-inputs {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .custom-date-inputs select,
+    .custom-date-inputs input {
+      padding: 0.5rem;
+      background: var(--input-bg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      color: var(--text-color);
+    }
+
+    .summary-card {
+      display: flex;
+      justify-content: space-between;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .summary-item {
+      text-align: center;
+    }
+
+    .summary-value {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: var(--primary);
+    }
+
+    .summary-label {
+      font-size: 0.875rem;
+      color: #a0a0a0;
+    }
+
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+    }
+
+    .pagination-btn {
+      padding: 0.5rem 1rem;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      text-decoration: none;
+      transition: background-color 0.2s;
+    }
+
+    .pagination-btn:disabled {
+      background: #555;
+      cursor: not-allowed;
+    }
+
+    .pagination-btn:hover:not(:disabled) {
+      background: #2b65cc;
+    }
+
+    .page-info {
+      font-size: 0.875rem;
+      color: #a0a0a0;
+    }
+
+    .back-btn {
+      padding: 0.5rem 1rem;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .back-btn:hover {
+      background: #2b65cc;
+    }
+
+    .d-none {
+      display: none;
+    }
   </style>
 </head>
+
 <body>
   <%- include("../../views/partials/admin/header") %>
-  <!-- Main Content -->
   <main class="main-content">
-    <!-- Header -->
     <header class="header">
       <div class="header-left">
         <button id="sidebar-toggle" class="sidebar-toggle">
@@ -302,8 +437,10 @@
       </div>
       <div class="header-right">
         <div class="search-container">
-          <input type="text" placeholder="Search...">
-          <i class="fas fa-search"></i>
+          <!-- <input type="text" placeholder="Search...">
+          <i class="fas fa-search"></i> -->
+
+
         </div>
         <div class="notification">
           <i class="fas fa-bell"></i>
@@ -322,9 +459,7 @@
       </div>
     </header>
 
-    <!-- Dashboard Content -->
     <div class="dashboard-content">
-      <!-- Tabs -->
       <div class="tabs">
         <button class="tab-btn active" data-tab="overview">Overview</button>
         <button class="tab-btn" data-tab="analytics">Analytics</button>
@@ -333,7 +468,6 @@
 
       <div class="tab-content">
         <div id="overview" class="tab-pane active">
-          <!-- Stats Cards -->
           <div class="stats-cards">
             <div class="card">
               <div class="card-header">
@@ -341,8 +475,10 @@
                 <i class="fas fa-credit-card"></i>
               </div>
               <div class="card-body">
-                <h2>$45,231.89</h2>
-                <p class="trend positive">+20.1% from last month</p>
+                <h2>₹<%= totalRevenue.toLocaleString() %></h2>
+                <p class="trend <%= revenueTrend >= 0 ? 'positive' : 'negative' %>">
+                  <%= revenueTrend >= 0 ? '+' : '' %><%= revenueTrend %>% from last month
+                </p>
               </div>
             </div>
             <div class="card">
@@ -351,8 +487,10 @@
                 <i class="fas fa-users"></i>
               </div>
               <div class="card-body">
-                <h2>+2,350</h2>
-                <p class="trend positive">+10.1% from last month</p>
+                <h2>+<%= totalNewCustomers.toLocaleString() %></h2>
+                <p class="trend <%= customersTrend >= 0 ? 'positive' : 'negative' %>">
+                  <%= customersTrend >= 0 ? '+' : '' %><%= customersTrend %>% from last month
+                </p>
               </div>
             </div>
             <div class="card">
@@ -361,8 +499,10 @@
                 <i class="fas fa-shopping-cart"></i>
               </div>
               <div class="card-body">
-                <h2>+12,234</h2>
-                <p class="trend positive">+19% from last month</p>
+                <h2>+<%= totalActiveOrders.toLocaleString() %></h2>
+                <p class="trend <%= activeOrdersTrend >= 0 ? 'positive' : 'negative' %>">
+                  <%= activeOrdersTrend >= 0 ? '+' : '' %><%= activeOrdersTrend %>% from last month
+                </p>
               </div>
             </div>
             <div class="card">
@@ -371,13 +511,14 @@
                 <i class="fas fa-box"></i>
               </div>
               <div class="card-body">
-                <h2>+573</h2>
-                <p class="trend positive">+201 since yesterday</p>
+                <h2>+<%= totalPendingOrders.toLocaleString() %></h2>
+                <p class="trend <%= pendingOrdersTrend >= 0 ? 'positive' : 'negative' %>">
+                  <%= pendingOrdersTrend >= 0 ? '+' : '' %><%= pendingOrdersTrend %> since yesterday
+                </p>
               </div>
             </div>
           </div>
 
-          <!-- Charts Section -->
           <div class="charts-section">
             <div class="card chart-card large">
               <div class="card-header">
@@ -393,44 +534,21 @@
               </div>
               <div class="card-body">
                 <div class="recent-sales">
+                  <% recentOrders.forEach(order => { %>
                   <div class="sale-item">
-                    <img src="https://via.placeholder.com/40" alt="User">
+                    <img src="<%= order.items[0] && order.items[0].productImage ? `/${order.items[0].productImage}` : 'https://via.placeholder.com/40' %>" alt="Product">
                     <div class="sale-info">
-                      <h4>Olivia Martin</h4>
-                      <p>olivia.martin@email.com</p>
+                      <h4><%= order.items[0]?.productName || 'N/A' %></h4>
+                      <p><%= order.userId ? order.userId.name : 'Unknown' %></p>
                     </div>
-                    <div class="sale-amount">+$ insists1,999.00</div>
+                    <div class="sale-amount">₹<%= order.totalAmount.toLocaleString() %></div>
                   </div>
-                  <div class="sale-item">
-                    <img src="https://via.placeholder.com/40" alt="User">
-                    <div class="sale-info">
-                      <h4>Jackson Lee</h4>
-                      <p>jackson.lee@email.com</p>
-                    </div>
-                    <div class="sale-amount">+$39.00</div>
-                  </div>
-                  <div class="sale-item">
-                    <img src="https://via.placeholder.com/40" alt="User">
-                    <div class="sale-info">
-                      <h4>Isabella Nguyen</h4>
-                      <p>isabella.nguyen@email.com</p>
-                    </div>
-                    <div class="sale-amount">+$299.00</div>
-                  </div>
-                  <div class="sale-item">
-                    <img src="https://via.placeholder.com/40" alt="User">
-                    <div class="sale-info">
-                      <h4>William Kim</h4>
-                      <p>will.kim@email.com</p>
-                    </div>
-                    <div class="sale-amount">+$99.00</div>
-                  </div>
+                  <% }); %>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Recent Orders Table -->
           <div class="card table-card">
             <div class="card-header">
               <h3>Recent Orders</h3>
@@ -448,53 +566,22 @@
                   </tr>
                 </thead>
                 <tbody>
+                  <% recentOrders.forEach(order => { %>
                   <tr>
-                    <td>ORD-001</td>
-                    <td>John Doe</td>
-                    <td>Premium Subscription</td>
-                    <td>2025-03-05</td>
-                    <td>$59.00</td>
-                    <td><span class="status completed">Completed</span></td>
+                    <td><%= order.orderId %></td>
+                    <td><%= order.userId ? order.userId.name : 'Unknown' %></td>
+                    <td><%= order.items[0]?.productName || 'N/A' %></td>
+                    <td><%= order.orderDate ? new Date(order.orderDate).toLocaleDateString() : 'N/A' %></td>
+                    <td>₹<%= order.totalAmount.toLocaleString() %></td>
+                    <td><span class="status <%= order.orderStatus %>"><%= order.orderStatus %></span></td>
                   </tr>
-                  <tr>
-                    <td>ORD-002</td>
-                    <td>Jane Smith</td>
-                    <td>Custom Keyboard</td>
-                    <td>2025-03-04</td>
-                    <td>$129.00</td>
-                    <td><span class="status processing">Processing</span></td>
-                  </tr>
-                  <tr>
-                    <td>ORD-003</td>
-                    <td>Robert Johnson</td>
-                    <td>Wireless Headphones</td>
-                    <td>2025-03-03</td>
-                    <td>$89.00</td>
-                    <td><span class="status completed">Completed</span></td>
-                  </tr>
-                  <tr>
-                    <td>ORD-004</td>
-                    <td>Emily Davis</td>
-                    <td>Smart Watch</td>
-                    <td>2025-03-02</td>
-                    <td>$199.00</td>
-                    <td><span class="status pending">Pending</span></td>
-                  </tr>
-                  <tr>
-                    <td>ORD-005</td>
-                    <td>Michael Wilson</td>
-                    <td>Laptop Stand</td>
-                    <td>2025-03-01</td>
-                    <td>$29.00</td>
-                    <td><span class="status completed">Completed</span></td>
-                  </tr>
+                  <% }); %>
                 </tbody>
               </table>
             </div>
           </div>
         </div>
 
-        <!-- Analytics Tab -->
         <div id="analytics" class="tab-pane">
           <div class="card chart-card full">
             <div class="card-header">
@@ -505,39 +592,95 @@
             </div>
           </div>
         </div>
-
-        <!-- Reports Tab -->
-        <div id="reports" class="tab-pane">
+        <div id="reports" class="tab-pane <%= page === 'reports' ? 'active' : '' %>">
           <div class="card">
             <div class="card-header">
-              <h3>Reports</h3>
+              <h3>Sales Report</h3>
             </div>
             <div class="card-body">
-              <div class="report-item">
-                <div class="report-info">
-                  <h4>Monthly Sales Report</h4>
-                  <p>March 2025</p>
+              <div class="filter-container">
+                <div class="filter-row">
+                  <form id="sales-report-form" method="get">
+                    <div class="custom-date-inputs">
+                      <select name="period" id="period-select">
+                        <option value="all" <%= period === 'all' ? 'selected' : '' %>>All Time</option>
+                        <option value="1day" <%= period === '1day' ? 'selected' : '' %>>Last 24 Hours</option>
+                        <option value="1week" <%= period === '1week' ? 'selected' : '' %>>Last 7 Days</option>
+                        <option value="1month" <%= period === '1month' ? 'selected' : '' %>>Last 30 Days</option>
+                        <option value="custom" <%= period === 'custom' ? 'selected' : '' %>>Custom Range</option>
+                      </select>
+                      <div id="custom-date-fields" class="<%= period === 'custom' ? '' : 'd-none' %>">
+                        <input type="date" name="startDate" value="<%= startDate || '' %>" placeholder="Start Date">
+                        <input type="date" name="endDate" value="<%= endDate || '' %>" placeholder="End Date">
+                      </div>
+                      <button type="submit" class="filter-btn">
+                        <i class="fas fa-filter"></i> Apply Filter
+                      </button>
+                      <button type="button" id="download-pdf-btn" class="filter-btn">
+                        <i class="fas fa-download"></i> Download PDF
+                      </button>
+                    </div>
+                  </form>
                 </div>
-                <button class="btn btn-outline">
-                  <i class="fas fa-download"></i> Download
-                </button>
               </div>
-              <div class="report-item">
-                <div class="report-info">
-                  <h4>Customer Growth Report</h4>
-                  <p>Q1 2025</p>
+
+              <div id="sales-report-content">
+                <div class="summary-card">
+                  <div class="summary-item">
+                    <div class="summary-value">₹<%= totalSales.toLocaleString() %></div>
+                    <div class="summary-label">Total Revenue</div>
+                  </div>
+                  <div class="summary-item">
+                    <div class="summary-value"><%= totalOrderCount.toLocaleString() %></div>
+                    <div class="summary-label">Total Orders</div>
+                  </div>
+                  <div class="summary-item">
+                    <div class="summary-value"><%= totalDiscount.toLocaleString() %></div>
+                    <div class="summary-label">Total Discount</div>
+                  </div>
                 </div>
-                <button class="btn btn-outline">
-                  <i class="fas fa-download"></i> Download
-                </button>
-              </div>
-              <div class="report-item">
-                <div class="report-info">
-                  <h4>Inventory Status Report</h4>
-                  <p>Current</p>
+
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Order Id</th>
+                      <th>Customer</th>
+                      <th>Date</th>
+                      <th>Items</th>
+                      <th>Price</th>
+                      <th>Amount</th>
+                      <th>Status</th>
+                      <th>Payment Method</th>
+                    </tr>
+                  </thead>
+                  <tbody id="sales-table-body">
+                    <% sales.forEach(sale => { %>
+                    <tr>
+                      <td><%= sale.orderId %></td>
+                      <td><%= sale.userId ? sale.userId.name : 'Unknown' %></td>
+                      <td><%= sale.orderDate ? new Date(sale.orderDate).toLocaleDateString() : 'N/A' %></td>
+                      <td><%= sale.items.length %></td>
+                      <td>₹<%= sale.totalAmount ? sale.totalAmount.toLocaleString() : '0' %></td>
+                      <td><%= sale.couponDiscount + sale.items.reduce((sum, item) => sum + (item.discount || 0), 0) %>
+                      </td>
+                      <td>₹<%= sale.totalAmount ? sale.totalAmount.toLocaleString() : '0' %></td>
+                      <td><span class="status <%= sale.orderStatus %>"><%= sale.orderStatus || 'N/A' %></span></td>
+                      <td><%= sale.paymentMethod || 'N/A' %></td>
+                    </tr>
+                    <% }); %>
+                  </tbody>
+                </table>
+
+                <div class="pagination" id="pagination">
+                  <a href="#" class="pagination-btn <%= currentPage <= 1 ? 'disabled' : '' %>"
+                    data-page="<%= currentPage - 1 %>">Previous</a>
+                  <span class="page-info">Page <%= currentPage %> of <%= totalPages %></span>
+                  <a href="#" class="pagination-btn <%= currentPage >= totalPages ? 'disabled' : '' %>"
+                    data-page="<%= currentPage + 1 %>">Next</a>
                 </div>
-                <button class="btn btn-outline">
-                  <i class="fas fa-download"></i> Download
+
+                <button class="back-btn" onclick="window.location.href='/admin/dashboard'">
+                  <i class="fas fa-arrow-left"></i> Back to Dashboard
                 </button>
               </div>
             </div>
@@ -548,49 +691,153 @@
   </main>
 
   <script>
- document.addEventListener("DOMContentLoaded", function () {
-  const userProfile = document.querySelector(".user-profile");
-  const userDropdown = document.querySelector(".user-dropdown");
+    document.addEventListener("DOMContentLoaded", function () {
+      const tabButtons = document.querySelectorAll(".tab-btn");
+      const tabPanes = document.querySelectorAll(".tab-pane");
+      const salesReportForm = document.getElementById("sales-report-form");
+      const periodSelect = document.getElementById("period-select");
+      const customDateFields = document.getElementById("custom-date-fields");
+      const downloadPdfBtn = document.getElementById("download-pdf-btn");
 
-  userProfile.addEventListener("click", function (e) {
-    e.stopPropagation();
-    this.classList.toggle("active");
-  });
+      // Tab switching
+      tabButtons.forEach(button => {
+        button.addEventListener("click", function () {
+          const tabId = this.getAttribute("data-tab");
+          tabButtons.forEach(btn => btn.classList.remove("active"));
+          tabPanes.forEach(pane => pane.classList.remove("active"));
+          this.classList.add("active");
+          document.getElementById(tabId).classList.add("active");
 
-  userDropdown.addEventListener("mouseenter", function() {
-    userProfile.classList.add("active");
-  });
+          if (tabId === "reports") {
+            fetchSalesReport({ period: periodSelect.value || "all", page: 1 });
+          }
+        });
+      });
 
-  userDropdown.addEventListener("mouseleave", function() {
-    userProfile.classList.remove("active");
-  });
+      // Form submission with fetch
+      salesReportForm.addEventListener("submit", function (e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const params = {
+          period: formData.get("period"),
+          startDate: formData.get("startDate"),
+          endDate: formData.get("endDate"),
+          page: 1
+        };
+        fetchSalesReport(params);
+      });
 
-  // Add event listener for links inside the dropdown
-  userDropdown.querySelectorAll("a").forEach(link => {
-    link.addEventListener("click", function(e) {
-      e.stopPropagation();
-      userProfile.classList.toggle("active");
+      // PDF Download
+      downloadPdfBtn.addEventListener("click", function () {
+        const formData = new FormData(salesReportForm);
+        const params = {
+          period: formData.get("period"),
+          startDate: formData.get("startDate"),
+          endDate: formData.get("endDate"),
+          download: "pdf"
+        };
+        const query = new URLSearchParams(params).toString();
+        window.location.href = `/admin/sales-report?${query}`; 
+      });
+
+      
+      function updatePaginationListeners() {
+        const paginationButtons = document.querySelectorAll(".pagination-btn");
+        paginationButtons.forEach(btn => {
+          btn.removeEventListener("click", handlePaginationClick); 
+          btn.addEventListener("click", handlePaginationClick);
+        });
+      }
+
+      function handlePaginationClick(e) {
+        e.preventDefault();
+        const page = this.getAttribute("data-page");
+        console.log("page", page)
+        if (page && !this.classList.contains("disabled")) {
+          const formData = new FormData(salesReportForm);
+          console.log("formData", formData)
+          const params = {
+            period: formData.get("period"),
+            startDate: formData.get("startDate"),
+            endDate: formData.get("endDate"),
+            page: parseInt(page)
+          };
+          fetchSalesReport(params);
+        }
+      }
+
+      updatePaginationListeners(); 
+
+      
+      periodSelect.addEventListener("change", function () {
+        customDateFields.classList.toggle("d-none", this.value !== "custom");
+      });
+
+      
+      function fetchSalesReport(params) {
+        const query = new URLSearchParams(params).toString();
+        fetch(`/admin/sales-report?ajax=true&${query}`, {
+          method: "GET",
+          headers: {
+            "Accept": "application/json"
+          }
+        })
+          .then(response => {
+            if (!response.ok) throw new Error("Failed to fetch sales report");
+            return response.json();
+          })
+          .then(data => {
+
+            console.log("data", data)
+            
+            const summaryCard = document.querySelector("#sales-report-content .summary-card");
+            summaryCard.innerHTML = `
+              <div class="summary-item">
+                <div class="summary-value">₹${data.totalSales.toLocaleString()}</div>
+                <div class="summary-label">Total Revenue</div>
+              </div>
+              <div class="summary-item">
+                <div class="summary-value">${data.totalOrderCount.toLocaleString()}</div>
+                <div class="summary-label">Total Orders</div>
+              </div>
+             
+            `;
+
+            
+            const tableBody = document.getElementById("sales-table-body");
+            tableBody.innerHTML = data.sales.map(sale => `
+              <tr>
+                <td>${sale.orderId}</td>
+                <td>${sale.userId ? sale.userId.name : "Unknown"}</td>
+                <td>${sale.orderDate ? new Date(sale.orderDate).toLocaleDateString() : "N/A"}</td>
+                <td>${sale.items.length}</td>
+                <td>₹${sale.totalAmount ? sale.totalAmount.toLocaleString() : "0"}</td>
+              
+                <td>₹${sale.totalAmount ? sale.totalAmount.toLocaleString() : "0"}</td>
+                <td><span class="status ${sale.orderStatus}">${sale.orderStatus || "N/A"}</span></td>
+                <td>${sale.paymentMethod || "N/A"}</td>
+              </tr>
+            `).join("");
+
+            
+            const pagination = document.getElementById("pagination");
+            console.log("pagination",pagination)
+            pagination.innerHTML = `
+              <a href="#" class="pagination-btn ${data.currentPage <= 1 ? "disabled" : ""}" data-page="${data.currentPage - 1}">Previous</a>
+              <span class="page-info">Page ${data.currentPage} of ${data.totalPages}</span>
+              <a href="#" class="pagination-btn ${data.currentPage >= data.totalPages ? "disabled" : ""}" data-page="${data.currentPage  + 1}">Next</a>
+            `;
+
+            
+            updatePaginationListeners();
+          })
+          .catch(error => {
+            console.error("Error fetching sales report:", error);
+            alert("Failed to load sales report. Please try again.");
+          });
+      }
     });
-  });
-
-  document.addEventListener("click", function() {
-    userProfile.classList.remove("active");
-  });
-
-  const tabButtons = document.querySelectorAll(".tab-btn");
-  const tabPanes = document.querySelectorAll(".tab-pane");
-
-  tabButtons.forEach(button => {
-    button.addEventListener("click", function () {
-      tabButtons.forEach(btn => btn.classList.remove("active"));
-      tabPanes.forEach(pane => pane.classList.remove("active"));
-
-      this.classList.add("active");
-      const tabId = this.getAttribute("data-tab");
-      document.getElementById(tabId).classList.add("active");
-    });
-  });
-});
   </script>
 </body>
+
 </html>

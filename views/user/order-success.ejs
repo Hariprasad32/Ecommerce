@@ -147,7 +147,7 @@
     <div class="order-info">
       <div class="info-row">
         <span class="info-label">Order Number:</span>
-        <span class="info-value">#ORD-2458796</span>
+        <span class="info-value"><%= orderId %></span>
       </div>
       <div class="info-row">
         <span class="info-label">Estimated Delivery:</span>
@@ -156,7 +156,7 @@
     </div>
     
     <div class="buttons">
-      <a href="/order-details" class="btn btn-primary">View Order Details</a>
+      <a href="/order-detail/<%=orderId%>" class="btn btn-primary">View Order Details</a>
       <a href="/shop" class="btn btn-secondary">Continue Shopping</a>
     </div>
   </div>

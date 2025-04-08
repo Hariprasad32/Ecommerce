@@ -6,8 +6,16 @@
     <title>My Orders</title>
     <link rel="stylesheet" href="/css/user-profile.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+   <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders</title>
+    <link rel="stylesheet" href="/css/user-profile.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* [Keep your existing styles unchanged] */
+        /* Table Styling */
         .orders-table {
             width: 100%;
             border-collapse: separate;
@@ -19,7 +27,7 @@
         }
 
         .orders-table thead {
-            background: #4a90e2;
+            background: #4a90e2;;
             color: #ffffff;
         }
 
@@ -97,7 +105,7 @@
         .btn-view {
             display: inline-block;
             padding: 8px 16px;
-            background: #4a90e2;
+            background: #4a90e2;;
             color: #ffffff;
             text-decoration: none;
             border-radius: 8px;
@@ -107,10 +115,11 @@
         }
 
         .btn-view:hover {
-            background: #4a90e2;
+            background: #4a90e2;;
             transform: translateY(-2px);
         }
 
+       
         .no-orders {
             text-align: center;
             padding: 40px;
@@ -125,6 +134,7 @@
             margin: 0;
         }
 
+        /* Responsive Design for Table */
         @media (max-width: 768px) {
             .orders-table thead {
                 display: none;
@@ -157,6 +167,100 @@
                 color: #2d3436;
             }
         }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+            gap: 10px;
+        }
+
+        .pagination button {
+            padding: 8px 16px;
+            background-color: #4a90e2;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s ease;
+        }
+
+        .pagination button:disabled {
+            background-color: #b0c4de;
+            cursor: not-allowed;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            background-color: #357abd;
+        }
+
+        .pagination span {
+            font-size: 14px;
+            color: #2d3436;
+        }
+        .controls-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.search-bar {
+    position: relative;
+    max-width: 300px;
+    width: 100%;
+}
+
+.search-bar form {
+    display: flex;
+    align-items: center;
+}
+
+.search-bar input {
+    width: 100%;
+    padding: 10px 40px 10px 16px;
+    border: 1px solid #dfe6e9;
+    border-radius: 8px;
+    font-size: 14px;
+    background-color: #ffffff;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.search-bar input:focus {
+    outline: none;
+    border-color: #4a90e2;
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+}
+
+.search-bar button {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #7f8c8d;
+    cursor: pointer;
+    padding: 0;
+    font-size: 16px;
+    transition: color 0.3s ease;
+}
+
+.search-bar button:hover {
+    color: #4a90e2;
+}
+
+@media (max-width: 768px) {
+    .controls-wrapper {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .search-bar {
+        max-width: 100%;
+    }
+}
     </style>
 </head>
 
@@ -166,14 +270,24 @@
     <div class="main-content">
         <div class="header">
             <h2>My Orders</h2>
-            <div class="filter-controls">
-                <select id="order-filter">
-                    <option value="all">All Orders</option>
-                    <option value="processing">Processing</option>
-                    <option value="shipped">Shipped</option>
-                    <option value="delivered">Delivered</option>
-                    <option value="cancelled">Cancelled</option>
-                </select>
+            <div class="controls-wrapper">
+                <div class="search-bar">
+                    <form action="/orders" method="GET" id="search-form">
+                        <input type="text" name="search" id="order-search" placeholder="Search by Order ID" value="<%= search || '' %>">
+                        <button type="submit"><i class="fas fa-search"></i></button>
+                        <input type="hidden" name="page" value="1">
+                        <input type="hidden" name="limit" value="<%= pagination.limit %>">
+                    </form>
+                </div>
+                <div class="filter-controls">
+                    <select id="order-filter">
+                        <option value="all">All Orders</option>
+                        <option value="processing">Processing</option>
+                        <option value="shipped">Shipped</option>
+                        <option value="delivered">Delivered</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </div>
             </div>
         </div>
 
@@ -207,6 +321,13 @@
                         <% }) %>
                     </tbody>
                 </table>
+
+                <!-- Pagination Controls -->
+                <div class="pagination">
+                    <button onclick="changePage(`<%= pagination.currentPage - 1 %>`)" <%= pagination.currentPage === 1 ? 'disabled' : '' %>>Previous</button>
+                    <span>Page <%= pagination.currentPage %> of <%= pagination.totalPages %> (Total Orders: <%= pagination.totalOrders %>)</span>
+                    <button onclick="changePage(`<%= pagination.currentPage + 1 %>`)" <%= pagination.currentPage === pagination.totalPages ? 'disabled' : '' %>>Next</button>
+                </div>
             <% } else { %>
                 <div class="no-orders">
                     <p>You don't have any orders yet.</p>
@@ -217,27 +338,51 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const orderFilter = document.getElementById('order-filter');
+       document.addEventListener('DOMContentLoaded', function() {
+    const orderFilter = document.getElementById('order-filter');
+    const searchForm = document.getElementById('search-form');
+    const searchInput = document.getElementById('order-search');
 
-            if (orderFilter) {
-                orderFilter.addEventListener('change', function() {
-                    const selectedStatus = this.value.toLowerCase();
-                    const orderRows = document.querySelectorAll('.orders-table tbody tr');
+    // Handle filter changes
+    if (orderFilter) {
+        orderFilter.addEventListener('change', function() {
+            const selectedStatus = this.value.toLowerCase();
+            const orderRows = document.querySelectorAll('.orders-table tbody tr');
 
-                    orderRows.forEach(row => {
-                        const statusElement = row.querySelector('.order-status');
-                        const orderStatus = statusElement.textContent.trim().toLowerCase();
+            orderRows.forEach(row => {
+                const statusElement = row.querySelector('.order-status');
+                const orderStatus = statusElement.textContent.trim().toLowerCase();
 
-                        if (selectedStatus === 'all' || orderStatus === selectedStatus) {
-                            row.style.display = '';
-                        } else {
-                            row.style.display = 'none';
-                        }
-                    });
-                });
+                if (selectedStatus === 'all' || orderStatus === selectedStatus) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    }
+
+    // Clear search when user clicks the "x" in search field
+    if (searchInput) {
+        searchInput.addEventListener('search', function() {
+            if (this.value === '') {
+                window.location.href = '/orders';
             }
         });
+    }
+});
+
+function changePage(newPage) {
+    if (newPage < 1 || newPage > `<%= pagination.totalPages %>`) return;
+    
+    // Preserve search parameter when changing pages
+    const searchParam = document.getElementById('order-search')?.value || '';
+    const searchQuery = searchParam ? `&search=${encodeURIComponent(searchParam)}` : '';
+    
+    window.location.href = `/orders?page=${newPage}&limit=<%= pagination.limit %>${searchQuery}`;
+}
     </script>
 </body>
 </html>
+
+

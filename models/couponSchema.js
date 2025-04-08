@@ -22,16 +22,20 @@ const couponSchema = new Schema({
     },
     minimumPrice:{
         type : Number,
-        reyuired : true
+        required : true
     },
-    isList:{
+    isListed:{
         type : Boolean,
         default : true
     },
     userId:{
         type : mongoose.Schema.Types.ObjectId,
         ref : "User"
-        }
+    },
+    isDeleted:{
+        type : Boolean,
+        default : false
+    }
 })
 
 const Coupon = mongoose.model("Coupon",couponSchema)

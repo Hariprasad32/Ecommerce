@@ -5,7 +5,7 @@ const { v4: uuidv4 } = require('uuid');
 const orderSchema = new Schema({
     orderId: {
         type: String,
-        default: () => `ORD-${uuidv4().substring(0, 6).toUpperCase()}`, // Custom order ID
+        default : ()=>uuidv4(),
         unique: true
     },
     orderMainId: { 
@@ -54,8 +54,12 @@ const orderSchema = new Schema({
         status: { 
             type: String,
             required: true,
-            enum: ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Return Request', 'Returned'],
+            enum: ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Return Request', 'Returned','Return Accepted','Return Rejected'],
             default: 'Pending'
+        },
+        refunded: { 
+            type: Boolean,
+            default: false
         }
     }],
     shippingAddress: {
@@ -84,14 +88,18 @@ const orderSchema = new Schema({
     orderStatus: { 
         type: String,
         required: true,
-        enum: ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Return Request', 'Returned'],
+        enum: ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Return Request', 'Returned','Partially Cancelled'],
         default: 'Pending'
     },
     paymentStatus: { 
         type: String,
         required: true,
-        enum: ['Pending', 'Processing', 'Paid', 'Failed'],
+        enum: ['Pending', 'Processing', 'Paid', 'Failed','Cancelled'],
         default: 'Pending'
+    },
+    couponDiscount:{
+        type:Number,
+        default:0
     },
     createdOn: { 
         type: Date,

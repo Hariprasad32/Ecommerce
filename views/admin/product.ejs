@@ -2,6 +2,33 @@
 <head>
     <link rel="stylesheet" href="/css/mainProduct.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css">
+    <style>
+        /* Inline CSS for alignment fixes */
+        .premium-table th, .premium-table td {
+            text-align: center; /* Center-align table content */
+            vertical-align: middle; /* Vertically center content */
+            padding: 12px; /* Consistent padding */
+        }
+        .action-buttons, .header-actions {
+            display: flex;
+            justify-content: center; /* Center-align buttons */
+            gap: 10px; /* Consistent spacing between buttons */
+        }
+        .premium-search form {
+            display: flex;
+            align-items: center; /* Align search input and button */
+            gap: 10px;
+        }
+        .pagination-container {
+            display: flex;
+            justify-content: center; /* Center pagination */
+            margin-top: 20px;
+        }
+        .btn {
+            min-width: 100px; /* Ensure buttons have consistent width */
+            text-align: center;
+        }
+    </style>
 </head>
 
 <div class="main-content">
@@ -16,7 +43,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
                     <path d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z"/>
                 </svg>
-                <a href="/admin/addProducts" style="text-decoration: none; color: white;"> Add New Product</a>
+                <a href="/admin/addProducts" style="text-decoration: none; color: white;">Add New Product</a>
             </button>
         </div>
     </div>
@@ -38,6 +65,7 @@
                 </div>
             </div>
         </div>
+        
         <!-- Products Table -->
         <div class="table-responsive">
             <table class="premium-table">
@@ -46,7 +74,8 @@
                         <th scope="col">Product Name</th>
                         <th scope="col">Category</th>
                         <th scope="col">Sale Price</th>
-                        <th scope="col">Quantity</th>
+                        <th scope="col">Offer</th>
+                        <th scope="col">Offer Price</th>
                         <th scope="col">Actions</th>
                         <th scope="col">Edit</th>
                     </tr>
@@ -57,25 +86,32 @@
                         <td><%= data[i].productName %></td>
                         <td><%= data[i].category.name %></td>
                         <td><%= data[i].salePrice %></td>
-                        <td><%= data[i].quantity %></td>
                         <td>
-                            <div class="mt-2">
-                                <% if(data[i].isBlocked === false) { %>
-                                    <button class="btn btn-sm btn-premium btn-premium-danger block-btn">
-                                        <a href="/admin/blockProduct?id=<%= data[i]._id %>" style="text-decoration: none; color: beige;" class="block-link">Block</a>
-                                    </button>
-                                <% } else { %>
-                                    <button class="btn btn-sm btn-premium btn-premium-success unblock-btn">
-                                        <a href="/admin/unblockProduct?id=<%= data[i]._id %>" style="text-decoration: none; color: beige;" class="block-link">Unblock</a>  
-                                    </button>
-                                <% } %>
-                            </div>
+                            <% if(data[i].productOffer === 0) { %>
+                                <button class="btn btn-success" onclick="addOffer('<%= data[i]._id %>')">
+                                    <a href="#" class="text-white">Add Offer</a>
+                                </button>
+                            <% } else { %>
+                                <button class="btn btn-danger" onclick="removeOffer('<%= data[i]._id %>')">
+                                    <a href="#" class="text-white">Remove</a>
+                                </button>
+                            <% } %>
+                        </td>
+                        <td><%= data[i].productOffer %>%</td>
+                        <td>
+                            <% if(data[i].isBlocked === false) { %>
+                                <button class="btn btn-sm btn-premium btn-premium-danger block-btn">
+                                    <a href="/admin/blockProduct?id=<%= data[i]._id %>" style="text-decoration: none; color: beige;" class="block-link">Block</a>
+                                </button>
+                            <% } else { %>
+                                <button class="btn btn-sm btn-premium btn-premium-success unblock-btn">
+                                    <a href="/admin/unblockProduct?id=<%= data[i]._id %>" style="text-decoration: none; color: beige;" class="block-link">Unblock</a>
+                                </button>
+                            <% } %>
                         </td>
                         <td>
                             <div class="action-buttons">
-                                <a href="/admin/editProduct?id=<%= data[i]._id %>" 
-                                    class="icon-btn edit-product-btn" 
-                                    data-url="/admin/editProduct?id=<%= data[i]._id %>">
+                                <a href="/admin/editProduct?id=<%= data[i]._id %>" class="icon-btn edit-product-btn" data-url="/admin/editProduct?id=<%= data[i]._id %>">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
                                         <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
                                     </svg>
@@ -100,13 +136,11 @@
                         </a>
                     </li>
                 <% } %>
-                
                 <% for (let i = 1; i <= totalPages; i++) { %>
                     <li class="page-item <%= (i === page) ? 'active' : '' %>">
                         <a class="page-link border-0" href="?page=<%= i %>"><%= i %></a>
                     </li>
                 <% } %>
-                
                 <% if (page < totalPages) { %>
                     <li class="page-item next">
                         <a class="page-link border-0" href="?page=<%= page+1 %>">
@@ -125,21 +159,19 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function() {
+  
     const blockButtons = document.querySelectorAll(".btn-premium-danger");
-    
     blockButtons.forEach(button => {
         button.addEventListener("click", function(e) {
             e.preventDefault();
-            
             const link = this.querySelector('a');
             const url = link.getAttribute('href');
-            
             Swal.fire({
                 title: "Confirm Block",
                 text: "Are you sure you want to block this product?",
                 icon: "warning",
                 showCancelButton: true,
-                confirmButtonColor: "#d33", // Red for block
+                confirmButtonColor: "#d33",
                 cancelButtonColor: "#6c757d",
                 confirmButtonText: "Yes, block it!",
                 background: "#1E293B",
@@ -151,21 +183,19 @@ document.addEventListener("DOMContentLoaded", function() {
             });
         });
     });
+
     const unblockButtons = document.querySelectorAll(".btn-premium-success");
-    
     unblockButtons.forEach(button => {
         button.addEventListener("click", function(e) {
             e.preventDefault();
-            
             const link = this.querySelector('a');
             const url = link.getAttribute('href');
-            
             Swal.fire({
                 title: "Confirm Unblock",
                 text: "Are you sure you want to unblock this product?",
                 icon: "warning",
                 showCancelButton: true,
-                confirmButtonColor: "#28a745", 
+                confirmButtonColor: "#28a745",
                 cancelButtonColor: "#6c757d",
                 confirmButtonText: "Yes, unblock it!",
                 background: "#1E293B",
@@ -181,10 +211,130 @@ document.addEventListener("DOMContentLoaded", function() {
     const editButtons = document.querySelectorAll(".edit-product-btn");
     editButtons.forEach((btn) => {
         btn.addEventListener("click", function (e) {
-            console.log("Edit button clicked for product:", this.getAttribute("data-url"));
             window.location.href = this.getAttribute("data-url");
         });
     });
+
+    
+    window.addOffer = async function(productId, button) {
+        
+        const { value: offerPercentage } = await Swal.fire({
+            title: "Add Offer",
+            text: "Enter the offer percentage for this product:",
+            input: "number",
+            inputLabel: "Offer Percentage (%)",
+            inputAttributes: {
+                min: 1,
+                max: 99,
+                step: 1
+            },
+            showCancelButton: true,
+            confirmButtonText: "Add Offer",
+            cancelButtonText: "Cancel",
+            confirmButtonColor: "#28a745",
+            cancelButtonColor: "#6c757d",
+            background: "#1E293B",
+            color: "#F1F5F9",
+            inputValidator: (value) => {
+                if (!value) {
+                    return "Please enter a percentage!";
+                }
+                if (value < 1 || value > 100) {
+                    return "Percentage must be between 1 and 100!";
+                }
+            }
+        });
+
+       
+        if (!offerPercentage) return;
+
+        try {
+            const response = await fetch('/admin/addOffer', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 
+                    productId: productId, 
+                    offerPercentage: parseInt(offerPercentage) 
+                }),
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                Swal.fire({
+                    title: "Success!",
+                    text: `Offer of ${offerPercentage}% added successfully.`,
+                    icon: "success",
+                    confirmButtonColor: "#28a745",
+                    background: "#1E293B",
+                    color: "#F1F5F9"
+                }).then(() => {
+                    window.location.reload();   
+                    button.classList.remove('btn-success');
+                    button.classList.add('btn-danger');
+                    button.querySelector('a').textContent = 'Remove';
+                    button.onclick = () => removeOffer(productId, button);
+                  
+                });
+            } else {
+                throw new Error(result.message || 'Failed to add offer');
+            }
+        } catch (error) {
+            Swal.fire({
+                title: "Error!",
+                text: error.message,
+                icon: "error",
+                confirmButtonColor: "#d33",
+                background: "#1E293B",
+                color: "#F1F5F9"
+            });
+        }
+    };
+
+    window.removeOffer = async function(productId, button) {
+        try {
+            const response = await fetch('/admin/removeOffer', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ productId: productId }),
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                Swal.fire({
+                    title: "Success!",
+                    text: "Offer removed successfully.",
+                    icon: "success",
+                    confirmButtonColor: "#28a745",
+                    background: "#1E293B",
+                    color: "#F1F5F9"
+                }).then(() => {
+                    window.location.reload();
+                    button.classList.remove('btn-danger');
+                    button.classList.add('btn-success');
+                    button.querySelector('a').textContent = 'Add Offer';
+                    button.onclick = () => addOffer(productId, button);
+                    
+                });
+            } else {
+                throw new Error(result.message || 'Failed to remove offer');
+            }
+        } catch (error) {
+            Swal.fire({
+                title: "Error!",
+                text: error.message,
+                icon: "error",
+                confirmButtonColor: "#d33",
+                background: "#1E293B",
+                color: "#F1F5F9"
+            });
+        }
+    };
 });
 </script>
 <%- include("../../views/partials/admin/footer") %>

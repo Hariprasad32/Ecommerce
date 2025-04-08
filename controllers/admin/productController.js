@@ -6,8 +6,24 @@ const path = require("path")
 const sharp = require("sharp")
 const mongoose = require('mongoose')
 
+// Helper function to calculate sale price based on offers
+const calculateSalePrice = (regularPrice, productOffer = 0, categoryOffer = 0) => {
+    // Use the higher of product or category offer
+    const bestOffer = Math.max(productOffer, categoryOffer);
+   
+    
+    if (bestOffer > 0) {
+        // Calculate discounted price based on offer percentage
+        const discountAmount = (regularPrice * bestOffer) / 100;
+        const calculatedSalePrice = regularPrice - discountAmount;
 
-
+       
+        return Math.round(calculatedSalePrice * 100) / 100;
+    }
+    
+    // If no offer, return null (no sale price)
+    return null;
+};
 
 const productInfo = async (req, res) => {
     try {
@@ -26,7 +42,18 @@ const productInfo = async (req, res) => {
             .populate("category")
             .exec();
 
-        // console.log("product data :",productData)
+        // Calculate sale prices based on offers
+        productData.forEach(product => {
+            const categoryOffer = product.category?.categoryOffer || 0;
+            const productOffer = product.productOffer || 0;
+            
+            // Update sale price based on best offer
+            product.salePrice = calculateSalePrice(
+                product.regularPrice,
+                productOffer,
+                categoryOffer
+            );
+        });
 
         const count = await Product.find({
             $or: [
@@ -72,7 +99,6 @@ const addProducts = async (req, res) => {
     try {
         const products = req.body;
 
-        console.log("products:",products)
 
         if (!products.productName || !products.description || !products.regularPrice  || !products.color || !products.category) {
             return res.status(400).json({ error: "All fields are required!" });
@@ -141,14 +167,22 @@ const addProducts = async (req, res) => {
             return res.status(400).json({ error: "Category not found!" });
         }
 
-        // Create a new product object
+        // Calculate sale price based on product and category offers
+        const regularPrice = parseFloat(products.regularPrice);
+        const salePrice = parseFloat(products.salePrice)
+        const productOffer = 0; // New product, no offer initially
+        const categoryOffer = categoryId.categoryOffer || 0;
+        
+        const calculatedSalePrice = calculateSalePrice(regularPrice, productOffer, categoryOffer);
+     
+      
         const newProduct = new Product({
             productName: products.productName,
             description: products.description,
             category: categoryId._id,
-            regularPrice: parseFloat(products.regularPrice),
-            salePrice: products.salePrice ? parseFloat(products.salePrice) : null,
-            sizes:sizeEntries,
+            regularPrice: regularPrice,
+            salePrice: calculatedSalePrice, 
+            sizes: sizeEntries,
             color: products.color,
             productImage: images,
             status: "Available",
@@ -172,13 +206,22 @@ const addProducts = async (req, res) => {
 const getEditProduct = async (req, res) => {
     try {
         const id = req.query.id;
-        const product = await Product.findById(id);
+        const product = await Product.findById(id).populate("category");
         const category = await Category.find({});
 
         if (!product) {
             return res.redirect('/error-page');
         }
 
+        // Calculate sale price based on offers
+        const regularPrice = product.regularPrice;
+        const productOffer = product.productOffer || 0;
+        const categoryOffer = product.category?.categoryOffer || 0;
+        
+        const calculatedSalePrice = calculateSalePrice(regularPrice, productOffer, categoryOffer);
+        
+        // Update product sale price with calculated value
+        product.salePrice = calculatedSalePrice;
       
         const sizesObject = {};
         if (product.sizes && Array.isArray(product.sizes)) {
@@ -306,9 +349,10 @@ const editProduct = async (req, res) => {
         }
 
         let categoryId;
+        let categoryDoc;
         try {
             if (mongoose.Types.ObjectId.isValid(data.category)) {
-                const categoryDoc = await Category.findById(data.category);
+                categoryDoc = await Category.findById(data.category);
                 if (categoryDoc) {
                     categoryId = categoryDoc._id;
                 } else {
@@ -322,7 +366,7 @@ const editProduct = async (req, res) => {
             return res.status(400).json({ error: "Category error: " + catError.message });
         }
 
-        // Handle size variants to match addProduct format
+      
         const sizeEntries = [];
         const sizeKeys = ['s', 'm', 'l', 'xl', 'xxl'];
         let hasSizeQuantity = false;
@@ -347,12 +391,19 @@ const editProduct = async (req, res) => {
             });
         }
 
+        // Calculate sale price based on product and category offers
+        const regularPrice = parseFloat(data.regularPrice);
+        const productOffer = product.productOffer || 0;
+        const categoryOffer = categoryDoc?.categoryOffer || 0;
+        
+        const calculatedSalePrice = calculateSalePrice(regularPrice, productOffer, categoryOffer);
+
         const updatedFields = {
             productName: data.productName.trim(),
             description: data.description.trim(),
             category: categoryId,
-            regularPrice: parseFloat(data.regularPrice),
-            salePrice: data.salePrice ? parseFloat(data.salePrice) : 0,
+            regularPrice: regularPrice,
+            salePrice: calculatedSalePrice, // Use calculated sale price
             sizes: sizeEntries,  
             color: data.color.trim(),
             productImage: updatedProductImages
@@ -422,6 +473,106 @@ const unblockProduct = async (req, res) => {
     }
 };
 
+const addOffer = async (req,res)=>{
+    try {
+        const { productId, offerPercentage } = req.body;
+        
+        if (!offerPercentage || offerPercentage < 1 || offerPercentage > 100) {
+            return res.status(400).json({ success: false, message: "Invalid offer percentage" });
+        }
+
+        // Get the product to calculate new sale price
+        const product = await Product.findById(productId).populate("category");
+        if (!product) {
+            return res.status(404).json({ success: false, message: "Product not found" });
+        }
+        
+        // Get category offer if available
+        const categoryOffer = product.category?.categoryOffer || 0;
+        
+        // Calculate new sale price
+        const calculatedSalePrice = calculateSalePrice(
+            product.regularPrice,
+            offerPercentage,
+            categoryOffer
+        );
+        
+        await Product.updateOne(
+            { _id: productId },
+            { 
+                productOffer: offerPercentage,
+                salePrice: calculatedSalePrice
+            }
+        );
+        
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+const removeOffer = async(req,res)=>{
+    try {
+        const {productId} = req.body;
+        
+        // Get the product to recalculate sale price
+        const product = await Product.findById(productId).populate("category");
+        if (!product) {
+            return res.status(404).json({ success: false, message: "Product not found" });
+        }
+        
+        // Calculate new sale price based on category offer only
+        const categoryOffer = product.category?.categoryOffer || 0;
+        const calculatedSalePrice = calculateSalePrice(
+            product.regularPrice,
+            0, // Product offer is being removed
+            categoryOffer
+        );
+        
+        await Product.updateOne(
+            { _id: productId },
+            { 
+                productOffer: 0,
+                salePrice: calculatedSalePrice
+            }
+        );
+        
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// Add a function to update sale prices of all products when a category offer changes
+const updateProductSalePrices = async (categoryId) => {
+    try {
+        // Get all products in the category
+        const products = await Product.find({ category: categoryId });
+        const category = await Category.findById(categoryId);
+        
+        if (!category) return;
+        
+        const categoryOffer = category.categoryOffer || 0;
+        
+        // Update each product's sale price
+        for (const product of products) {
+            const productOffer = product.productOffer || 0;
+            const calculatedSalePrice = calculateSalePrice(
+                product.regularPrice,
+                productOffer,
+                categoryOffer
+            );
+            
+            await Product.updateOne(
+                { _id: product._id },
+                { salePrice: calculatedSalePrice }
+            );
+        }
+    } catch (error) {
+        console.error("Error updating product sale prices:", error);
+    }
+};
+
 module.exports = {
     getProductAddProduct,
     productInfo,
@@ -430,5 +581,8 @@ module.exports = {
     editProduct,
     deleteSingleImage,
     blockProduct,
-    unblockProduct
-};
+    unblockProduct,
+    addOffer,
+    removeOffer,
+    updateProductSalePrices
+}

@@ -2,6 +2,7 @@ const User = require("../../models/userSchema");
 const Categorie = require("../../models/categorySchema");
 const Products = require("../../models/productSchema");
 const Cart = require('../../models/cartSchema');
+const Wishlist = require('../../models/wishlistSchema');
 const nodemailer = require("nodemailer");
 const env = require('dotenv').config();
 const bcrypt = require('bcrypt');
@@ -31,7 +32,6 @@ const loadHomePage = async (req, res) => {
     }
 };
 
-
 const loadSignUp = async (req,res)=>{
     try {
         res.render('signup')
@@ -53,6 +53,7 @@ const securePassword = async (password)=>{
         return null;
     }
 }
+
 const verifyOtp = async (req, res) => {
     try {
         const { otp } = req.body;
@@ -75,7 +76,7 @@ const verifyOtp = async (req, res) => {
             await saveUserData.save();
             req.session.user = saveUserData._id;
 
-            return res.json({ success: true, redirectUrl: "/" }); // Ensure JSON response
+            return res.json({ success: true, redirectUrl: "/" }); 
         } else {
             return res.status(400).json({ success: false, message: "Invalid OTP. Please try again." });
         }
@@ -88,6 +89,7 @@ const verifyOtp = async (req, res) => {
 function generateOtp(){
     return Math.floor(100000+Math.random()*900000).toString()
 }
+
 async function sendVerificationEmail(email,otp){
     try {
         
@@ -260,14 +262,22 @@ const logout = async (req,res)=>{
 
 }
 
-
 const loadShopPage = async (req, res) => {
     try {
         const user = req.session.user;
         const userData = await User.findOne({ _id: user });
         const categories = await Categorie.find({ isListed: true });
         const page = parseInt(req.params.page) || 1;
+        let wishlistProductIds = [];
         
+        
+        if (user) {
+            const wishlistDoc = await Wishlist.findOne({ user }).populate("products.productId");
+            if (wishlistDoc && wishlistDoc.products.length > 0) {
+                wishlistProductIds = wishlistDoc.products.map(item => item.productId._id.toString());
+            }
+        }
+
         const categoriesWithIds = categories.map(category => ({ 
             id: category._id, 
             name: category.name,
@@ -280,7 +290,8 @@ const loadShopPage = async (req, res) => {
             products: [],
             page: page, 
             searchQuery:'',
-            sortPrice: ''
+            sortPrice: '',
+            wishlistProductIds: wishlistProductIds 
         });
         
     } catch (error) {
@@ -289,12 +300,12 @@ const loadShopPage = async (req, res) => {
     }
 };
 
-
 const getProducts = async (req, res) => {
     try {
         const user = req.session.user;
         const categories = await Categorie.find({ isListed: true });
         const categoryIds = categories.map(category => category._id.toString());
+        console.log('userId',user)
         
         
         const page = parseInt(req.body.page) || 1;
@@ -323,15 +334,19 @@ const getProducts = async (req, res) => {
                 { description: { $regex: searchQuery, $options: 'i' } }
             ];
         }
+       
         let sort = {};
         if (sortPrice === 'lowToHigh') {
             sort.salePrice = 1;
         } else if (sortPrice === 'highToLow') {
             sort.salePrice = -1;
+        } else if (sortPrice === 'aToZ') {
+            sort.productName = 1;
+        } else if (sortPrice === 'zToA') {
+            sort.productName = -1; 
         } else {
             sort.createdOn = -1;
         }
-        
         const products = await Products.find(query)
             .sort(sort)
             .skip(skip)
@@ -341,6 +356,16 @@ const getProducts = async (req, res) => {
         const totalProducts = await Products.countDocuments(query);
         console.log("totalProducts",totalProducts)
         const totalPages = Math.ceil(totalProducts / limit);
+        let wishlistProductIds = [];
+
+        if (user) {
+            const wishlistDoc = await Wishlist.findOne({ userId:user }).populate("products.productId");
+            console.log(wishlistDoc,"wishlist doc")
+            if (wishlistDoc && wishlistDoc.products.length > 0) {
+                wishlistProductIds = wishlistDoc.products.map(item => item.productId._id.toString());
+            }
+            console.log("this is th ewishlist products",wishlistProductIds)
+        }
         
         res.json({
             success: true,
@@ -349,7 +374,8 @@ const getProducts = async (req, res) => {
                 page: page,
                 totalPages: totalPages,
                 totalProducts: totalProducts
-            }
+            },
+            wishlistProductIds: wishlistProductIds 
         });
     } catch (error) {
         console.error("Error fetching products:", error);
@@ -361,9 +387,6 @@ const getProducts = async (req, res) => {
     }
 };
 
-
-
-    
 module.exports = {
     loadHomePage,
     pageNotFound,
