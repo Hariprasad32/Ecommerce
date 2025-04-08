@@ -6,14 +6,14 @@ const path = require("path")
 const sharp = require("sharp")
 const mongoose = require('mongoose')
 
-// Helper function to calculate sale price based on offers
+
 const calculateSalePrice = (regularPrice, productOffer = 0, categoryOffer = 0) => {
-    // Use the higher of product or category offer
+    
     const bestOffer = Math.max(productOffer, categoryOffer);
    
     
     if (bestOffer > 0) {
-        // Calculate discounted price based on offer percentage
+        
         const discountAmount = (regularPrice * bestOffer) / 100;
         const calculatedSalePrice = regularPrice - discountAmount;
 
@@ -21,8 +21,8 @@ const calculateSalePrice = (regularPrice, productOffer = 0, categoryOffer = 0) =
         return Math.round(calculatedSalePrice * 100) / 100;
     }
     
-    // If no offer, return null (no sale price)
-    return null;
+   
+    return regularPrice;
 };
 
 const productInfo = async (req, res) => {
@@ -42,18 +42,8 @@ const productInfo = async (req, res) => {
             .populate("category")
             .exec();
 
-        // Calculate sale prices based on offers
-        productData.forEach(product => {
-            const categoryOffer = product.category?.categoryOffer || 0;
-            const productOffer = product.productOffer || 0;
-            
-            // Update sale price based on best offer
-            product.salePrice = calculateSalePrice(
-                product.regularPrice,
-                productOffer,
-                categoryOffer
-            );
-        });
+        
+      
 
         const count = await Product.find({
             $or: [
@@ -174,6 +164,8 @@ const addProducts = async (req, res) => {
         const categoryOffer = categoryId.categoryOffer || 0;
         
         const calculatedSalePrice = calculateSalePrice(regularPrice, productOffer, categoryOffer);
+
+        const finalSalePrice = Math.min(calculatedSalePrice, salePrice);
      
       
         const newProduct = new Product({
@@ -181,7 +173,7 @@ const addProducts = async (req, res) => {
             description: products.description,
             category: categoryId._id,
             regularPrice: regularPrice,
-            salePrice: calculatedSalePrice, 
+            salePrice: finalSalePrice, 
             sizes: sizeEntries,
             color: products.color,
             productImage: images,
@@ -213,15 +205,17 @@ const getEditProduct = async (req, res) => {
             return res.redirect('/error-page');
         }
 
-        // Calculate sale price based on offers
         const regularPrice = product.regularPrice;
         const productOffer = product.productOffer || 0;
         const categoryOffer = product.category?.categoryOffer || 0;
+        const salePrice = product.salePrice 
         
         const calculatedSalePrice = calculateSalePrice(regularPrice, productOffer, categoryOffer);
+
+        const finalSalePrice = Math.min(calculatedSalePrice, salePrice);
         
-        // Update product sale price with calculated value
-        product.salePrice = calculatedSalePrice;
+        
+        product.salePrice = finalSalePrice;
       
         const sizesObject = {};
         if (product.sizes && Array.isArray(product.sizes)) {
@@ -391,19 +385,22 @@ const editProduct = async (req, res) => {
             });
         }
 
-        // Calculate sale price based on product and category offers
+        
         const regularPrice = parseFloat(data.regularPrice);
+        const salePrice = parseFloat(data.salePrice);
         const productOffer = product.productOffer || 0;
         const categoryOffer = categoryDoc?.categoryOffer || 0;
         
         const calculatedSalePrice = calculateSalePrice(regularPrice, productOffer, categoryOffer);
+        
+        const finalSalePrice = Math.min(calculatedSalePrice, salePrice);
 
         const updatedFields = {
             productName: data.productName.trim(),
             description: data.description.trim(),
             category: categoryId,
             regularPrice: regularPrice,
-            salePrice: calculatedSalePrice, // Use calculated sale price
+            salePrice: finalSalePrice,
             sizes: sizeEntries,  
             color: data.color.trim(),
             productImage: updatedProductImages
@@ -543,7 +540,7 @@ const removeOffer = async(req,res)=>{
     }
 };
 
-// Add a function to update sale prices of all products when a category offer changes
+
 const updateProductSalePrices = async (categoryId) => {
     try {
         // Get all products in the category

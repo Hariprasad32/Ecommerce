@@ -12,22 +12,22 @@
   <!-- Custom CSS -->
   <style>
     body {
-      background-color: #000; /* Black background */
-      color: #fff; /* White text */
+      background-color: #000;
+      color: #fff;
       font-family: 'Arial', sans-serif;
     }
     .login-container {
       max-width: 400px;
       margin: 100px auto;
       padding: 30px;
-      background: #111; /* Dark gray background */
+      background: #111;
       border-radius: 10px;
-      box-shadow: 0 0 20px rgba(255, 255, 255, 0.1); /* Soft white shadow */
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
     }
     .login-container h2 {
       margin-bottom: 20px;
       text-align: center;
-      color: #fff; /* White text */
+      color: #fff; 
     }
     .form-control {
       background-color: #222; 
@@ -96,12 +96,11 @@
   <!-- Custom JS -->
   <script>
     document.getElementById('loginForm').addEventListener('submit', async function (e) {
-      e.preventDefault(); // Prevent default form submission
-
+      e.preventDefault(); 
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
 
-      // Client-side validation
+      
       if (!email || !password) {
         Swal.fire({
           icon: 'warning',
@@ -140,10 +139,10 @@
         const result = await response.json();
 
         if (response.ok) {
-          // Success: Redirect to dashboard or wherever needed
+         
           window.location.href = '/admin/dashboard';
         } else {
-          // Error: Show SweetAlert with server message
+          
           Swal.fire({
             icon: 'error',
             title: 'Login Failed',

@@ -699,7 +699,7 @@
       const customDateFields = document.getElementById("custom-date-fields");
       const downloadPdfBtn = document.getElementById("download-pdf-btn");
 
-      // Tab switching
+      
       tabButtons.forEach(button => {
         button.addEventListener("click", function () {
           const tabId = this.getAttribute("data-tab");
@@ -714,7 +714,7 @@
         });
       });
 
-      // Form submission with fetch
+      
       salesReportForm.addEventListener("submit", function (e) {
         e.preventDefault();
         const formData = new FormData(this);
@@ -727,7 +727,7 @@
         fetchSalesReport(params);
       });
 
-      // PDF Download
+      
       downloadPdfBtn.addEventListener("click", function () {
         const formData = new FormData(salesReportForm);
         const params = {
