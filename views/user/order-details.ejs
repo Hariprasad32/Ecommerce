@@ -402,7 +402,7 @@
                     <% orders.orderitems.forEach(item => { %>
                         <div class="item-card">
                             <div class="item-image">
-                                <img src="/<%= item.productId.productImage %>" alt="<%= item.productId.productName %>">
+                                <img src="/<%= item.productId.productImage[0] %>" alt="<%= item.productId.productName %>">
                             </div>
                             <div class="item-details">
                                 <div class="item-name"><%= item.productId.productName %></div>
@@ -434,11 +434,21 @@
         <div class="order-summary">
             <h3>Order Summary</h3>
             <div class="summary-row">
+                <span>Subtotal:</span>
+                <span>₹<%= orders.subtotal.toLocaleString() %></span>
+            </div>
+            <div class="summary-row">
+                <span>Shipping Cost:</span>
+                <span>₹<%= orders.shippingCost.toLocaleString() %></span>
+            </div>
+            <div class="summary-row">
                 <span>Total Amount:</span>
                 <span>₹<%= orders.finalAmount.toLocaleString() %></span>
             </div>
         </div>
-
+        
+        <!-- Invoice Modal -->
+       
         <!-- Return Modal -->
         <div id="returnModal" class="modal">
             <div class="modal-content">
@@ -464,7 +474,6 @@
             </div>
         </div>
 
-        <!-- Invoice Modal -->
         <div id="invoiceModal" class="modal">
             <div class="invoice-modal-content" id="invoicePrintArea">
                 <div class="invoice-header">
@@ -511,10 +520,13 @@
                     </tbody>
                 </table>
                 <div class="invoice-summary">
+                    <p>Subtotal: ₹<%= orders.subtotal.toLocaleString() %></p>
+                    <p>Shipping Cost: ₹<%= orders.shippingCost.toLocaleString() %></p>
                     <p><strong>Total Amount: ₹<%= orders.finalAmount.toLocaleString() %></strong></p>
                 </div>
             </div>
         </div>
+
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
@@ -681,6 +693,8 @@ async function retryPayment(orderId) {
         }
     }
 }
+
+
 function openReturnModal(orderId, productId) {
     document.getElementById('returnModal').style.display = 'block';
     document.getElementById('returnForm').onsubmit = function(event) {

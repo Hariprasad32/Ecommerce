@@ -17,7 +17,7 @@ const orderSchema = new Schema({
         ref: 'User',
         required: true
     },
-    items: [{ 
+    items: [{
         productId: {
             type: Schema.Types.ObjectId,
             ref: 'Product',
@@ -28,7 +28,7 @@ const orderSchema = new Schema({
             required: true
         },
         productImage: {
-            type: String, 
+            type: String,
             required: true
         },
         quantity: {
@@ -39,27 +39,39 @@ const orderSchema = new Schema({
             type: String,
             required: true
         },
-        price: { 
+        price: {
             type: Number,
             required: true
         },
-        finalPrice: { 
+        finalPrice: {
             type: Number,
             required: true
         },
-        discount: { 
+        discount: {
             type: Number,
             default: 0
         },
-        status: { 
+        status: {
             type: String,
             required: true,
-            enum: ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Return Request', 'Returned','Return Accepted','Return Rejected'],
+            enum: ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Return Request', 'Returned', 'Return Accepted', 'Return Rejected'],
             default: 'Pending'
         },
-        refunded: { 
+        refunded: {
             type: Boolean,
             default: false
+        },
+        returnReason: {
+            type: String,
+            required: false
+        },
+        returnComments: { 
+            type: String,
+            required: false
+        },
+        returnRequestDate: { 
+            type: Date,
+            required: false
         }
     }],
     shippingAddress: {

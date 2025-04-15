@@ -6,16 +6,8 @@
     <title>My Orders</title>
     <link rel="stylesheet" href="/css/user-profile.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-   <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Orders</title>
-    <link rel="stylesheet" href="/css/user-profile.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* Table Styling */
+        /* Existing styles unchanged */
         .orders-table {
             width: 100%;
             border-collapse: separate;
@@ -27,7 +19,7 @@
         }
 
         .orders-table thead {
-            background: #4a90e2;;
+            background: #4a90e2;
             color: #ffffff;
         }
 
@@ -105,7 +97,7 @@
         .btn-view {
             display: inline-block;
             padding: 8px 16px;
-            background: #4a90e2;;
+            background: #4a90e2;
             color: #ffffff;
             text-decoration: none;
             border-radius: 8px;
@@ -115,11 +107,10 @@
         }
 
         .btn-view:hover {
-            background: #4a90e2;;
+            background: #357abd;
             transform: translateY(-2px);
         }
 
-       
         .no-orders {
             text-align: center;
             padding: 40px;
@@ -134,7 +125,6 @@
             margin: 0;
         }
 
-        /* Responsive Design for Table */
         @media (max-width: 768px) {
             .orders-table thead {
                 display: none;
@@ -167,6 +157,7 @@
                 color: #2d3436;
             }
         }
+
         .pagination {
             display: flex;
             justify-content: center;
@@ -199,68 +190,97 @@
             font-size: 14px;
             color: #2d3436;
         }
+
         .controls-wrapper {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
 
-.search-bar {
-    position: relative;
-    max-width: 300px;
-    width: 100%;
-}
+        .search-bar {
+            position: relative;
+            max-width: 300px;
+            width: 100%;
+        }
 
-.search-bar form {
-    display: flex;
-    align-items: center;
-}
+        .search-bar form {
+            display: flex;
+            align-items: center;
+        }
 
-.search-bar input {
-    width: 100%;
-    padding: 10px 40px 10px 16px;
-    border: 1px solid #dfe6e9;
-    border-radius: 8px;
-    font-size: 14px;
-    background-color: #ffffff;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
+        .search-bar input {
+            width: 100%;
+            padding: 10px 40px 10px 16px;
+            border: 1px solid #dfe6e9;
+            border-radius: 8px;
+            font-size: 14px;
+            background-color: #ffffff;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
 
-.search-bar input:focus {
-    outline: none;
-    border-color: #4a90e2;
-    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
-}
+        .search-bar input:focus {
+            outline: none;
+            border-color: #4a90e2;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+        }
 
-.search-bar button {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    color: #7f8c8d;
-    cursor: pointer;
-    padding: 0;
-    font-size: 16px;
-    transition: color 0.3s ease;
-}
+        .search-bar button {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #7f8c8d;
+            cursor: pointer;
+            padding: 0;
+            font-size: 16px;
+            transition: color 0.3s ease;
+        }
 
-.search-bar button:hover {
-    color: #4a90e2;
-}
+        .search-bar button:hover {
+            color: #4a90e2;
+        }
 
-@media (max-width: 768px) {
-    .controls-wrapper {
-        flex-direction: column;
-        gap: 15px;
-    }
-    
-    .search-bar {
-        max-width: 100%;
-    }
-}
+        @media (max-width: 768px) {
+            .controls-wrapper {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .search-bar {
+                max-width: 100%;
+            }
+        }
+
+        /* New Loading State */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4a90e2;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 
@@ -274,18 +294,17 @@
                 <div class="search-bar">
                     <form action="/orders" method="GET" id="search-form">
                         <input type="text" name="search" id="order-search" placeholder="Search by Order ID" value="<%= search || '' %>">
+                        <input type="hidden" name="status" id="status-filter" value="">
                         <button type="submit"><i class="fas fa-search"></i></button>
-                        <input type="hidden" name="page" value="1">
-                        <input type="hidden" name="limit" value="<%= pagination.limit %>">
                     </form>
                 </div>
                 <div class="filter-controls">
                     <select id="order-filter">
-                        <option value="all">All Orders</option>
-                        <option value="processing">Processing</option>
-                        <option value="shipped">Shipped</option>
-                        <option value="delivered">Delivered</option>
-                        <option value="cancelled">Cancelled</option>
+                        <option value="all" <%= !status ? 'selected' : '' %>>All Orders</option>
+                        <option value="processing" <%= status === 'processing' ? 'selected' : '' %>>Processing</option>
+                        <option value="shipped" <%= status === 'shipped' ? 'selected' : '' %>>Shipped</option>
+                        <option value="delivered" <%= status === 'delivered' ? 'selected' : '' %>>Delivered</option>
+                        <option value="cancelled" <%= status === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
                     </select>
                 </div>
             </div>
@@ -307,7 +326,7 @@
                         <% orders.forEach(order => { %>
                             <tr>
                                 <td data-label="Order ID">#<%= order.orderMainId %></td>
-                                <td data-label="Total Amount">₹<%= order.totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></td>
+                                <td data-label="Total Amount">₹<%= order.totalAmount + 40 %></td>
                                 <td data-label="Date"><%= new Date(order.orderDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) %></td>
                                 <td data-label="Status">
                                     <span class="order-status <%= order.orderStatus.toLowerCase() %>">
@@ -322,11 +341,13 @@
                     </tbody>
                 </table>
 
-                <!-- Pagination Controls -->
                 <div class="pagination">
-                    <button onclick="changePage(`<%= pagination.currentPage - 1 %>`)" <%= pagination.currentPage === 1 ? 'disabled' : '' %>>Previous</button>
-                    <span>Page <%= pagination.currentPage %> of <%= pagination.totalPages %> (Total Orders: <%= pagination.totalOrders %>)</span>
-                    <button onclick="changePage(`<%= pagination.currentPage + 1 %>`)" <%= pagination.currentPage === pagination.totalPages ? 'disabled' : '' %>>Next</button>
+                    <button id="prev-page" onclick="changePage('<%= pagination.currentPage - 1 %>')" 
+                            <%= pagination.currentPage <= 1 ? 'disabled' : '' %>>Previous</button>
+                    <span>Page <%= pagination.currentPage %> of <%= pagination.totalPages %> 
+                          (Total Orders: <%= pagination.totalOrders %>)</span>
+                    <button id="next-page" onclick="changePage('<%= pagination.currentPage + 1 %>')" 
+                            <%= pagination.currentPage >= pagination.totalPages ? 'disabled' : '' %>>Next</button>
                 </div>
             <% } else { %>
                 <div class="no-orders">
@@ -334,55 +355,82 @@
                 </div>
             <% } %>
         </div>
+
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" id="loading-overlay">
+            <div class="loading-spinner"></div>
+        </div>
+
         <%- include("../../views/partials/user/footer") %>
     </div>
 
     <script>
-       document.addEventListener('DOMContentLoaded', function() {
-    const orderFilter = document.getElementById('order-filter');
-    const searchForm = document.getElementById('search-form');
-    const searchInput = document.getElementById('order-search');
+        document.addEventListener('DOMContentLoaded', function() {
+            const orderFilter = document.getElementById('order-filter');
+            const searchForm = document.getElementById('search-form');
+            const searchInput = document.getElementById('order-search');
+            const statusFilter = document.getElementById('status-filter');
+            const loadingOverlay = document.getElementById('loading-overlay');
 
-    // Handle filter changes
-    if (orderFilter) {
-        orderFilter.addEventListener('change', function() {
-            const selectedStatus = this.value.toLowerCase();
-            const orderRows = document.querySelectorAll('.orders-table tbody tr');
+            // Show loading spinner during navigation
+            function showLoading() {
+                loadingOverlay.style.display = 'flex';
+            }
 
-            orderRows.forEach(row => {
-                const statusElement = row.querySelector('.order-status');
-                const orderStatus = statusElement.textContent.trim().toLowerCase();
+            // Handle filter changes by submitting to backend
+            if (orderFilter) {
+    orderFilter.addEventListener('change', function() {
+        statusFilter.value = this.value === 'all' ? '' : this.value;
+        // Reset to page 1 when filtering
+        const currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.set('page', 1);
+        showLoading();
+        searchForm.submit();
+    });
+}
 
-                if (selectedStatus === 'all' || orderStatus === selectedStatus) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-        });
-    }
+            // Clear search when user clicks the "x" in search field
+            if (searchInput) {
+                searchInput.addEventListener('search', function() {
+                    if (this.value === '') {
+                        statusFilter.value = '';
+                        showLoading();
+                        searchForm.submit();
+                    }
+                });
+            }
 
-    // Clear search when user clicks the "x" in search field
-    if (searchInput) {
-        searchInput.addEventListener('search', function() {
-            if (this.value === '') {
-                window.location.href = '/orders';
+            // Handle form submission
+            if (searchForm) {
+                searchForm.addEventListener('submit', function() {
+                    showLoading();
+                });
             }
         });
-    }
-});
 
-function changePage(newPage) {
-    if (newPage < 1 || newPage > `<%= pagination.totalPages %>`) return;
+        function changePage(newPage) {
+    const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.set('page', newPage);
     
-    // Preserve search parameter when changing pages
-    const searchParam = document.getElementById('order-search')?.value || '';
-    const searchQuery = searchParam ? `&search=${encodeURIComponent(searchParam)}` : '';
+    // Preserve other query parameters if they exist
+    const search = document.getElementById('order-search').value;
+    if (search) {
+        currentUrl.searchParams.set('search', search);
+    }
     
-    window.location.href = `/orders?page=${newPage}&limit=<%= pagination.limit %>${searchQuery}`;
+    const statusFilter = document.getElementById('order-filter').value;
+    if (statusFilter && statusFilter !== 'all') {
+        currentUrl.searchParams.set('status', statusFilter);
+    } else {
+        currentUrl.searchParams.delete('status');
+    }
+    
+    // Show loading overlay
+    document.getElementById('loading-overlay').style.display = 'flex';
+    
+    // Navigate to the new URL
+    window.location.href = currentUrl.toString();
 }
     </script>
 </body>
 </html>
-
-

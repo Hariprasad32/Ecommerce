@@ -655,7 +655,7 @@ const uploadProfileImage = async (req, res) => {
                 return res.status(400).json({ success: false, message: 'No image file provided' });
             }
 
-            const imageUrl = `/uploads/productImage/${req.file.filename}`; // Adjusted path to match your storage
+            const imageUrl = `/uploads/productImage/${req.file.filename}`; 
             const user = await User.findByIdAndUpdate(
                 userId,
                 { profileImage: imageUrl },

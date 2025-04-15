@@ -68,6 +68,7 @@
 
 
     // cart and wishlist
+    
     router.get('/cart',userAuth,cartController.getCart)
     router.post('/add-to-cart', cartController.addToCart);
     router.get('/product-status/:productId',cartController.productStatus)
@@ -86,6 +87,8 @@
     router.get('/apply-coupon', couponController.applyCoupon);
 
     //order routes
+
+
     router.get('/orders',userAuth,orderController.getUserOrders)
     router.get('/checkout',userAuth,orderController.getCheckout);
     router.post('/place-order',userAuth,orderController.placeOrder)
@@ -105,6 +108,7 @@
 
     router.get('/wallet',userAuth,walletController.getWallet)
     router.post('/refund-to-wallet',userAuth,walletController.refundToWallet)
+    router.get('/check-wallet-balance',userAuth,walletController.checkWalletBalance)
 
 
 

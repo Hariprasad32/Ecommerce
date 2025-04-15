@@ -1,4 +1,4 @@
-// walletController.js
+
 const User = require('../../models/userSchema');
 const Order = require('../../models/orderSchema');
 
@@ -6,15 +6,34 @@ const Order = require('../../models/orderSchema');
 const getWallet = async (req, res) => {
     try {
         const userId = req.session.user;
+        const {page = 1} = req.query;
+        const limit = 5
+        const skip = (page-1)*limit;
+
         const user = await User.findById(userId)
 
         if (!user) {
             return res.status(404).redirect('/404-page');
         }
+        
+        const transactions = user.walletTransactions || [];
+        const sortedTransactions = transactions.sort((a,b)=>b.date-a.date);
+        const totalTransactions = transactions.length;
+        const totalPages = Math.ceil(totalTransactions/limit);
+
+
+        const paginatedTransactions = sortedTransactions.slice(skip,skip+limit);
+
+        const currentPage = Math.max(1,Math.min(parseInt(page),totalPages))
+
 
         res.render('wallet', {
             user: user,
-            page: 'Wallet'
+            transactions: paginatedTransactions,
+            page: 'Wallet',
+            currentPage: currentPage,
+            totalPages: totalPages,
+            totalTransactions: totalTransactions
         });
     } catch (error) {
         console.log('Error loading wallet:', error);
@@ -22,9 +41,8 @@ const getWallet = async (req, res) => {
     }
 };
 
-
 const refundToWallet = async (req, res) => {
-    const { orderId, itemId } = req.body; 
+    const { orderId, itemId } = req.body;
     const userId = req.session.user;
 
     try {
@@ -45,11 +63,19 @@ const refundToWallet = async (req, res) => {
             });
         }
 
+       
+        if (order.paymentMethod === 'Cash on Delivery' && order.paymentStatus === 'Pending') {
+            return res.status(400).render('wallet', {
+                user: await User.findById(userId),
+                page: 'Wallet',
+                error: 'Refunds are not allowed for Cash on Delivery orders with pending payment'
+            });
+        }
+
         let refundAmount = 0;
         let refundDescription = '';
 
         if (itemId) {
-       
             const item = order.items.find(i => i._id.toString() === itemId);
             if (!item) {
                 return res.status(404).render('wallet', {
@@ -67,8 +93,7 @@ const refundToWallet = async (req, res) => {
                 });
             }
 
-          
-            if (item.refunded) { 
+            if (item.refunded) {
                 return res.status(400).render('wallet', {
                     user: await User.findById(userId),
                     page: 'Wallet',
@@ -79,11 +104,9 @@ const refundToWallet = async (req, res) => {
             refundAmount = item.finalPrice * item.quantity;
             refundDescription = `Refund for item ${item.productName} (Order ${order.orderId})`;
 
-
             item.refunded = true;
             await order.save();
         } else {
-           
             if (!["Cancelled", "Returned", "Partially Cancelled"].includes(order.orderStatus)) {
                 return res.status(400).render('wallet', {
                     user: await User.findById(userId),
@@ -92,8 +115,7 @@ const refundToWallet = async (req, res) => {
                 });
             }
 
-           
-            const refundableItems = order.items.filter(item => 
+            const refundableItems = order.items.filter(item =>
                 ["Cancelled", "Returned"].includes(item.status) && !item.refunded
             );
 
@@ -105,13 +127,12 @@ const refundToWallet = async (req, res) => {
                 });
             }
 
-            refundAmount = refundableItems.reduce((sum, item) => 
+            refundAmount = refundableItems.reduce((sum, item) =>
                 sum + (item.finalPrice * item.quantity), 0
             );
             refundDescription = `Refund for order ${order.orderId}`;
 
-         
-            refundableItems.forEach(item => item.refunded = true); 
+            refundableItems.forEach(item => item.refunded = true);
             await order.save();
         }
 
@@ -146,8 +167,27 @@ const refundToWallet = async (req, res) => {
         res.redirect('/404-page');
     }
 };
+const checkWalletBalance = async (req, res) => {
+    try {
+        const userId = req.session.user;
+        if (!userId) {
+            return res.status(401).json({ success: false, message: 'User not authenticated' });
+        }
+
+        const user = await User.findById(userId).select('wallet');
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        res.json({ success: true, balance: user.wallet || 0 });
+    } catch (error) {
+        console.error('Error checking wallet balance:', error);
+        res.status(500).json({ success: false, message: 'Server error', error: error.message });
+    }
+};
 
 module.exports = {
     getWallet,
-    refundToWallet
+    refundToWallet,
+    checkWalletBalance
 };

@@ -4,7 +4,6 @@ const User = require('../../models/userSchema');
 const Cart = require('../../models/cartSchema')
 const Wishlist = require('../../models/wishlistSchema')
 
-
 const getCart = async (req, res) => {
     const userId = req.session.user;
     const userData = await User.findById(userId);
@@ -20,18 +19,17 @@ const getCart = async (req, res) => {
             cart: null,
             page: "cartPage",
             totalPrice: "0.00",
+            shippingFee: "0.00",
             calculateSubtotal: () => 0
         });
     }
 
     const cartItems = cartProducts.items.map(item => {
-       
         const product = item.productId;
 
         const isBlocked = product && product.isBlocked === true;
         const isUnlisted = product && (product.status === "Out Of Stock" || product.status === "Discontinued");
 
-      
         const updatedSizes = item.sizes.map(sizeItem => {
             const productSize = product && product.sizes ? product.sizes.find(ps => ps.size === sizeItem.size) : null;
             const isSizeOutOfStock = !productSize || productSize.quantity === 0 || sizeItem.quantity > productSize.quantity;
@@ -43,19 +41,18 @@ const getCart = async (req, res) => {
             };
         });
 
-      
         const isItemOutOfStock = updatedSizes.every(size => size.isOutOfStock) || isBlocked || isUnlisted;
 
         return {
             ...item.toObject(),
             sizes: updatedSizes,
             isOutOfStock: isItemOutOfStock,
-            isBlocked: isBlocked,  
-            isUnlisted: isUnlisted 
+            isBlocked: isBlocked,
+            isUnlisted: isUnlisted
         };
     });
 
-    const totalPrice = cartItems.reduce((total, item) => {
+    const subtotal = cartItems.reduce((total, item) => {
         if (!item.isOutOfStock) {
             const itemTotal = item.sizes
                 .filter(size => !size.isOutOfStock)
@@ -65,12 +62,19 @@ const getCart = async (req, res) => {
         return total;
     }, 0);
 
+
+    const shippingFee = 40.00;
+
+   
+    const totalPrice = subtotal + shippingFee;
+
     res.render('cart', {
         user: userData,
         cart: { ...cartProducts.toObject(), items: cartItems },
         page: "cartPage",
         totalPrice: totalPrice.toFixed(2),
-        calculateSubtotal: function(items) {
+        shippingFee: shippingFee.toFixed(2),
+        calculateSubtotal: function (items) {
             return items.reduce((total, item) => {
                 if (!item.isOutOfStock) {
                     const itemTotal = item.sizes
@@ -261,12 +265,12 @@ const productStatus = async (req, res) => {
         const isListed = product.category ? product.category.isListed !== false : true;
         const isBlocked = product.isBlocked || false;
         
-        console.log("Product status check:", { 
-            productId: req.params.productId,
-            isListed, 
-            isBlocked,
-            category: product.category
-        });
+        // console.log("Product status check:", { 
+        //     productId: req.params.productId,
+        //     isListed, 
+        //     isBlocked,
+        //     category: product.category
+        // });
         
         res.json({ isListed: isListed, isBlocked: isBlocked });
         

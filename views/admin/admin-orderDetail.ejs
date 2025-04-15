@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Order Details</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-      :root {
+        :root {
             --primary-color: #4361ee;
             --primary-light: #eef2ff;
             --primary-dark: #3a56d4;
@@ -172,7 +173,8 @@
             font-weight: 500;
         }
 
-        .status-select, .product-status-select {
+        .status-select,
+        .product-status-select {
             padding: 10px 14px;
             border: 1px solid var(--border-color);
             border-radius: 8px;
@@ -189,18 +191,21 @@
             width: 100%;
         }
 
-        .status-select:hover, .product-status-select:hover {
+        .status-select:hover,
+        .product-status-select:hover {
             border-color: var(--primary-color);
             box-shadow: 0 0 0 2px var(--primary-light);
         }
 
-        .status-select:focus, .product-status-select:focus {
+        .status-select:focus,
+        .product-status-select:focus {
             outline: none;
             border-color: var(--primary-color);
             box-shadow: 0 0 0 2px var(--primary-light);
         }
 
-        .status-select:disabled, .product-status-select:disabled {
+        .status-select:disabled,
+        .product-status-select:disabled {
             background-color: #f8fafc;
             cursor: not-allowed;
             opacity: 0.7;
@@ -214,7 +219,8 @@
             min-width: 160px;
         }
 
-        .back-button, .manage-return-button {
+        .back-button,
+        .manage-return-button {
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -235,7 +241,8 @@
             margin-right: 6px;
         }
 
-        .back-button:hover, .manage-return-button:hover {
+        .back-button:hover,
+        .manage-return-button:hover {
             background-color: var(--primary-dark);
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(67, 97, 238, 0.3);
@@ -271,6 +278,7 @@
                 opacity: 0;
                 transform: translateY(20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -434,12 +442,35 @@
             font-weight: 500;
         }
 
-        .status-pending { background-color: #FEF3C7; color: #92400E; }
-        .status-processing { background-color: #DBEAFE; color: #1E40AF; }
-        .status-shipped { background-color: #E0E7FF; color: #3730A3; }
-        .status-delivered { background-color: #D1FAE5; color: #065F46; }
-        .status-cancelled { background-color: #FEE2E2; color: #B91C1C; }
-        .status-returned { background-color: #FED7AA; color: #9A3412; }
+        .status-pending {
+            background-color: #FEF3C7;
+            color: #92400E;
+        }
+
+        .status-processing {
+            background-color: #DBEAFE;
+            color: #1E40AF;
+        }
+
+        .status-shipped {
+            background-color: #E0E7FF;
+            color: #3730A3;
+        }
+
+        .status-delivered {
+            background-color: #D1FAE5;
+            color: #065F46;
+        }
+
+        .status-cancelled {
+            background-color: #FEE2E2;
+            color: #B91C1C;
+        }
+
+        .status-returned {
+            background-color: #FED7AA;
+            color: #9A3412;
+        }
 
         /* Responsive adjustments */
         @media (max-width: 768px) {
@@ -482,113 +513,133 @@
     </style>
 
 </head>
+
 <body>
     <div class="container">
         <% if (order.length === 0) { %>
-            <p>No orders found.</p>
+        <p>No orders found.</p>
         <% } else { 
             const firstOrder = order[0]; 
         %>
-            <div class="order-header">
-                <h1>Order Details for OrderMainId: <%= firstOrder.orderMainId %></h1>
-            </div>
+        <div class="order-header">
+            <h1>Order Details for OrderMainId: <%= firstOrder.orderMainId %></h1>
+        </div>
 
-            <div class="order-details-container">
-                <!-- Order Overview Section -->
-                <div class="details-card">
-                    <h2>Order Overview</h2>
-                    <div class="details-grid">
-                        <p><strong>Order ID:</strong> <%= firstOrder.orderId %></p>
-                        <p><strong>Total Amount:</strong> ₹<%= firstOrder.totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 }) %></p>
-                        <p><strong>Order Date:</strong> <%= firstOrder.orderDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) %></p>
-                        <p><strong>Payment Method:</strong> <%= firstOrder.paymentMethod %></p>
-                        <p><strong>Payment Status:</strong> <%= firstOrder.paymentStatus %></p>
-                        <p>
-                            <strong>Overall Order Status:</strong>
-                            <select class="status-select" data-order-id="<%= firstOrder._id %>" id="overall-status">
-                                <option value="Pending" <%= firstOrder.orderStatus === 'Pending' ? 'selected' : '' %>>Pending</option>
-                                <option value="Processing" <%= firstOrder.orderStatus === 'Processing' ? 'selected' : '' %>>Processing</option>
-                                <option value="Shipped" <%= firstOrder.orderStatus === 'Shipped' ? 'selected' : '' %>>Shipped</option>
-                                <option value="Delivered" <%= firstOrder.orderStatus === 'Delivered' ? 'selected' : '' %>>Delivered</option>
-                                <option value="Cancelled" <%= firstOrder.orderStatus === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
-                                <% if (firstOrder.orderStatus === 'Returned') { %>
-                                    <option value="Returned" selected>Returned</option>
-                                <% } %>
-                            </select>
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Customer & Shipping Details Section -->
-                <div class="details-card">
-                    <h2>Customer & Shipping Details</h2>
-                    <div class="details-grid">
-                        <p><strong>Customer Name:</strong> <%= firstOrder.userId ? firstOrder.userId.name : 'Unknown' %></p>
-                        <p><strong>Customer Email:</strong> <%= firstOrder.userId ? firstOrder.userId.email : 'N/A' %></p>
-                        <p><strong>Name:</strong> <%= firstOrder.shippingAddress.name %></p>
-                        <p><strong>Phone:</strong> <%= firstOrder.shippingAddress.phone || 'N/A' %></p>
-                        <p><strong>Address:</strong> <%= firstOrder.shippingAddress.street %><%= firstOrder.shippingAddress.landmark ? ', ' + firstOrder.shippingAddress.landmark : '' %></p>
-                        <p><strong>Location:</strong> <%= firstOrder.shippingAddress.city %>, <%= firstOrder.shippingAddress.state %> - <%= firstOrder.shippingAddress.pincode %></p>
-                        <p><strong>Country:</strong> <%= firstOrder.shippingAddress.country %></p>
-                    </div>
+        <div class="order-details-container">
+            <!-- Order Overview Section -->
+            <div class="details-card">
+                <h2>Order Overview</h2>
+                <div class="details-grid">
+                    <p><strong>Order ID:</strong> <%= firstOrder.orderId %></p>
+                    <p><strong>Total Amount:</strong>
+                        ₹<%= firstOrder.totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 }) %></p>
+                    <p><strong>Order Date:</strong>
+                        <%= firstOrder.orderDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) %>
+                    </p>
+                    <p><strong>Payment Method:</strong> <%= firstOrder.paymentMethod %></p>
+                    <p><strong>Payment Status:</strong> <%= firstOrder.paymentStatus %></p>
+                    <p>
+                        <strong>Overall Order Status:</strong>
+                        <select class="status-select" data-order-id="<%= firstOrder._id %>" id="overall-status">
+                            <option value="Pending" <%= firstOrder.orderStatus === 'Pending' ? 'selected' : '' %>>
+                                Pending</option>
+                            <option value="Processing" <%= firstOrder.orderStatus === 'Processing' ? 'selected' : '' %>>
+                                Processing</option>
+                            <option value="Shipped" <%= firstOrder.orderStatus === 'Shipped' ? 'selected' : '' %>>
+                                Shipped</option>
+                            <option value="Delivered" <%= firstOrder.orderStatus === 'Delivered' ? 'selected' : '' %>>
+                                Delivered</option>
+                            <option value="Cancelled" <%= firstOrder.orderStatus === 'Cancelled' ? 'selected' : '' %>>
+                                Cancelled</option>
+                            <% if (firstOrder.orderStatus === 'Returned') { %>
+                            <option value="Returned" selected>Returned</option>
+                            <% } %>
+                        </select>
+                    </p>
                 </div>
             </div>
 
-            <!-- Individual Product Details Section -->
-            <div class="products-section">
-                <h2>Order Items</h2>
-                <% order.forEach((singleOrder, orderIndex) => {
+            <!-- Customer & Shipping Details Section -->
+            <div class="details-card">
+                <h2>Customer & Shipping Details</h2>
+                <div class="details-grid">
+                    <p><strong>Customer Name:</strong> <%= firstOrder.userId ? firstOrder.userId.name : 'Unknown' %></p>
+                    <p><strong>Customer Email:</strong> <%= firstOrder.userId ? firstOrder.userId.email : 'N/A' %></p>
+                    <p><strong>Name:</strong> <%= firstOrder.shippingAddress.name %></p>
+                    <p><strong>Phone:</strong> <%= firstOrder.shippingAddress.phone || 'N/A' %></p>
+                    <p><strong>Address:</strong>
+                        <%= firstOrder.shippingAddress.street %><%= firstOrder.shippingAddress.landmark ? ', ' + firstOrder.shippingAddress.landmark : '' %>
+                    </p>
+                    <p><strong>Location:</strong> <%= firstOrder.shippingAddress.city %>,
+                        <%= firstOrder.shippingAddress.state %> - <%= firstOrder.shippingAddress.pincode %></p>
+                    <p><strong>Country:</strong> <%= firstOrder.shippingAddress.country %></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Individual Product Details Section -->
+        <div class="products-section">
+            <h2>Order Items</h2>
+            <% order.forEach((singleOrder, orderIndex) => {
                     singleOrder.items.forEach((item, itemIndex) => { %>
-                        <div class="product-item" data-order-id="<%= singleOrder._id %>" data-item-index="<%= itemIndex %>">
-                            <div class="product-image-container">
-                                <% if (item.productImage) { %>
-                                    <img src="/<%= item.productImage %>" alt="<%= item.productName %>" class="product-image">
-                                <% } else { %>
-                                    No Image
-                                <% } %>
-                            </div>
+            <div class="product-item" data-order-id="<%= singleOrder._id %>" data-item-index="<%= itemIndex %>">
+                <div class="product-image-container">
+                    <% if (item.productImage) { %>
+                    <img src="/<%= item.productImage %>" alt="<%= item.productName %>" class="product-image">
+                    <% } else { %>
+                    No Image
+                    <% } %>
+                </div>
 
-                            <div class="product-details">
-                                <p><strong>Product Name:</strong> <%= item.productName || 'N/A' %></p>
-                                <p><strong>Size:</strong> <%= item.size || 'N/A' %></p>
-                                <p><strong>Quantity:</strong> <%= item.quantity || 'N/A' %></p>
-                                <p><strong>Original Price:</strong> <%= item.price !== undefined && item.price !== null ? '₹' + item.price.toLocaleString('en-IN', { minimumFractionDigits: 2 }) : 'N/A' %></p>
-                                <p><strong>Discount:</strong> <%= item.discount !== undefined ? item.discount + '%' : '0%' %></p>
-                                <p><strong>Final Price:</strong> <%= item.finalPrice !== undefined && item.finalPrice !== null ? '₹' + item.finalPrice.toLocaleString('en-IN', { minimumFractionDigits: 2 }) : 'N/A' %></p>
-                                <% if (item.returnRequested) { %>
-                                    <p><strong>Return Status:</strong> <span class="status-badge status-returned">Return Requested</span></p>
-                                <% } %>
-                            </div>
+                <div class="product-details">
+                    <p><strong>Product Name:</strong> <%= item.productName || 'N/A' %></p>
+                    <p><strong>Size:</strong> <%= item.size || 'N/A' %></p>
+                    <p><strong>Quantity:</strong> <%= item.quantity || 'N/A' %></p>
+                    <p><strong>Original Price:</strong>
+                        <%= item.price !== undefined && item.price !== null ? '₹' + item.price.toLocaleString('en-IN', { minimumFractionDigits: 2 }) : 'N/A' %>
+                    </p>
+                    <p><strong>Discount:</strong> <%= item.discount !== undefined ? item.discount + '%' : '0%' %></p>
+                    <p><strong>Final Price:</strong>
+                        <%= item.finalPrice !== undefined && item.finalPrice !== null ? '₹' + item.finalPrice.toLocaleString('en-IN', { minimumFractionDigits: 2 }) : 'N/A' %>
+                    </p>
+                    <% if (item.returnRequested) { %>
+                    <p><strong>Return Status:</strong> <span class="status-badge status-returned">Return
+                            Requested</span></p>
+                    <% } %>
+                </div>
 
-                            <div class="product-status-container">
-                                <select class="product-status-select" 
-                                        data-order-id="<%= singleOrder._id %>" 
-                                        data-item-index="<%= itemIndex %>"
-                                        data-product-id="<%= item.productId %>"
-                                        <%= item.status === 'Delivered' || item.status === 'Cancelled' ? 'disabled' : '' %>>
-                                    <option value="Pending" <%= item.status === 'Pending' ? 'selected' : '' %>>Pending</option>
-                                    <option value="Processing" <%= item.status === 'Processing' ? 'selected' : '' %>>Processing</option>
-                                    <option value="Shipped" <%= item.status === 'Shipped' ? 'selected' : '' %>>Shipped</option>
-                                    <option value="Delivered" <%= item.status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
-                                    <option value="Cancelled" <%= item.status === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
+                <%if (item.status !== 'Return Request'){%>
+                <div class="product-status-container">
+                    <select class="product-status-select" data-order-id="<%= singleOrder._id %>"
+                        data-item-index="<%= itemIndex %>" data-product-id="<%= item.productId %>"
+                        <%= item.status === 'Delivered' || item.status === 'Cancelled' ? 'disabled' : '' %>>
+                        <option value="Pending" <%= item.status === 'Pending' ? 'selected' : '' %>>Pending</option>
+                        <option value="Processing" <%= item.status === 'Processing' ? 'selected' : '' %>>Processing
+                        </option>
+                        <option value="Shipped" <%= item.status === 'Shipped' ? 'selected' : '' %>>Shipped</option>
+                        <option value="Delivered" <%= item.status === 'Delivered' ? 'selected' : '' %>>Delivered
+                        </option>
+                        <option value="Cancelled" <%= item.status === 'Cancelled' ? 'selected' : '' %>>Cancelled
+                        </option>
+                        <%}%>
                                     <% if (item.status === 'Returned') { %>
-                                        <option value="Returned" selected>Returned</option>
-                                    <% } %>
-                                </select>
-                                <% if (item.status === 'Return Request') { %>
-                                    <button class="manage-return-button" 
-                                            onclick="handleReturnRequest('<%= singleOrder._id %>', '<%= itemIndex %>')">
-                                        Manage Return
-                                    </button>
-                                <% } %>
-                            </div>
-                        </div>
-                <% 
+                        <option value="Returned" selected>Returned</option>
+                        <% } %>
+                    </select>
+                    <% if (item.status === 'Return Request') { %>
+                        <button class="manage-return-button"
+                        onclick='handleReturnRequest("<%= singleOrder._id %>", "<%= itemIndex %>", "<%= encodeURIComponent(item.returnReason || `No reason provided`) %>")'>
+                        Manage Return
+                      </button>
+                    <% } %>
+                </div>
+            </div>
+            <% 
                     });
                 }) %>
-            </div>
+        </div>
 
-            <a href="/admin/order-list" class="back-button">Back to Orders</a>
+        <a href="/admin/order-list" class="back-button">Back to Orders</a>
         <% } %>
     </div>
 
@@ -597,7 +648,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3>Confirm Status Change</h3>
-                <button class="modal-close" onclick="closeModal('status-confirmation-modal')">&times;</button>
+                <button class="modal-close" onclick="closeModal('status-confirmation-modal')">×</button>
             </div>
             <div class="modal-body">
                 <p>Are you sure you want to change the status to <span id="new-status-value"></span>?</p>
@@ -615,9 +666,10 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3>Return Request Management</h3>
-                <button class="modal-close" onclick="closeModal('return-modal')">&times;</button>
+                <button class="modal-close" onclick="closeModal('return-modal')">×</button>
             </div>
             <div class="modal-body">
+                <p><strong>Return Reason:</strong> <span id="return-reason">No reason provided</span></p>
                 <p>Customer has requested a return for this product. How would you like to proceed?</p>
             </div>
             <div class="modal-actions">
@@ -632,65 +684,62 @@
     <div id="toast" class="toast">
         <div class="toast-header">
             <strong id="toast-title">Notification</strong>
-            <button onclick="hideToast()" class="modal-close">&times;</button>
+            <button onclick="hideToast()" class="modal-close">×</button>
         </div>
         <div id="toast-message">This is a notification message</div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             initStatusSelectListeners();
             checkAndDisableStatusSelects();
         });
 
         function initStatusSelectListeners() {
-           
+
             const productStatusSelects = document.querySelectorAll('.product-status-select');
             productStatusSelects.forEach(select => {
-                select.addEventListener('change', function(e) {
+                select.addEventListener('change', function (e) {
                     e.preventDefault();
                     showStatusConfirmationModal(this);
                 });
             });
 
-           
+
             const overallStatusSelect = document.getElementById('overall-status');
             if (overallStatusSelect) {
-                overallStatusSelect.addEventListener('change', function(e) {
+                overallStatusSelect.addEventListener('change', function (e) {
                     e.preventDefault();
-                    
+
                     const selectedValue = this.value;
-                    const previousValue = this.getAttribute('data-previous-value') || this.options[this.selectedIndex].value;
+                    const previousValue = this.getAttribute('data-previous-value') || this.options[this
+                        .selectedIndex].value;
                     this.value = previousValue;
-                    
-                    
+
                     document.getElementById('new-status-value').textContent = selectedValue;
                     openModal('status-confirmation-modal');
-                    
-                    
-                    document.getElementById('confirm-status-change').onclick = function() {
-                        updateOverallOrderStatus(overallStatusSelect.getAttribute('data-order-id'), selectedValue);
+
+                    document.getElementById('confirm-status-change').onclick = function () {
+                        updateOverallOrderStatus(overallStatusSelect.getAttribute('data-order-id'),
+                            selectedValue);
                         closeModal('status-confirmation-modal');
                     };
                 });
-                
-                
+
                 overallStatusSelect.setAttribute('data-previous-value', overallStatusSelect.value);
             }
         }
-        
+
         function showStatusConfirmationModal(selectElement) {
-            
             const selectedValue = selectElement.value;
-            const previousValue = selectElement.getAttribute('data-previous-value') || selectElement.options[selectElement.selectedIndex].value;
+            const previousValue = selectElement.getAttribute('data-previous-value') || selectElement.options[
+                selectElement.selectedIndex].value;
             selectElement.value = previousValue;
-            
-           
+
             document.getElementById('new-status-value').textContent = selectedValue;
             openModal('status-confirmation-modal');
-            
-            
-            document.getElementById('confirm-status-change').onclick = function() {
+
+            document.getElementById('confirm-status-change').onclick = function () {
                 updateProductItemStatus(
                     selectElement.getAttribute('data-order-id'),
                     selectElement.getAttribute('data-product-id'),
@@ -703,15 +752,14 @@
 
         function checkAndDisableStatusSelects() {
             const productStatusSelects = document.querySelectorAll('.product-status-select');
-            
+
             productStatusSelects.forEach(select => {
                 const currentStatus = select.value;
-                
-                
+
                 select.setAttribute('data-previous-value', currentStatus);
-                
-               
-                if (currentStatus === 'Delivered' || currentStatus === 'Cancelled' || currentStatus === 'Returned') {
+
+                if (currentStatus === 'Delivered' || currentStatus === 'Cancelled' || currentStatus ===
+                    'Returned') {
                     select.disabled = true;
                 }
             });
@@ -719,74 +767,84 @@
 
         function updateProductItemStatus(orderId, productId, itemIndex, status) {
             fetch(`/admin/orders/${orderId}/${productId}/status`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ status: status, itemIndex: itemIndex })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Update the UI
-                    const selectElement = document.querySelector(`.product-status-select[data-order-id="${orderId}"][data-item-index="${itemIndex}"]`);
-                    selectElement.value = status;
-                    selectElement.setAttribute('data-previous-value', status);
-                    
-                    // Disable select if status is Delivered or Cancelled
-                    if (status === 'Delivered' || status === 'Cancelled') {
-                        selectElement.disabled = true;
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        status: status,
+                        itemIndex: itemIndex
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update the UI
+                        const selectElement = document.querySelector(
+                            `.product-status-select[data-order-id="${orderId}"][data-item-index="${itemIndex}"]`
+                            );
+                        selectElement.value = status;
+                        selectElement.setAttribute('data-previous-value', status);
+
+                        // Disable select if status is Delivered or Cancelled
+                        if (status === 'Delivered' || status === 'Cancelled') {
+                            selectElement.disabled = true;
+                        }
+
+                        showToast('Success', data.message, 'success');
+                    } else {
+                        showToast('Error', data.message || 'Failed to update status', 'error');
                     }
-                    
-                    showToast('Success', data.message, 'success');
-                } else {
-                    showToast('Error', data.message || 'Failed to update status', 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('Error', 'An error occurred while updating the status', 'error');
-            });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('Error', 'An error occurred while updating the status', 'error');
+                });
         }
 
         function updateOverallOrderStatus(orderId, status) {
             fetch(`/admin/orders/${orderId}/status`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ status: status })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Update the UI
-                    const selectElement = document.getElementById('overall-status');
-                    selectElement.value = status;
-                    selectElement.setAttribute('data-previous-value', status);
-                    
-                    showToast('Success', data.message, 'success');
-                } else {
-                    showToast('Error', data.message || 'Failed to update status', 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('Error', 'An error occurred while updating the status', 'error');
-            });
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        status: status
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update the UI
+                        const selectElement = document.getElementById('overall-status');
+                        selectElement.value = status;
+                        selectElement.setAttribute('data-previous-value', status);
+
+                        showToast('Success', data.message, 'success');
+                    } else {
+                        showToast('Error', data.message || 'Failed to update status', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('Error', 'An error occurred while updating the status', 'error');
+                });
         }
 
-        function handleReturnRequest(orderId, itemIndex) {
+        function handleReturnRequest(orderId, itemIndex, returnReason) {
             openModal('return-modal');
-            
+
+            // Display return reason
+            document.getElementById('return-reason').textContent = returnReason || 'No reason provided';
+
             // Set up approval handler
-            document.getElementById('approve-return').onclick = function() {
+            document.getElementById('approve-return').onclick = function () {
                 processReturn(orderId, itemIndex, 'approve');
                 closeModal('return-modal');
             };
-            
+
             // Set up rejection handler
-            document.getElementById('reject-return').onclick = function() {
+            document.getElementById('reject-return').onclick = function () {
                 processReturn(orderId, itemIndex, 'reject');
                 closeModal('return-modal');
             };
@@ -794,39 +852,43 @@
 
         function processReturn(orderId, itemIndex, action) {
             fetch(`/admin/orders/${orderId}/return`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ action: action, itemIndex: itemIndex })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showToast('Success', data.message, 'success');
-                    
-                    // If approved, refresh the page to update UI
-                    if (action === 'approve') {
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 2000);
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: action,
+                        itemIndex: itemIndex
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast('Success', data.message, 'success');
+
+                        // If approved, refresh the page to update UI
+                        if (action === 'approve') {
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 2000);
+                        } else {
+                            // Remove return badge and button if rejected
+                            const productContainer = document.querySelector(
+                                `.product-item[data-order-id="${orderId}"][data-item-index="${itemIndex}"]`);
+                            const returnBadge = productContainer.querySelector('.status-badge.status-returned');
+                            const returnButton = productContainer.querySelector('.manage-return-button');
+
+                            if (returnBadge) returnBadge.remove();
+                            if (returnButton) returnButton.remove();
+                        }
                     } else {
-                        // Remove return badge and button if rejected
-                        const productContainer = document.querySelector(`.product-item[data-order-id="${orderId}"][data-item-index="${itemIndex}"]`);
-                        const returnBadge = productContainer.querySelector('.status-badge.status-returned');
-                        const returnButton = productContainer.querySelector('.manage-return-button');
-                        
-                        if (returnBadge) returnBadge.remove();
-                        if (returnButton) returnButton.remove();
+                        showToast('Error', data.message || 'Failed to process return request', 'error');
                     }
-                } else {
-                    showToast('Error', data.message || 'Failed to process return request', 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('Error', 'An error occurred while processing the return request', 'error');
-            });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('Error', 'An error occurred while processing the return request', 'error');
+                });
         }
 
         // Modal functions
@@ -845,20 +907,20 @@
             const toast = document.getElementById('toast');
             const toastTitle = document.getElementById('toast-title');
             const toastMessage = document.getElementById('toast-message');
-            
+
             // Remove existing toast classes
             toast.classList.remove('toast-success', 'toast-error', 'toast-warning');
-            
+
             // Add appropriate class
             toast.classList.add(`toast-${type}`);
-            
+
             // Set content
             toastTitle.textContent = title;
             toastMessage.textContent = message;
-            
+
             // Show toast
             toast.classList.add('show');
-            
+
             // Hide after 5 seconds
             setTimeout(hideToast, 5000);
         }
@@ -869,7 +931,7 @@
         }
 
         // Close modals when clicking outside of the modal content
-        window.onclick = function(event) {
+        window.onclick = function (event) {
             const modals = document.getElementsByClassName('modal');
             for (let i = 0; i < modals.length; i++) {
                 if (event.target === modals[i]) {
@@ -879,4 +941,5 @@
         }
     </script>
 </body>
+
 </html>

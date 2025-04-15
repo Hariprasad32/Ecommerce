@@ -119,12 +119,29 @@
             gap: 5px;
         }
 
-        .item-status .processing { color: #f39c12; }
-        .item-status .shipped { color: #3498db; }
-        .item-status .delivered { color: #2ecc71; }
-        .item-status .cancelled { color: #e74c3c; }
-        .item-status .return-request { color: #ff9800; }
-        .item-status .returned { color: #7f8c8d; }
+        .item-status .processing {
+            color: #f39c12;
+        }
+
+        .item-status .shipped {
+            color: #3498db;
+        }
+
+        .item-status .delivered {
+            color: #2ecc71;
+        }
+
+        .item-status .cancelled {
+            color: #e74c3c;
+        }
+
+        .item-status .return-request {
+            color: #ff9800;
+        }
+
+        .item-status .returned {
+            color: #7f8c8d;
+        }
 
         /* Pagination Styling */
         .pagination {
@@ -159,6 +176,13 @@
             cursor: not-allowed;
             opacity: 0.5;
         }
+
+        .pagination-ellipsis {
+            padding: 6px 12px;
+            font-size: 14px;
+            color: #333;
+        }
+
         .admin-btn {
             display: inline-block;
             padding: 6px 12px;
@@ -186,12 +210,14 @@
     </style>
 </head>
 <%- include("../../views/partials/admin/header") %>
+
 <body>
     <div class="container">
         <h1>Order Management</h1>
 
         <div class="search-filter-section">
-            <input type="text" id="search-bar" class="search-bar" placeholder="Search by Order ID or Customer" value="<%= searchQuery %>">
+            <input type="text" id="search-bar" class="search-bar" placeholder="Search by Order ID or Customer"
+                value="<%= searchQuery %>">
             <div class="filter-section">
                 <select id="status-filter">
                     <option value="all" <%= statusFilter === 'all' ? 'selected' : '' %>>All Orders</option>
@@ -199,7 +225,9 @@
                     <option value="Shipped" <%= statusFilter === 'Shipped' ? 'selected' : '' %>>Shipped</option>
                     <option value="Delivered" <%= statusFilter === 'Delivered' ? 'selected' : '' %>>Delivered</option>
                     <option value="Cancelled" <%= statusFilter === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
-                    <option value="Return Request" <%= statusFilter === 'Return Request' ? 'selected' : '' %>>Return Request</option>
+                    <option value="Returned" <%= statusFilter === 'Returned' ? 'selected' : '' %>>Returned</option>
+                    <option value="Return Request" <%= statusFilter === 'Return Request' ? 'selected' : '' %>>Return
+                        Request</option>
                 </select>
             </div>
         </div>
@@ -217,63 +245,101 @@
             </thead>
             <tbody>
                 <% orders.forEach(order => { %>
-                    <tr>
-                        <td>#<%= order.orderId %></td>
-                        <td><%= order.userId.email %></td>
-                        <td>₹<%= order.totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 }) %></td>
-                        <td><%= order.orderDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) %></td>
-                        <td>
-                            <% order.items.forEach((item, index) => { %>
-                                <div class="item-status">
-                                    <span class="<%= item.status.toLowerCase().replace(' ', '-') %>">
-                                        <%= item.status %>
-                                    </span>
-                                </div>
-                            <% }) %>
-                        </td>
-                        <td class="order-actions">
-                            <a href="/admin/admin-order-details/<%= order.orderId %>" class="admin-btn">
-                                View Details
-                            </a>
-                        </td>
-                    </tr>
+                <tr>
+                    <td>#<%= order.orderId %></td>
+                    <td><%= order.userId.email %></td>
+                    <td>₹<%= order.totalAmount+40 %></td>
+                    <td><%= order.orderDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) %>
+                    </td>
+                    <td>
+                        <% order.items.forEach((item, index) => { %>
+                        <div class="item-status">
+                            <span class="<%= item.status.toLowerCase().replace(' ', '-') %>">
+                                <%= item.status %>
+                            </span>
+                        </div>
+                        <% }) %>
+                    </td>
+                    <td class="order-actions">
+                        <a href="/admin/admin-order-details/<%= order.orderId %>" class="admin-btn">
+                            View Details
+                        </a>
+                    </td>
+                </tr>
                 <% }) %>
             </tbody>
         </table>
 
         <!-- Pagination -->
         <div class="pagination">
-            <button class="pagination-btn <%= currentPage === 1 ? 'disabled' : '' %>" 
-                    onclick="changePage(`<%= currentPage - 1 %>`)" <%= currentPage === 1 ? 'disabled' : '' %>>Previous</button>
-            <% for(let i = 1; i <= totalPages; i++) { %>
-                <button class="pagination-btn <%= currentPage === i ? 'active' : '' %>" 
-                        onclick="changePage(`<%= i %>`)"><%= i %></button>
-            <% } %>
-            <button class="pagination-btn <%= currentPage === totalPages ? 'disabled' : '' %>" 
-                    onclick="changePage(`<%= currentPage + 1 %>`)" <%= currentPage === totalPages ? 'disabled' : '' %>>Next</button>
-        </div>
-    </div>
+            <button class="pagination-btn <%= currentPage === 1 ? 'disabled' : '' %>"
+                onclick="changePage(`<%= currentPage - 1 %>`)"
+                <%= currentPage === 1 ? 'disabled' : '' %>>Previous</button>
 
-    <script>
-        // Handle Pagination
-        function changePage(page) {
-            const searchQuery = document.getElementById('search-bar').value;
-            const statusFilter = document.getElementById('status-filter').value;
-            window.location.href = `/admin/order-list?page=${page}&search=${encodeURIComponent(searchQuery)}&status=${encodeURIComponent(statusFilter)}`;
+            <% 
+        const maxPagesToShow = 2; // Show only 3 page numbers at most
+        let startPage = Math.max(1, currentPage - 1);
+        let endPage = Math.min(totalPages, currentPage + 1);
+
+        // Adjust to show up to 3 pages when possible
+        if (endPage - startPage + 1 < maxPagesToShow) {
+            if (startPage === 1) {
+                endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+            } else if (endPage === totalPages) {
+                startPage = Math.max(1, endPage - maxPagesToShow + 1);
+            }
         }
+    %>
 
-        // Search Handler
-        document.getElementById('search-bar').addEventListener('input', function() {
-            const searchQuery = this.value;
-            const statusFilter = document.getElementById('status-filter').value;
-            window.location.href = `/admin/order-list?page=1&search=${encodeURIComponent(searchQuery)}&status=${encodeURIComponent(statusFilter)}`;
-        });
+            
+            <% if (startPage > 1) { %>
+            <button class="pagination-btn" onclick="changePage(`1`)">1</button>
+            <% if (startPage > 2) { %>
+            <span class="pagination-ellipsis">...</span>
+            <% } %>
+            <% } %>
 
-        // Status Filter Handler
-        document.getElementById('status-filter').addEventListener('change', function() {
-            const statusFilter = this.value;
-            const searchQuery = document.getElementById('search-bar').value;
-            window.location.href = `/admin/order-list?page=1&search=${encodeURIComponent(searchQuery)}&status=${encodeURIComponent(statusFilter)}`;
-        });
-    </script>
+           
+            <% for(let i = startPage; i <= endPage; i++) { %>
+            <button class="pagination-btn <%= currentPage === i ? 'active' : '' %>"
+                onclick="changePage(`<%= i %>`)"><%= i %></button>
+            <% } %>
+
+            <% if (endPage < totalPages) { %>
+            <% if (endPage < totalPages - 1) { %>
+            <span class="pagination-ellipsis">...</span>
+            <% } %>
+            <button class="pagination-btn" onclick="changePage(`<%= totalPages %>`)"><%= totalPages %></button>
+            <% } %>
+
+            <button class="pagination-btn <%= currentPage === totalPages ? 'disabled' : '' %>"
+                onclick="changePage(`<%= currentPage + 1 %>`)"
+                <%= currentPage === totalPages ? 'disabled' : '' %>>Next</button>
+        </div>
+
+        <script>
+           
+            function changePage(page) {
+                const searchQuery = document.getElementById('search-bar').value;
+                const statusFilter = document.getElementById('status-filter').value;
+                window.location.href =
+                    `/admin/order-list?page=${page}&search=${encodeURIComponent(searchQuery)}&status=${encodeURIComponent(statusFilter)}`;
+            }
+
+            
+            document.getElementById('search-bar').addEventListener('input', function () {
+                const searchQuery = this.value;
+                const statusFilter = document.getElementById('status-filter').value;
+                window.location.href =
+                    `/admin/order-list?page=1&search=${encodeURIComponent(searchQuery)}&status=${encodeURIComponent(statusFilter)}`;
+            });
+
+            
+            document.getElementById('status-filter').addEventListener('change', function () {
+                const statusFilter = this.value;
+                const searchQuery = document.getElementById('search-bar').value;
+                window.location.href =
+                    `/admin/order-list?page=1&search=${encodeURIComponent(searchQuery)}&status=${encodeURIComponent(statusFilter)}`;
+            });
+        </script>
 </body>

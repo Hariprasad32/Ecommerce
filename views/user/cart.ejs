@@ -476,7 +476,8 @@
         </div>
         <div class="summary-row">
             <span>Shipping</span>
-            <span id="shipping">FREE</span>
+            <span id="shipping"><%= cart && cart.items && cart.items.length > 0 ? shippingFee : '0.00' %>
+            
         </div>
         <div class="summary-row total">
             <span>Total</span>
@@ -692,7 +693,6 @@ function moveToWishlist(productId) {
         showToast('An error occurred while moving to wishlist.');
     });
 }
-
 function updateCartSummary(cart) {
     const summaryEl = document.getElementById('cart-summary');
     if (!cart || !cart.items || cart.items.length === 0) {
@@ -709,11 +709,15 @@ function updateCartSummary(cart) {
         return sum + itemTotal;
     }, 0);
 
-    document.getElementById('subtotal').textContent = `₹${subtotal.toFixed(2)}`;
-    document.getElementById('shipping').textContent = 'FREE';
-    document.getElementById('total').textContent = `₹${subtotal.toFixed(2)}`;
-}
 
+    const shipping_far = 40.00;
+
+    const total = subtotal + shipping_fee;
+
+    document.getElementById('subtotal').textContent = `₹${subtotal.toFixed(2)}`;
+    document.getElementById('shipping').textContent = `₹${shippingFee.toFixed(2)}`;
+    document.getElementById('total').textContent = `₹${total.toFixed(2)}`;
+}
 function showToast(message) {
     const toastEl = document.getElementById('toast');
     if (toastEl) {
@@ -811,7 +815,7 @@ document.getElementById('checkout-btn').addEventListener('click', (e) => {
     }
 });
 
-// Initial check on page load
+
 updateCheckoutButton();
 </script>
 </body>

@@ -5,427 +5,8 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
      
      
-   <link rel="stylesheet" href="/css/add-product.css">
-   <style>
-    :root {
-        --primary-color: #4f46e5;
-        --secondary-color: #4338ca;
-        --text-color: #e9ecef;
-        --text-muted: #94a3b8;
-        --bg-color: #1e293b;
-        --card-bg: #2d3748;
-        --border-color: #475569;
-        --error-color: #ef4444;
-        --success-color: #10b981;
-        --border-radius: 20px;
-        --box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-    }
+   <link rel="stylesheet" href="/css/add-products.css">
 
-    .content-wrapper {
-        padding: 50px; /* Larger padding */
-        max-width: 1600px; /* Even wider */
-        margin: 0 auto;
-    }
-
-    .page-header {
-        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-        padding: 40px 50px; /* Larger header */
-        border-radius: var(--border-radius);
-        margin-bottom: 50px;
-        box-shadow: var(--box-shadow);
-        transition: all 0.4s ease;
-        cursor: pointer;
-    }
-
-    .page-header:hover {
-        transform: translateY(-8px) scale(1.02);
-        box-shadow: 0 12px 30px rgba(79, 70, 229, 0.3);
-    }
-
-    .page-title {
-        color: white;
-        margin: 0;
-        font-size: 1.6rem; /* Smaller font */
-        font-weight: 600;
-        text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    }
-
-    .form-container {
-        background: var(--card-bg);
-        border-radius: var(--border-radius);
-        padding: 50px; /* Larger padding */
-        box-shadow: var(--box-shadow);
-        transition: all 0.4s ease;
-    }
-
-    .form-container:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
-    }
-
-    .form-section {
-        margin-bottom: 50px; /* More spacing */
-        padding: 30px; /* Larger inner padding */
-        background: rgba(255,255,255,0.02);
-        border-radius: 12px;
-        transition: all 0.3s ease;
-    }
-
-    .form-section:hover {
-        background: rgba(79, 70, 229, 0.05);
-        transform: translateX(5px);
-    }
-
-    .form-section-title {
-        color: var(--text-color);
-        font-size: 1.1rem; /* Smaller font */
-        margin-bottom: 30px;
-        padding-bottom: 15px;
-        border-bottom: 2px solid var(--primary-color);
-        font-weight: 500;
-        letter-spacing: 0.5px;
-    }
-
-    .form-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); /* Wider columns */
-        gap: 40px; /* Larger gap */
-    }
-
-    .form-group {
-        position: relative;
-        transition: all 0.3s ease;
-        padding: 15px; /* Added padding to increase size */
-    }
-
-    .form-group:hover {
-        transform: translateY(-4px) rotate(1deg);
-        background: rgba(79, 70, 229, 0.03);
-        border-radius: 8px;
-    }
-
-    .form-label {
-        color: var(--text-color);
-        font-size: 0.85rem; /* Smaller font */
-        margin-bottom: 12px;
-        font-weight: 400;
-        display: block;
-        transition: all 0.3s ease;
-    }
-
-    .form-group:hover .form-label {
-        color: var(--primary-color);
-        transform: translateX(5px);
-    }
-
-    .form-control {
-        width: 100%;
-        padding: 16px 20px; /* Larger input size */
-        background: var(--bg-color);
-        border: 1px solid var(--border-color);
-        border-radius: 10px;
-        color: var(--text-color);
-        font-size: 0.9rem; /* Smaller font */
-        transition: all 0.4s ease;
-        box-shadow: inset 0 3px 6px rgba(0,0,0,0.1);
-    }
-
-    .form-control:focus {
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 5px rgba(79, 70, 229, 0.3);
-        transform: scale(1.03);
-        background: rgba(255,255,255,0.02);
-    }
-
-    .form-control::placeholder {
-        color: var(--text-muted);
-        font-size: 0.85rem;
-    }
-
-    .form-control:focus::placeholder {
-        opacity: 0.6;
-    }
-
-    textarea.form-control {
-        min-height: 180px; /* Larger textarea */
-    }
-
-    .form-select {
-        width: 100%;
-        padding: 16px 20px;
-        background: var(--bg-color);
-        border: 1px solid var(--border-color);
-        border-radius: 10px;
-        color: var(--text-color);
-        font-size: 0.9rem;
-        appearance: none;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23e9ecef' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: right 20px center;
-        transition: all 0.4s ease;
-    }
-
-    .form-select:focus {
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 5px rgba(79, 70, 229, 0.3);
-        transform: scale(1.03);
-    }
-
-    .size-quantity-wrapper {
-        background: var(--bg-color);
-        padding: 25px; /* Larger padding */
-        border-radius: 10px;
-        border: 1px solid var(--border-color);
-        transition: all 0.4s ease;
-    }
-
-    .size-quantity-wrapper:hover {
-        border-color: var(--primary-color);
-        box-shadow: 0 0 15px rgba(79, 70, 229, 0.2);
-        transform: scale(1.01);
-    }
-
-    .size-quantity-table {
-        display: grid;
-        gap: 20px; /* Larger gap */
-    }
-
-    .size-row {
-        display: grid;
-        grid-template-columns: 70px 1fr; /* Wider label column */
-        align-items: center;
-        gap: 25px;
-        padding: 10px;
-        transition: all 0.3s ease;
-    }
-
-    .size-row:hover {
-        background: rgba(79, 70, 229, 0.15);
-        border-radius: 8px;
-        transform: translateX(5px);
-    }
-
-    .size-label {
-        color: var(--text-color);
-        font-weight: 500;
-        text-align: right;
-        font-size: 0.9rem; /* Smaller font */
-    }
-
-    .quantity-input {
-        width: 100%;
-        max-width: 160px; /* Larger input */
-    }
-
-    .form-control[type="number"] {
-        -moz-appearance: textfield;
-    }
-
-    .form-control::-webkit-outer-spin-button,
-    .form-control::-webkit-inner-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-    }
-
-    .image-upload-section {
-        background: var(--bg-color);
-        padding: 30px; /* Larger padding */
-        border-radius: 10px;
-        border: 1px solid var(--border-color);
-        transition: all 0.4s ease;
-    }
-
-    .image-upload-section:hover {
-        border-color: var(--primary-color);
-        box-shadow: 0 0 20px rgba(79, 70, 229, 0.15);
-        transform: scale(1.01);
-    }
-
-    .image-preview-container {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Larger thumbnails */
-        gap: 25px;
-        padding: 25px;
-        min-height: 200px; /* Taller container */
-        border: 2px dashed var(--border-color);
-        border-radius: 10px;
-        margin-bottom: 30px;
-        transition: all 0.3s ease;
-    }
-
-    .image-upload-section:hover .image-preview-container {
-        border-color: var(--primary-color);
-        background: rgba(79, 70, 229, 0.02);
-    }
-
-    .thumbnail {
-        position: relative;
-        width: 100%;
-        aspect-ratio: 1;
-        transition: all 0.3s ease;
-        cursor: pointer;
-    }
-
-    .thumbnail:hover {
-        transform: scale(1.08) rotate(2deg);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-    }
-
-    .thumbnail img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        border-radius: 8px;
-        border: 1px solid var(--border-color);
-        box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-    }
-
-    .remove-icon {
-        position: absolute;
-        top: -10px;
-        right: -10px;
-        background: var(--error-color);
-        color: white;
-        border-radius: 50%;
-        width: 24px; /* Larger remove button */
-        height: 24px;
-        text-align: center;
-        line-height: 24px;
-        cursor: pointer;
-        font-size: 12px;
-        box-shadow: 0 3px 6px rgba(0,0,0,0.2);
-        transition: all 0.3s ease;
-    }
-
-    .remove-icon:hover {
-        transform: scale(1.15) rotate(90deg);
-        background: #ff6666;
-    }
-
-    .cropper-container {
-        background: var(--bg-color);
-        padding: 30px;
-        border-radius: 10px;
-        border: 1px solid var(--border-color);
-        margin-top: 40px;
-        transition: all 0.4s ease;
-    }
-
-    .cropper-container:hover {
-        border-color: var(--primary-color);
-        box-shadow: 0 0 20px rgba(79, 70, 229, 0.15);
-    }
-
-    #imageToCrop {
-        max-width: 100%;
-        border-radius: 10px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        transition: transform 0.3s ease;
-    }
-
-    .cropper-container:hover #imageToCrop {
-        transform: scale(1.02);
-    }
-
-    .cropper-buttons {
-        margin-top: 25px;
-        display: flex;
-        gap: 20px;
-    }
-
-    .btn {
-        padding: 14px 30px; /* Larger buttons */
-        border-radius: 10px;
-        font-weight: 500;
-        font-size: 0.9rem; /* Smaller font */
-        cursor: pointer;
-        transition: all 0.4s ease;
-        border: none;
-    }
-
-    .btn-primary {
-        background: var(--primary-color);
-        color: white;
-        box-shadow: 0 5px 15px rgba(79, 70, 229, 0.3);
-    }
-
-    .btn-primary:hover {
-        background: var(--secondary-color);
-        transform: translateY(-3px) scale(1.05);
-        box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4);
-    }
-
-    .btn-secondary {
-        background: var(--border-color);
-        color: var(--text-color);
-    }
-
-    .btn-secondary:hover {
-        background: #5b6b88;
-        transform: translateY(-3px) scale(1.05);
-    }
-
-    .submit-btn {
-        background: var(--primary-color);
-        padding: 18px 50px; /* Larger submit button */
-        width: 100%;
-        margin-top: 40px;
-        font-size: 1rem; /* Slightly larger but still minimal */
-        box-shadow: 0 6px 20px rgba(79, 70, 229, 0.3);
-        transition: all 0.4s ease;
-    }
-
-    .submit-btn:hover {
-        background: var(--secondary-color);
-        transform: translateY(-5px) scale(1.03);
-        box-shadow: 0 10px 25px rgba(79, 70, 229, 0.4);
-    }
-
-    .error-message {
-        color: var(--error-color);
-        font-size: 0.8rem; /* Smaller font */
-        margin-top: 10px;
-        min-height: 20px;
-        padding: 5px 10px;
-        background: rgba(239, 68, 68, 0.1);
-        border-radius: 6px;
-        transition: opacity 0.3s ease;
-    }
-
-    .form-group:hover .error-message {
-        opacity: 0.8;
-    }
-
-    @media (max-width: 768px) {
-        .content-wrapper {
-            padding: 30px;
-        }
-        
-        .form-grid {
-            grid-template-columns: 1fr;
-        }
-        
-        .size-row {
-            gap: 20px;
-        }
-        
-        .quantity-input {
-            max-width: 140px;
-        }
-        
-        .size-label {
-            font-size: 0.85rem;
-        }
-        
-        .page-title {
-            font-size: 1.4rem;
-        }
-        
-        .form-section-title {
-            font-size: 1rem;
-        }
-    }
-</style>
 </head>
 <section class="content-wrapper">
     <header class="page-header">
@@ -603,19 +184,30 @@ function updateImageCounter() {
         counter.style.color = uploadedImages.length < MIN_IMAGES ? '#dc3545' : '#198754';
     }
 }
-
 function handleImageUpload(event) {
     const file = event.target.files[0];
     if (!file) return;
     
     if (uploadedImages.length >= MAX_IMAGES) {
         displayErrorMessage('images-error', `You can only upload a maximum of ${MAX_IMAGES} images`);
+        Swal.fire({
+            title: 'Upload Limit Reached',
+            text: `You can only upload a maximum of ${MAX_IMAGES} images`,
+            icon: 'warning',
+            confirmButtonText: 'OK'
+        });
         event.target.value = '';
         return;
     }
     
     if (!file.type.match('image.*')) {
         displayErrorMessage('images-error', 'Please upload only image files');
+        Swal.fire({
+            title: 'Invalid File Type',
+            text: 'Please upload only image files (JPEG, PNG, JPG)',
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
         event.target.value = '';
         return;
     }
@@ -643,6 +235,7 @@ function handleImageUpload(event) {
     };
     
     reader.readAsDataURL(file);
+    
     
     const saveButton = document.getElementById('saveButton');
     const newSaveButton = saveButton.cloneNode(true);

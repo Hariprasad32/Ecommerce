@@ -45,9 +45,9 @@ const productDetails = async (req, res) => {
              );
          }
      }
-    console.log("isInWishlist:",isInWishlist)
+   
      const recommendedProducts = await Product.find({ category: product.category._id, _id: { $ne: product._id } }).limit(4).exec();
-     console.log(recommendedProducts)
+     
         if(product.isBlocked === false){
             res.render('product-details',{
                 user:userData,

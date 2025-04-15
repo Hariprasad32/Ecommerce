@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -5,7 +6,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Dashboard</title>
-
+  <!-- Include Chart.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
   <script src="https://kit.fontawesome.com/your-fontawesome-kit.js" crossorigin="anonymous"></script>
   <style>
     :root {
@@ -30,8 +32,6 @@
       color: var(--text-color);
       min-height: 100vh;
     }
-
-
 
     .header {
       display: flex;
@@ -422,6 +422,84 @@
     .d-none {
       display: none;
     }
+
+    /* Analytics-specific styles */
+    .chart-container {
+      position: relative;
+      height: 400px;
+      margin-bottom: 2rem;
+    }
+
+    .filter-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+    }
+
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .filter-group label {
+      margin-right: 0.5rem;
+      font-size: 0.875rem;
+    }
+
+    .filter-select {
+      padding: 0.5rem;
+      background: var(--input-bg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      color: var(--text-color);
+    }
+
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .chart-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+    }
+
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .chart-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    .no-data-message {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 300px;
+      color: #888;
+      font-style: italic;
+    }
+
+    @media (min-width: 992px) {
+      .charts-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
   </style>
 </head>
 
@@ -439,8 +517,6 @@
         <div class="search-container">
           <!-- <input type="text" placeholder="Search...">
           <i class="fas fa-search"></i> -->
-
-
         </div>
         <div class="notification">
           <i class="fas fa-bell"></i>
@@ -520,14 +596,6 @@
           </div>
 
           <div class="charts-section">
-            <div class="card chart-card large">
-              <div class="card-header">
-                <h3>Revenue Overview</h3>
-              </div>
-              <div class="card-body">
-                <canvas id="revenueChart"></canvas>
-              </div>
-            </div>
             <div class="card chart-card medium">
               <div class="card-header">
                 <h3>Recent Sales</h3>
@@ -536,7 +604,9 @@
                 <div class="recent-sales">
                   <% recentOrders.forEach(order => { %>
                   <div class="sale-item">
-                    <img src="<%= order.items[0] && order.items[0].productImage ? `/${order.items[0].productImage}` : 'https://via.placeholder.com/40' %>" alt="Product">
+                    <img
+                      src="<%= order.items[0] && order.items[0].productImage ? `/${order.items[0].productImage}` : 'https://via.placeholder.com/40' %>"
+                      alt="Product">
                     <div class="sale-info">
                       <h4><%= order.items[0]?.productName || 'N/A' %></h4>
                       <p><%= order.userId ? order.userId.name : 'Unknown' %></p>
@@ -582,16 +652,90 @@
           </div>
         </div>
 
+        <!-- Analytics Tab -->
         <div id="analytics" class="tab-pane">
-          <div class="card chart-card full">
-            <div class="card-header">
-              <h3>Analytics</h3>
+          <div class="filter-bar">
+            <div class="filter-group">
+              <label for="time-filter">Time Period:</label>
+              <select id="time-filter" class="filter-select">
+                <option value="yearly">Yearly</option>
+                <option value="monthly" selected>Monthly</option>
+                <option value="weekly">Weekly</option>
+                <option value="daily">Daily</option>
+              </select>
             </div>
-            <div class="card-body">
-              <canvas id="analyticsChart"></canvas>
+            <div class="filter-group">
+              <label for="year-filter">Year:</label>
+              <select id="year-filter" class="filter-select">
+                <option value="2025">2025</option>
+                <option value="2024" selected>2024</option>
+                <option value="2023">2023</option>
+              </select>
+
+              <div id="month-container">
+                <label for="month-filter">Month:</label>
+                <select id="month-filter" class="filter-select">
+                  <option value="0">January</option>
+                  <option value="1">February</option>
+                  <option value="2">March</option>
+                  <option value="3" selected>April</option>
+                  <option value="4">May</option>
+                  <option value="5">June</option>
+                  <option value="6">July</option>
+                  <option value="7">August</option>
+                  <option value="8">September</option>
+                  <option value="9">October</option>
+                  <option value="10">November</option>
+                  <option value="11">December</option>
+                </select>
+              </div>
+
+              <div id="week-container" style="display: none;">
+                <label for="week-filter">Week:</label>
+                <select id="week-filter" class="filter-select">
+                  <option value="1">Week 1</option>
+                  <option value="2" selected>Week 2</option>
+                  <option value="3">Week 3</option>
+                  <option value="4">Week 4</option>
+                </select>
+              </div>
+            </div>
+
+            <button id="apply-filter" class="filter-btn">
+              <i class="fas fa-filter"></i> Apply Filter
+            </button>
+          </div>
+
+          <div class="charts-grid">
+            <div class="chart-card">
+              <div class="chart-header">
+                <h3 class="chart-title">Best Selling Products (Top 10)</h3>
+              </div>
+              <div class="chart-container">
+                <canvas id="productsChart"></canvas>
+              </div>
+            </div>
+
+            <div class="chart-card">
+              <div class="chart-header">
+                <h3 class="chart-title">Best Selling Categories (Top 10)</h3>
+              </div>
+              <div class="chart-container">
+                <canvas id="categoriesChart"></canvas>
+              </div>
+            </div>
+
+            <div class="chart-card">
+              <div class="chart-header">
+                <h3 class="chart-title">Sales Performance Over Time</h3>
+              </div>
+              <div class="chart-container">
+                <canvas id="salesTimeChart"></canvas>
+              </div>
             </div>
           </div>
         </div>
+
         <div id="reports" class="tab-pane <%= page === 'reports' ? 'active' : '' %>">
           <div class="card">
             <div class="card-header">
@@ -618,6 +762,9 @@
                       </button>
                       <button type="button" id="download-pdf-btn" class="filter-btn">
                         <i class="fas fa-download"></i> Download PDF
+                      </button>
+                      <button type="button" id="download-excel-btn" class="filter-btn">
+                        <i class="fas fa-file-excel"></i> Download Excel
                       </button>
                     </div>
                   </form>
@@ -698,8 +845,295 @@
       const periodSelect = document.getElementById("period-select");
       const customDateFields = document.getElementById("custom-date-fields");
       const downloadPdfBtn = document.getElementById("download-pdf-btn");
-
-      
+      let analyticsInitialized = false;
+  
+      // Analytics chart variables
+      let productsChart, categoriesChart, brandsChart, salesTimeChart;
+  
+      // Chart configurations
+      const horizontalBarConfig = {
+        type: 'bar',
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  let label = context.dataset.label || '';
+                  if (label) {
+                    label += ': ';
+                  }
+                  if (context.parsed.x !== null) {
+                    label += new Intl.NumberFormat('en-IN', { 
+                      style: 'currency', 
+                      currency: 'INR',
+                      maximumFractionDigits: 0
+                    }).format(context.parsed.x);
+                  }
+                  return label;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: {
+                color: 'rgba(255, 255, 255, 0.1)'
+              },
+              ticks: {
+                color: 'rgba(255, 255, 255, 0.7)'
+              }
+            },
+            y: {
+              grid: {
+                display: false
+              },
+              ticks: {
+                color: 'rgba(255, 255, 255, 0.7)'
+              }
+            }
+          }
+        }
+      };
+  
+      const lineChartConfig = {
+        type: 'line',
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top',
+              labels: {
+                color: 'rgba(255, 255, 255, 0.7)'
+              }
+            },
+            tooltip: {
+              mode: 'index',
+              intersect: false,
+              callbacks: {
+                label: function(context) {
+                  let label = context.dataset.label || '';
+                  if (label) {
+                    label += ': ';
+                  }
+                  if (context.parsed.y !== null) {
+                    label += new Intl.NumberFormat('en-IN', { 
+                      style: 'currency', 
+                      currency: 'INR',
+                      maximumFractionDigits: 0
+                    }).format(context.parsed.y);
+                  }
+                  return label;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: {
+                color: 'rgba(255, 255, 255, 0.1)'
+              },
+              ticks: {
+                color: 'rgba(255, 255, 255, 0.7)'
+              }
+            },
+            y: {
+              grid: {
+                color: 'rgba(255, 255, 255, 0.1)'
+              },
+              ticks: {
+                color: 'rgba(255, 255, 255, 0.7)',
+                callback: function(value) {
+                  return '₹' + value.toLocaleString('en-IN');
+                }
+              }
+            }
+          }
+        }
+      };
+  
+      function initializeAnalytics() {
+        if (analyticsInitialized) return;
+        analyticsInitialized = true;
+  
+        // Initialize filter event listeners
+        const timeFilter = document.getElementById('time-filter');
+        const monthContainer = document.getElementById('month-container');
+        const weekContainer = document.getElementById('week-container');
+        const applyFilterBtn = document.getElementById('apply-filter');
+  
+        timeFilter.addEventListener('change', function() {
+          if (this.value === 'yearly') {
+            monthContainer.style.display = 'none';
+            weekContainer.style.display = 'none';
+          } else if (this.value === 'monthly') {
+            monthContainer.style.display = 'block';
+            weekContainer.style.display = 'none';
+          } else if (this.value === 'weekly') {
+            monthContainer.style.display = 'block';
+            weekContainer.style.display = 'block';
+          } else if (this.value === 'daily') {
+            monthContainer.style.display = 'block';
+            weekContainer.style.display = 'block';
+          }
+        });
+  
+        // Initialize charts with empty data
+        productsChart = new Chart(
+          document.getElementById('productsChart'),
+          { ...horizontalBarConfig, data: { labels: [], datasets: [{ label: 'Units Sold', data: [] }] } }
+        );
+  
+        categoriesChart = new Chart(
+          document.getElementById('categoriesChart'),
+          { ...horizontalBarConfig, data: { labels: [], datasets: [{ label: 'Sales Amount', data: [] }] } }
+        );
+  
+        brandsChart = new Chart(
+          document.getElementById('brandsChart'),
+          { ...horizontalBarConfig, data: { labels: [], datasets: [{ label: 'Revenue (₹)', data: [] }] } }
+        );
+  
+        salesTimeChart = new Chart(
+          document.getElementById('salesTimeChart'),
+          { ...lineChartConfig, data: { labels: [], datasets: [{ label: 'Revenue', data: [] }] } }
+        );
+  
+        // Fetch initial data
+        fetchAnalyticsData();
+  
+        // Apply filter button functionality
+        applyFilterBtn.addEventListener('click', function() {
+          const timePeriod = timeFilter.value;
+          const year = document.getElementById('year-filter').value;
+          const month = document.getElementById('month-filter').value;
+          const week = document.getElementById('week-filter').value;
+  
+          // Fetch new data
+          fetchAnalyticsData(timePeriod, year, month, week);
+  
+          // Update chart titles
+          updateChartTitles(timePeriod, year, month, week);
+  
+          // Show success message
+          showFilterAppliedMessage(timePeriod, year, month, week);
+        });
+      }
+  
+      async function fetchAnalyticsData(timePeriod = 'monthly', year = new Date().getFullYear(), month = new Date().getMonth(), week) {
+        const params = new URLSearchParams({ timePeriod, year, month });
+        if (week) params.append('week', week);
+  
+        try {
+          // Fetch top products
+          const productsResponse = await fetch(`/admin/analytics/products?${params}`);
+          const productsData = await productsResponse.json();
+          productsChart.data.labels = productsData.map(p => p.name);
+          productsChart.data.datasets[0].data = productsData.map(p => p.unitsSold);
+          productsChart.data.datasets[0].backgroundColor = 'rgba(58, 134, 255, 0.8)';
+          productsChart.data.datasets[0].borderColor = 'rgba(58, 134, 255, 1)';
+          productsChart.update();
+  
+          // Fetch top categories
+          const categoriesResponse = await fetch(`/admin/analytics/categories?${params}`);
+          const categoriesData = await categoriesResponse.json();
+          categoriesChart.data.labels = categoriesData.map(c => c.name);
+          categoriesChart.data.datasets[0].data = categoriesData.map(c => c.revenue);
+          categoriesChart.data.datasets[0].backgroundColor = 'rgba(110, 202, 120, 0.8)';
+          categoriesChart.data.datasets[0].borderColor = 'rgba(110, 202, 120, 1)';
+          categoriesChart.update();
+  
+          // Fetch sales over time
+          const salesTimeResponse = await fetch(`/admin/analytics/sales-time?${params}`);
+          const salesTimeData = await salesTimeResponse.json();
+          let labels;
+          if (timePeriod === 'yearly') {
+            labels = salesTimeData.map(d => `Year ${d._id}`);
+          } else if (timePeriod === 'monthly') {
+            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            labels = salesTimeData.map(d => monthNames[d._id - 1]);
+          } else if (timePeriod === 'weekly') {
+            labels = salesTimeData.map(d => `Week ${d._id}`);
+          } else if (timePeriod === 'daily') {
+            labels = salesTimeData.map(d => `Day ${d._id}`);
+          }
+          salesTimeChart.data.labels = labels;
+          salesTimeChart.data.datasets[0].data = salesTimeData.map(d => d.totalRevenue);
+          salesTimeChart.data.datasets[0].backgroundColor = 'rgba(138, 123, 247, 0.2)';
+          salesTimeChart.data.datasets[0].borderColor = 'rgba(138, 123, 247, 1)';
+          salesTimeChart.data.datasets[0].tension = 0.4;
+          salesTimeChart.data.datasets[0].fill = true;
+          salesTimeChart.update();
+        } catch (error) {
+          console.error('Error fetching analytics data:', error);
+          alert('Failed to load analytics data. Please try again.');
+        }
+      }
+  
+      function updateChartTitles(timePeriod, year, month, week) {
+        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        let timeLabel = '';
+  
+        if (timePeriod === 'yearly') {
+          timeLabel = `Year ${year}`;
+        } else if (timePeriod === 'monthly') {
+          timeLabel = `${monthNames[month]} ${year}`;
+        } else if (timePeriod === 'weekly') {
+          timeLabel = `Week ${week}, ${monthNames[month]} ${year}`;
+        } else if (timePeriod === 'daily') {
+          timeLabel = `Week ${week}, ${monthNames[month]} ${year} (Daily View)`;
+        }
+  
+        document.querySelector('.chart-title').textContent = `Best Selling Products (Top 10) - ${timeLabel}`;
+        document.querySelectorAll('.chart-title')[1].textContent = `Best Selling Categories (Top 10) - ${timeLabel}`;
+        document.querySelectorAll('.chart-title')[2].textContent = `Best Selling Brands (Top 10) - ${timeLabel}`;
+        document.querySelectorAll('.chart-title')[3].textContent = `Sales Performance - ${timeLabel}`;
+      }
+  
+      function showFilterAppliedMessage(timePeriod, year, month, week) {
+        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        let timeLabel = '';
+  
+        if (timePeriod === 'yearly') {
+          timeLabel = `Year ${year}`;
+        } else if (timePeriod === 'monthly') {
+          timeLabel = `${monthNames[month]} ${year}`;
+        } else if (timePeriod === 'weekly') {
+          timeLabel = `Week ${week}, ${monthNames[month]} ${year}`;
+        } else if (timePeriod === 'daily') {
+          timeLabel = `Week ${week}, ${monthNames[month]} ${year} (Daily View)`;
+        }
+  
+        const notification = document.createElement('div');
+        notification.style.position = 'fixed';
+        notification.style.top = '20px';
+        notification.style.right = '20px';
+        notification.style.padding = '10px 20px';
+        notification.style.backgroundColor = 'var(--primary)';
+        notification.style.color = 'white';
+        notification.style.borderRadius = 'var(--radius)';
+        notification.style.boxShadow = '0 2px 10px rgba(0,0,0,0.2)';
+        notification.style.zIndex = '1000';
+        notification.style.transition = 'opacity 0.5s';
+        notification.textContent = `Filter applied: ${timeLabel}`;
+  
+        document.body.appendChild(notification);
+  
+        setTimeout(() => {
+          notification.style.opacity = '0';
+          setTimeout(() => {
+            document.body.removeChild(notification);
+          }, 500);
+        }, 3000);
+      }
+  
       tabButtons.forEach(button => {
         button.addEventListener("click", function () {
           const tabId = this.getAttribute("data-tab");
@@ -707,14 +1141,18 @@
           tabPanes.forEach(pane => pane.classList.remove("active"));
           this.classList.add("active");
           document.getElementById(tabId).classList.add("active");
-
-          if (tabId === "reports") {
-            fetchSalesReport({ period: periodSelect.value || "all", page: 1 });
+  
+          if (tabId === "analytics") {
+            initializeAnalytics();
+          } else if (tabId === "reports") {
+            fetchSalesReport({
+              period: periodSelect.value || "all",
+              page: 1
+            });
           }
         });
       });
-
-      
+  
       salesReportForm.addEventListener("submit", function (e) {
         e.preventDefault();
         const formData = new FormData(this);
@@ -726,8 +1164,7 @@
         };
         fetchSalesReport(params);
       });
-
-      
+  
       downloadPdfBtn.addEventListener("click", function () {
         const formData = new FormData(salesReportForm);
         const params = {
@@ -737,25 +1174,36 @@
           download: "pdf"
         };
         const query = new URLSearchParams(params).toString();
-        window.location.href = `/admin/sales-report?${query}`; 
+        window.location.href = `/admin/sales-report?${query}`;
       });
 
-      
+        const downloadExcelBtn = document.getElementById("download-excel-btn");
+
+        downloadExcelBtn.addEventListener("click", function () {
+          const formData = new FormData(salesReportForm);
+          const params = {
+            period: formData.get("period"),
+            startDate: formData.get("startDate"),
+            endDate: formData.get("endDate"),
+            download: "excel"
+          };
+          const query = new URLSearchParams(params).toString();
+          window.location.href = `/admin/sales-report?${query}`;
+        });
+  
       function updatePaginationListeners() {
         const paginationButtons = document.querySelectorAll(".pagination-btn");
         paginationButtons.forEach(btn => {
-          btn.removeEventListener("click", handlePaginationClick); 
+          btn.removeEventListener("click", handlePaginationClick);
           btn.addEventListener("click", handlePaginationClick);
         });
       }
-
+  
       function handlePaginationClick(e) {
         e.preventDefault();
         const page = this.getAttribute("data-page");
-        console.log("page", page)
         if (page && !this.classList.contains("disabled")) {
           const formData = new FormData(salesReportForm);
-          console.log("formData", formData)
           const params = {
             period: formData.get("period"),
             startDate: formData.get("startDate"),
@@ -765,31 +1213,26 @@
           fetchSalesReport(params);
         }
       }
-
-      updatePaginationListeners(); 
-
-      
+  
+      updatePaginationListeners();
+  
       periodSelect.addEventListener("change", function () {
         customDateFields.classList.toggle("d-none", this.value !== "custom");
       });
-
-      
+  
       function fetchSalesReport(params) {
         const query = new URLSearchParams(params).toString();
         fetch(`/admin/sales-report?ajax=true&${query}`, {
-          method: "GET",
-          headers: {
-            "Accept": "application/json"
-          }
-        })
+            method: "GET",
+            headers: {
+              "Accept": "application/json"
+            }
+          })
           .then(response => {
             if (!response.ok) throw new Error("Failed to fetch sales report");
             return response.json();
           })
           .then(data => {
-
-            console.log("data", data)
-            
             const summaryCard = document.querySelector("#sales-report-content .summary-card");
             summaryCard.innerHTML = `
               <div class="summary-item">
@@ -800,10 +1243,8 @@
                 <div class="summary-value">${data.totalOrderCount.toLocaleString()}</div>
                 <div class="summary-label">Total Orders</div>
               </div>
-             
             `;
-
-            
+  
             const tableBody = document.getElementById("sales-table-body");
             tableBody.innerHTML = data.sales.map(sale => `
               <tr>
@@ -812,23 +1253,19 @@
                 <td>${sale.orderDate ? new Date(sale.orderDate).toLocaleDateString() : "N/A"}</td>
                 <td>${sale.items.length}</td>
                 <td>₹${sale.totalAmount ? sale.totalAmount.toLocaleString() : "0"}</td>
-              
                 <td>₹${sale.totalAmount ? sale.totalAmount.toLocaleString() : "0"}</td>
                 <td><span class="status ${sale.orderStatus}">${sale.orderStatus || "N/A"}</span></td>
                 <td>${sale.paymentMethod || "N/A"}</td>
               </tr>
             `).join("");
-
-            
+  
             const pagination = document.getElementById("pagination");
-            console.log("pagination",pagination)
             pagination.innerHTML = `
               <a href="#" class="pagination-btn ${data.currentPage <= 1 ? "disabled" : ""}" data-page="${data.currentPage - 1}">Previous</a>
               <span class="page-info">Page ${data.currentPage} of ${data.totalPages}</span>
-              <a href="#" class="pagination-btn ${data.currentPage >= data.totalPages ? "disabled" : ""}" data-page="${data.currentPage  + 1}">Next</a>
+              <a href="#" class="pagination-btn ${data.currentPage >= data.totalPages ? "disabled" : ""}" data-page="${data.currentPage + 1}">Next</a>
             `;
-
-            
+  
             updatePaginationListeners();
           })
           .catch(error => {

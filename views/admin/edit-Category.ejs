@@ -108,11 +108,11 @@
             border-bottom: 1px solid #333;
             margin-bottom: 20px;
         }
-        
+
         .main-content {
             margin-left: 0;
         }
-        
+
         .mt-60 {
             margin-top: 30px;
         }
@@ -124,26 +124,29 @@
         <div class="row justify-content-center">
             <div class="col-md-6 mt-60">
                 <% if (category) { %>
-                    <form id="editCategoryForm" method="post" action="/admin/editCategory/<%= category._id %>">
-                        <div class="mb-4 mt-30">
-                            <label for="categoryName" class="form-label">Name</label>
-                            <input type="text" name="categoryName" value="<%= category.name || '' %>" placeholder="<%= category.name || 'Enter category name' %>" class="form-control border" id="categoryName" />
-                        </div>
-                        
-                        <div class="mb-4">
-                            <label class="form-label">Description</label>
-                            <textarea name="description" class="form-control border" placeholder="<%= category.description || 'Enter description' %>"><%= category.description || '' %></textarea>
-                        </div>
-                        
-                        <div class="d-grid text-end mt-30 col-md-5">
-                            <button class="btn btn-primary" type="submit">Update Category</button>
-                        </div>
-                    </form>
-                <% } else { %>
-                    <div class="error-message">
-                        <p>Category not found. Please check the ID or contact support.</p>
-                        <a href="/admin/category" class="btn btn-primary">Back to Categories</a>
+                <form id="editCategoryForm" method="post" action="/admin/editCategory/<%= category._id %>">
+                    <div class="mb-4 mt-30">
+                        <label for="categoryName" class="form-label">Name</label>
+                        <input type="text" name="categoryName" value="<%= category.name || '' %>"
+                            placeholder="<%= category.name || 'Enter category name' %>" class="form-control border"
+                            id="categoryName" />
                     </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" class="form-control border"
+                            placeholder="<%= category.description || 'Enter description' %>"><%= category.description || '' %></textarea>
+                    </div>
+
+                    <div class="d-grid text-end mt-30 col-md-5">
+                        <button class="btn btn-primary" type="submit">Update Category</button>
+                    </div>
+                </form>
+                <% } else { %>
+                <div class="error-message">
+                    <p>Category not found. Please check the ID or contact support.</p>
+                    <a href="/admin/category" class="btn btn-primary">Back to Categories</a>
+                </div>
                 <% } %>
             </div>
         </div>
@@ -151,18 +154,18 @@
 </div>
 
 <script>
-    document.getElementById('editCategoryForm')?.addEventListener('submit', async (e) => {
+    document.getElementById('editCategoryForm') ?.addEventListener('submit', async (e) => {
         e.preventDefault();
 
         const form = e.target;
         const formData = new FormData(form);
 
         const formDataObj = {};
-          
-        
+
+
         formData.forEach((value, key) => {
-              formDataObj[key] = value;
-    }); 
+            formDataObj[key] = value;
+        });
 
 
 
@@ -179,15 +182,15 @@
 
         if (result.isConfirmed) {
             try {
-              const response = await fetch(form.action, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formDataObj)
-            });
-            const data = await response.json();
-            
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formDataObj)
+                });
+                const data = await response.json();
+
                 if (data.success) {
                     Swal.fire({
                         title: 'Success!',

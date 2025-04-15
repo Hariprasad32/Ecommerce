@@ -7,7 +7,6 @@ const path = require("path");
 const sharp = require("sharp");
 const mongoose = require('mongoose');
 
-
 const getAdminCoupons = async (req, res) => {
     try {
         const userId = req.session.admin;
@@ -26,7 +25,17 @@ const getAdminCoupons = async (req, res) => {
         const search = req.query.search || '';
         const sortBy = req.query.sortBy || 'createdOn';
         const sortOrder = req.query.sortOrder === 'desc' ? -1 : 1;
-        const status = req.query.status || ''; // Added for status filter
+        const status = req.query.status || '';
+
+        
+        await Coupon.updateMany(
+            {
+                expireOn: { $lt: new Date() },
+                isListed: true,
+                isDeleted: false
+            },
+            { isListed: false }
+        );
 
         let query = { isDeleted: false };
         if (search) {
@@ -46,17 +55,16 @@ const getAdminCoupons = async (req, res) => {
 
         const totalPages = Math.ceil(totalCoupons / limit);
 
-        // Render the admin coupon management page with all necessary variables
         res.render('coupon', {
             coupons: coupons || [],
             currentPage: page,
             totalPages: totalPages,
             totalCoupons: totalCoupons,
             page: 'Coupons',
-            search: search,        // Add these variables
+            search: search,        
             sortBy: sortBy,
             sortOrder: sortOrder,
-            status: status         // Add status for filter persistence
+            status: status        
         });
 
     } catch (error) {
@@ -67,11 +75,11 @@ const getAdminCoupons = async (req, res) => {
         });
     }
 };
+
 const addCoupon = async (req, res) => {
     try {
         const { couponName, startDate, expiryDate, offerPrice, minimumPrice } = req.body;
 
-        // Validation
         if (!couponName || !startDate || !expiryDate || !offerPrice || !minimumPrice) {
             return res.status(400).json({ success: false, message: 'All fields are required' });
         }
@@ -91,16 +99,14 @@ const addCoupon = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Invalid pricing: Minimum price must be >= offer price' });
         }
 
-        // Check if coupon already exists (including soft-deleted ones for unique name constraint)
         const existingCoupon = await Coupon.findOne({ name: couponName });
         if (existingCoupon) {
-            // If the coupon exists but is soft-deleted, we could potentially reactivate it
             if (existingCoupon.isDeleted) {
                 existingCoupon.createdOn = new Date(startDate);
                 existingCoupon.expireOn = new Date(expiryDate);
                 existingCoupon.offerPrice = offer;
                 existingCoupon.minimumPrice = minPrice;
-                existingCoupon.isListed = true;
+                existingCoupon.isListed = new Date(expiryDate) > new Date(); 
                 existingCoupon.isDeleted = false;
                 await existingCoupon.save();
                 return res.status(200).json({ success: true, message: 'Coupon reactivated successfully' });
@@ -108,16 +114,15 @@ const addCoupon = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Coupon code already exists' });
         }
 
-        // Create new coupon
         const newCoupon = new Coupon({
             name: couponName,
-            createdOn: new Date(startDate), // Override default with user-provided start date
+            createdOn: new Date(startDate), 
             expireOn: new Date(expiryDate),
             offerPrice: offer,
             minimumPrice: minPrice,
-            isListed: true, // Matches schema field
-            userId: null, // Optional: Set to null if not tied to a specific user, or adjust logic
-            isDeleted: false // Ensure new coupons are not soft-deleted
+            isListed: new Date(expiryDate) > new Date(), // Set based on expiry
+            userId: null, 
+            isDeleted: false 
         });
 
         await newCoupon.save();
@@ -129,14 +134,22 @@ const addCoupon = async (req, res) => {
     }
 };
 
-
 const getCouponDetails = async (req, res) => {
     try {
-        console.log("Editing coupon with data:");
+        console.log("Fetching coupon details for:", req.params.couponName);
         const couponName = req.params.couponName;
-        console.log("Coupon Name:", couponName);
         
-        // Only return coupons that aren't soft-deleted
+       
+        await Coupon.updateOne(
+            {
+                name: couponName,
+                expireOn: { $lt: new Date() },
+                isListed: true,
+                isDeleted: false
+            },
+            { isListed: false }
+        );
+
         const coupon = await Coupon.findOne({ name: couponName, isDeleted: false }).lean();
 
         if (!coupon) {
@@ -151,13 +164,11 @@ const getCouponDetails = async (req, res) => {
     }
 };
 
-
 const editCoupon = async (req, res) => {
     try {
-        console.log("Editing coupon with data:");
+        console.log("Editing coupon with data:", req.body);
         const { couponName, startDate, expiryDate, offerPrice, minimumPrice } = req.body;
 
-       
         if (!couponName || !startDate || !expiryDate || !offerPrice || !minimumPrice) {
             return res.status(400).json({ success: false, message: 'All fields are required' });
         }
@@ -177,15 +188,14 @@ const editCoupon = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Invalid pricing: Minimum price must be >= offer price' });
         }
 
-    
         const updatedCoupon = await Coupon.findOneAndUpdate(
             { name: couponName, isDeleted: false },
             {
                 createdOn: new Date(startDate),
                 expireOn: new Date(expiryDate),
                 offerPrice: offer,
-                minimumPrice: minPrice
-                
+                minimumPrice: minPrice,
+                isListed: new Date(expiryDate) > new Date() 
             },
             { new: true }
         );
@@ -202,10 +212,8 @@ const editCoupon = async (req, res) => {
     }
 };
 
-
 const deleteCoupon = async (req, res) => {
     try {
-    
         const { couponName } = req.body;
         console.log("Soft-deleting coupon with data:", couponName);
 
@@ -213,7 +221,6 @@ const deleteCoupon = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Coupon name is required' });
         }
 
-        // Update the isDeleted flag instead of actually deleting the document
         const updatedCoupon = await Coupon.findOneAndUpdate(
             { name: couponName, isDeleted: false },
             { isDeleted: true },

@@ -3,13 +3,13 @@ const Coupon = require('../../models/couponSchema');
 
 const getCoupons = async (req, res) => {
     try {
-        console.log("req reached here")
+      
         const currentDate = new Date();
         const coupons = await Coupon.find({
             isListed: true,
             expireOn: { $gte: currentDate }
         }).lean();
-        console.log("coupons", coupons)
+        
         res.status(200).json({ success: true, coupons });
     } catch (error) {
         console.error("Error fetching coupons:", error);

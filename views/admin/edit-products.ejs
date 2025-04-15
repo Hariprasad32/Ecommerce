@@ -3,7 +3,7 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-        <link rel="stylesheet" href="/css/add-product.css">
+        <link rel="stylesheet" href="/css/edit-product.css">
     </head>
     <section class="content-main">
         <div class="row">
@@ -118,7 +118,7 @@
                                         </div>
                                         
                                         <div class="mb-3">
-                                            <input type="file" name="imageFile" id="imageInput" accept="image/png, image/jpeg, image/jpg" class="form-control">
+                                            <input type="file" name="imageFile" id="imageInput" accept="image/*" class="form-control">
                                             <div id="images-error" class="error-message"></div>
                                         </div>
                                         
@@ -257,23 +257,44 @@
     }
 
     function handleImageUpload(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-        
-        if (uploadedImages.length >= MAX_IMAGES) {
-            displayErrorMessage('images-error', `You can only upload a maximum of ${MAX_IMAGES} images`);
-            event.target.value = '';
-            return;
-        }
-        
-        if (!file.type.match('image.*')) {
-            displayErrorMessage('images-error', 'Please upload only image files');
-            event.target.value = '';
-            return;
-        }
-        
-        const reader = new FileReader();
-        reader.onload = function (e) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    // Check number of images
+    if (uploadedImages.length >= MAX_IMAGES) {
+        displayErrorMessage('images-error', `You can only upload a maximum of ${MAX_IMAGES} images`);
+        event.target.value = '';
+        return;
+    }
+    
+    // File type validation - support all image types
+    if (!file.type.startsWith('image/')) {
+        displayErrorMessage('images-error', 'Please upload only image files');
+        event.target.value = '';
+        return;
+    }
+    
+    // File size validation (5MB max)
+    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+    if (file.size > maxSize) {
+        displayErrorMessage('images-error', 'Image size should not exceed 5MB');
+        event.target.value = '';
+        return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        // Create an image to check dimensions
+        const img = new Image();
+        img.onload = function() {
+            // Dimension validation (minimum 300x300 pixels)
+            if (img.width < 300 || img.height < 300) {
+                displayErrorMessage('images-error', 'Image dimensions should be at least 300x300 pixels');
+                event.target.value = '';
+                return;
+            }
+            
+            // Continue with cropper if image passes validation
             const cropperContainer = document.getElementById('cropperContainer');
             const saveButton = document.getElementById('saveButton');
             cropperContainer.style.display = 'block';
@@ -293,104 +314,123 @@
                 zoomable: true,
             });
         };
+        img.src = e.target.result;
+    };
+    
+    reader.readAsDataURL(file);
+    
+    const saveButton = document.getElementById('saveButton');
+    const newSaveButton = saveButton.cloneNode(true);
+    saveButton.parentNode.replaceChild(newSaveButton, saveButton);
+    
+    newSaveButton.addEventListener('click', function () {
+        if (!cropper) return;
         
-        reader.readAsDataURL(file);
-        
-        const saveButton = document.getElementById('saveButton');
-        const newSaveButton = saveButton.cloneNode(true);
-        saveButton.parentNode.replaceChild(newSaveButton, saveButton);
-        
-        newSaveButton.addEventListener('click', function () {
-            if (!cropper) return;
-            
-            const croppedCanvas = cropper.getCroppedCanvas();
-            
-            const MAX_WIDTH = 500;
-            const MAX_HEIGHT = 500;
-            let width = croppedCanvas.width;
-            let height = croppedCanvas.height;
-            
-            if (width > height) {
-                if (width > MAX_WIDTH) {
-                    height *= MAX_WIDTH / width;
-                    width = MAX_WIDTH;
-                }
-            } else {
-                if (height > MAX_HEIGHT) {
-                    width *= MAX_HEIGHT / height;
-                    height = MAX_HEIGHT;
-                }
-            }
-            
-            const resizedCanvas = document.createElement('canvas');
-            resizedCanvas.width = width;
-            resizedCanvas.height = height;
-            const ctx = resizedCanvas.getContext('2d');
-            ctx.drawImage(croppedCanvas, 0, 0, width, height);
-            
-            resizedCanvas.toBlob(
-                (blob) => {
-                    const reader2 = new FileReader();
-                    reader2.onloadend = function() {
-                        const hiddenInput = document.createElement('input');
-                        hiddenInput.type = 'hidden';
-                        hiddenInput.name = 'images';
-                        hiddenInput.value = reader2.result;
-                        document.forms[0].appendChild(hiddenInput);
-                        
-                        const thumbnail = document.createElement('div');
-                        thumbnail.classList.add('thumbnail');
-                        thumbnail.dataset.isNew = 'true';
-                        
-                        const thumbImg = document.createElement('img');
-                        thumbImg.src = reader2.result;
-                        thumbImg.alt = 'thumbnail';
-                        
-                        const removeIcon = document.createElement('span');
-                        removeIcon.classList.add('remove-icon');
-                        removeIcon.innerHTML = '×';
-                        
-                        removeIcon.addEventListener('click', function() {
-                            thumbnail.remove();
-                            
-                            const inputs = document.getElementsByName('images');
-                            for (let i = 0; i < inputs.length; i++) {
-                                if (inputs[i].value === reader2.result) {
-                                    inputs[i].remove();
-                                    break;
-                                }
-                            }
-                            
-                            uploadedImages = uploadedImages.filter(img => img.dataUrl !== reader2.result);
-                            checkImageCount();
-                        });
-                        
-                        thumbnail.appendChild(thumbImg);
-                        thumbnail.appendChild(removeIcon);
-                        document.getElementById('image-preview-container').appendChild(thumbnail);
-                        
-                        uploadedImages.push({
-                            dataUrl: reader2.result,
-                            filename: file.name,
-                            isNew: true
-                        });
-                        
-                        document.getElementById('cropperContainer').style.display = 'none';
-                        cropper.destroy();
-                        cropper = null;
-                        document.getElementById('imageInput').value = '';
-                        
-                        document.getElementById('images-error').textContent = '';
-                    };
-                    reader2.readAsDataURL(blob);
-                },
-                file.type,
-                0.9
-            );
+        const croppedCanvas = cropper.getCroppedCanvas({
+            minWidth: 300,
+            minHeight: 300,
+            maxWidth: 1500,
+            maxHeight: 1500
         });
-    }
-
-    function validateForm() {
+        
+        if (!croppedCanvas) {
+            displayErrorMessage('images-error', 'Failed to crop image');
+            return;
+        }
+        
+        const MAX_WIDTH = 500;
+        const MAX_HEIGHT = 500;
+        let width = croppedCanvas.width;
+        let height = croppedCanvas.height;
+        
+        if (width > height) {
+            if (width > MAX_WIDTH) {
+                height *= MAX_WIDTH / width;
+                width = MAX_WIDTH;
+            }
+        } else {
+            if (height > MAX_HEIGHT) {
+                width *= MAX_HEIGHT / height;
+                height = MAX_HEIGHT;
+            }
+        }
+        
+        const resizedCanvas = document.createElement('canvas');
+        resizedCanvas.width = width;
+        resizedCanvas.height = height;
+        const ctx = resizedCanvas.getContext('2d');
+        ctx.drawImage(croppedCanvas, 0, 0, width, height);
+        
+        // Always output as PNG for consistency after processing
+        resizedCanvas.toBlob(
+            (blob) => {
+                // Check final blob size
+                if (blob.size > 2 * 1024 * 1024) { // 2MB limit for final processed image
+                    displayErrorMessage('images-error', 'Processed image size exceeds 2MB limit');
+                    return;
+                }
+                
+                const reader2 = new FileReader();
+                reader2.onloadend = function() {
+                    const hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.name = 'images';
+                    hiddenInput.value = reader2.result;
+                    document.forms[0].appendChild(hiddenInput);
+                    
+                    const thumbnail = document.createElement('div');
+                    thumbnail.classList.add('thumbnail');
+                    thumbnail.dataset.isNew = 'true';
+                    
+                    const thumbImg = document.createElement('img');
+                    thumbImg.src = reader2.result;
+                    thumbImg.alt = 'thumbnail';
+                    
+                    const removeIcon = document.createElement('span');
+                    removeIcon.classList.add('remove-icon');
+                    removeIcon.innerHTML = '×';
+                    
+                    removeIcon.addEventListener('click', function() {
+                        thumbnail.remove();
+                        
+                        const inputs = document.getElementsByName('images');
+                        for (let i = 0; i < inputs.length; i++) {
+                            if (inputs[i].value === reader2.result) {
+                                inputs[i].remove();
+                                break;
+                            }
+                        }
+                        
+                        uploadedImages = uploadedImages.filter(img => img.dataUrl !== reader2.result);
+                        checkImageCount();
+                    });
+                    
+                    thumbnail.appendChild(thumbImg);
+                    thumbnail.appendChild(removeIcon);
+                    document.getElementById('image-preview-container').appendChild(thumbnail);
+                    
+                    uploadedImages.push({
+                        dataUrl: reader2.result,
+                        filename: file.name,
+                        isNew: true
+                    });
+                    
+                    document.getElementById('cropperContainer').style.display = 'none';
+                    cropper.destroy();
+                    cropper = null;
+                    document.getElementById('imageInput').value = '';
+                    
+                    document.getElementById('images-error').textContent = '';
+                };
+                reader2.readAsDataURL(blob);
+            },
+            'image/png', // Always use PNG for consistency
+            0.9
+        );
+    });
+}
+   
+function validateForm() {
         clearErrorMessages();
         const name = document.getElementsByName('productName')[0].value.trim();
         const description = document.getElementById('descriptionid').value.trim();

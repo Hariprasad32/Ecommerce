@@ -5,6 +5,8 @@ const Cart = require('../../models/cartSchema');
 const Order = require("../../models/orderSchema");
 const { v4: uuidv4 } = require('uuid');
 
+
+
 const getOrders = async (req, res) => {
     try {
         const { page = 1, search = '', status = 'all' } = req.query;
@@ -12,20 +14,28 @@ const getOrders = async (req, res) => {
         const skip = (page - 1) * limit;
 
         let query = {};
+
         
         if (search) {
             query.$or = [
                 { orderMainId: { $regex: search, $options: 'i' } },
             ];
-            const users = await User.find({ 
-                username: { $regex: search, $options: 'i' } 
+            const users = await User.find({
+                username: { $regex: search, $options: 'i' }
             }).select('_id');
             const userIds = users.map(user => user._id);
             query.$or.push({ userId: { $in: userIds } });
         }
 
+       
         if (status !== 'all') {
-            query.orderStatus = status === 'Return Requested' ? 'Return Request' : status;
+           
+            const itemStatus = status === 'Return Requested' ? 'Return Request' : status;
+            query.items = {
+                $elemMatch: {
+                    status: itemStatus
+                }
+            };
         }
 
         const orders = await Order.find(query)
@@ -33,53 +43,25 @@ const getOrders = async (req, res) => {
             .sort({ orderDate: -1 })
             .skip(skip)
             .limit(limit);
-            console.log("this are the orders reaching the order info page",orders)
-            
-        if(!orders || orders.length === 0){
-            return res.render('admin-orders',{
-                orders:[],
-                page:'Orders',
-                currentPage: parseInt(page), 
-                totalPages: 1, 
-                searchQuery: search, 
-                statusFilter: status    
+
+        console.log("Orders reaching the order info page:", orders);
+
+        if (!orders || orders.length === 0) {
+            return res.render('admin-orders', {
+                orders: [],
+                page: 'Orders',
+                currentPage: parseInt(page),
+                totalPages: 1,
+                searchQuery: search,
+                statusFilter: status
             });
         }
 
-        // const groupedOrders = {};
-        // orders.forEach(order => {
-        //     const mainId = order.orderMainId;
-        //     if (!groupedOrders[mainId]) {
-        //         groupedOrders[mainId] = {
-        //             orderMainId: mainId,
-        //             userId: order.userId, 
-        //             totalAmount: 0,
-        //             orderDate: order.orderDate,
-        //             orderStatus: order.orderStatus,
-        //             returnRequested: order.returnRequested || false,
-        //             subOrders: []
-        //         };
-        //     }
-        //     groupedOrders[mainId].totalAmount += order.totalAmount;
-        //     groupedOrders[mainId].subOrders.push(order);
-            
-        //     if (new Date(order.orderDate) > new Date(groupedOrders[mainId].orderDate)) {
-        //         groupedOrders[mainId].orderDate = order.orderDate;
-        //     }
-            
-        //     if (order.returnRequested) {
-        //         groupedOrders[mainId].returnRequested = true;
-        //     }
-        // });
-        // const allGroupedOrders = Object.values(groupedOrders);
-        const totalOrders =await Order.countDocuments(query);;
+        const totalOrders = await Order.countDocuments(query);
         const totalPages = Math.ceil(totalOrders / limit);
-        // const paginatedOrders = allGroupedOrders
-        //     .sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate))
-        //     .slice(skip, skip + limit);
-        // console.log("this is the paginated orders",paginatedOrders)
-        res.render('admin-orders', { 
-            orders: orders, 
+
+        res.render('admin-orders', {
+            orders: orders,
             page: 'Orders',
             currentPage: parseInt(page),
             totalPages,
@@ -89,9 +71,9 @@ const getOrders = async (req, res) => {
 
     } catch (error) {
         console.error('Error fetching orders:', error);
-        res.status(500).render('error-page', { 
-            message: 'Failed to load orders', 
-            error: error.message 
+        res.status(500).render('error-page', {
+            message: 'Failed to load orders',
+            error: error.message
         });
     }
 };
@@ -221,13 +203,21 @@ const processReturnRequest = async (req, res) => {
             return res.status(400).json({ success: false, message: 'No return request found for this item' });
         }
 
+        console.log("these are the items",item)
         if (action === 'approve') {
             item.status = 'Returned';
 
-            await Product.findByIdAndUpdate(item.productId, {
-                $inc: { stockQuantity: item.quantity }
-            });
-
+            const product = await Product.findById(item.productId);
+            if (!product) {
+                return res.status(404).json({ success: false, message: 'Product not found' });
+            }
+            
+            
+            const sizeIndex = product.sizes.findIndex(s => s.size === item.size);
+            if (sizeIndex !== -1) {
+                product.sizes[sizeIndex].quantity += item.quantity;
+                await product.save();
+            }
             const refundAmount = item.finalPrice * item.quantity;
             if (item.refunded) {
                 return res.status(400).json({ success: false, message: 'Refund already processed for this item' });
@@ -238,7 +228,7 @@ const processReturnRequest = async (req, res) => {
                 return res.status(404).json({ success: false, message: 'User not found' });
             }
 
-            // Update wallet and add transaction
+           
             await User.findByIdAndUpdate(order.userId, {
                 $inc: { wallet: refundAmount },
                 $push: {
