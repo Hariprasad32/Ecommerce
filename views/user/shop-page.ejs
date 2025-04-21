@@ -87,7 +87,7 @@
                     <% const discountPercentage = Math.round(((product.regularPrice - product.salePrice) / product.regularPrice) * 100); %>
                     <div class="product-card">
                         <div class="product-image">
-                            <a href="/productDetails?id=<%= product._id %>">
+                            <a href="/product-details?id=<%= product._id %>">
                                 <img src="/<%= product.productImage[0] %>" alt="<%= product.productName %>" />
                                 <% if( product.productOffer !==0 ) { %>
                                 <span class="product-badge"><%=product.productOffer %></span>
@@ -106,7 +106,7 @@
                         <div class="product-details">
                             <div class="product-category"></div>
                             <h3 class="product-title">
-                                <a href="/productDetails?id=<%= product._id %>"><%= product.productName %></a>
+                                <a href="/product-details?id=<%= product._id %>"><%= product.productName %></a>
                             </h3>
                             <div class="product-rating">
                                 <div class="stars">★★★★☆</div>
@@ -282,7 +282,7 @@
                 productCard.className = 'product-card';
                 productCard.innerHTML = `
                         <div class="product-image">
-                            <a href="/productDetails?id=${product._id}">
+                            <a href="/product-details?id=${product._id}">
                                 <img src="/${product.productImage[0]}" alt="${product.productName}" />
                                 ${discountPercentage !== 0 ? `<span class="product-badge">${discountPercentage}% Off</span>` : ''}
                                 <button class="product-wishlist" data-id="${product._id}">
@@ -292,7 +292,7 @@
                         </div>
                         <div class="product-details">
                             <h3 class="product-title">
-                                <a href="/productDetails?id=${product._id}">${product.productName}</a>
+                                <a href="/product-details?id=${product._id}">${product.productName}</a>
                             </h3>
                             <div class="product-rating">
                                 <div class="stars">★★★★☆</div>
@@ -310,9 +310,7 @@
                             </div>
                             <div class="product-actions">
                                 <button class="add-to-cart" data-id="${product._id}" data-name="${product.productName}">Add to Cart</button>
-                                <button class="quick-view" data-id="${product._id}">
-                                    <i class="fas fa-eye"></i>
-                                </button>
+                               
                             </div>
                         </div>
                     `;
@@ -747,7 +745,7 @@
                                         <button class="quick-view-add-to-cart" data-id="${product._id}" data-name="${product.productName}">
                                             Add to Cart
                                         </button>
-                                        <a href="/productDetails?id=${product._id}" class="quick-view-details-link">
+                                        <a href="/product-details?id=${product._id}" class="quick-view-details-link">
                                             View Details
                                         </a>
                                     </div>

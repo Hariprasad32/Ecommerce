@@ -1,12 +1,12 @@
 :root {
-  --primary: #2a2a2a;
-  --secondary: #f5f5f5;
-  --accent: #ff6b6b;
-  --text: #333333;
-  --text-light: #777777;
-  --border: #e0e0e0;
-  --success: #4caf50;
-  --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  --primary: #5c899D; /* Muted blue for dominant primary elements */
+  --secondary: #FFFCEF; /* Light cream for secondary elements and backgrounds */
+  --accent: #5c899D; /* Muted blue for accents (buttons, highlights) */
+  --text: #2A3F4D; /* Darker blue-gray for primary text (contrast on cream) */
+  --text-light: #4A5A66; /* Lighter blue-gray for secondary text */
+  --border: #A6C2D1; /* Light blue for borders */
+  --success: #4caf50; /* Unchanged, context-specific */
+  --shadow: 0 4px 12px rgba(92, 137, 157, 0.1); /* Subtle shadow with blue tint */
   --transition: all 0.3s ease;
 }
 
@@ -17,7 +17,7 @@
 }
 
 .shop-hero {
-  background: linear-gradient(135deg, #f9f9f9 0%, #ffffff 100%);
+  background: linear-gradient(135deg, #5c899D 0%, #A6C2D1 100%); /* Gradient with muted blue */
   padding: 4rem 2rem;
   text-align: center;
   margin-bottom: 2rem;
@@ -28,12 +28,12 @@
   font-size: 2.5rem;
   font-weight: 700;
   margin-bottom: 1rem;
-  color: var(--primary);
+  color: var(--secondary); /* Cream for contrast */
 }
 
 .shop-hero p {
   font-size: 1.1rem;
-  color: var(--text-light);
+  color: var(--secondary);
   max-width: 700px;
   margin: 0 auto 2rem;
 }
@@ -45,6 +45,7 @@
   border-radius: 50px;
   overflow: hidden;
   box-shadow: var(--shadow);
+  background-color: var(--secondary); /* Cream for clean input area */
 }
 
 .search-input {
@@ -52,6 +53,8 @@
   padding: 1rem 1.5rem;
   border: none;
   font-size: 1rem;
+  color: var(--text);
+  background-color: var(--secondary);
 }
 
 .search-input:focus {
@@ -59,8 +62,8 @@
 }
 
 .search-button {
-  background-color: var(--primary);
-  color: white;
+  background-color: var(--primary); /* Muted blue button */
+  color: var(--secondary); /* Cream text */
   border: none;
   padding: 0 1.5rem;
   cursor: pointer;
@@ -68,7 +71,8 @@
 }
 
 .search-button:hover {
-  background-color: var(--accent);
+  background-color: #426677; /* Darker blue on hover */
+  color: var(--secondary);
 }
 
 .shop-container {
@@ -81,11 +85,9 @@
 
 .sidebar {
   width: 220px;
-
   flex-shrink: 0;
   position: relative;
   top: 1rem;
-
   align-self: flex-start;
 }
 
@@ -94,7 +96,7 @@
 }
 
 .filter-card {
-  background: white;
+  background: var(--secondary); /* Cream */
   border-radius: 6px;
   padding: 1rem;
   margin-bottom: 1rem;
@@ -106,7 +108,7 @@
   font-weight: 600;
   font-size: 1rem;
   margin-bottom: 0.75rem;
-  color: var(--primary);
+  color: var(--primary); /* Muted blue */
 }
 
 .filter-options {
@@ -140,9 +142,8 @@
 .filter-option input[type="checkbox"]:checked::after {
   content: '✓';
   position: absolute;
-  color: white;
+  color: var(--secondary); /* Cream */
   font-size: 10px;
-  
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -152,14 +153,13 @@
   cursor: pointer;
   user-select: none;
   font-size: 0.9rem;
-  
+  color: var(--text);
 }
 
 .price-range {
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  
 }
 
 .price-input {
@@ -168,6 +168,7 @@
   border: 1px solid var(--border);
   border-radius: 3px;
   font-size: 0.85rem;
+  color: var(--text);
 }
 
 .price-input:focus {
@@ -178,8 +179,8 @@
 .filter-button {
   width: 100%;
   padding: 0.75rem;
-  background-color: var(--primary);
-  color: white;
+  background-color: var(--primary); /* Muted blue button */
+  color: var(--secondary); /* Cream text */
   border: none;
   border-radius: 3px;
   font-weight: 600;
@@ -188,8 +189,8 @@
 }
 
 .filter-button:hover {
-  background-color: var(--accent);
-  transform: translateY(-1px);
+  background-color: #426677; /* Darker blue */
+  color: var(--secondary);
 }
 
 .refresh-container {
@@ -219,11 +220,18 @@
 .price-sort-select {
   width: 100%;
   padding: 0.5rem;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border);
   border-radius: 3px;
-  background-color: white;
+  background-color: var(--secondary); /* Cream */
   font-size: 0.9rem;
   cursor: pointer;
+  color: var(--text);
+}
+
+.price-sort-select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 5px rgba(92, 137, 157, 0.3);
 }
 
 .products-grid {
@@ -233,7 +241,7 @@
 }
 
 .product-card {
-  background: white;
+  background: var(--secondary); /* Cream */
   border-radius: 8px;
   overflow: hidden;
   box-shadow: var(--shadow);
@@ -243,7 +251,7 @@
 
 .product-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 20px rgba(92, 137, 157, 0.15);
 }
 
 .product-image {
@@ -270,8 +278,8 @@
   position: absolute;
   top: 1rem;
   right: 1rem;
-  background-color: var(--accent);
-  color: white;
+  background-color: red; /* Muted blue badge */
+  color: var(--secondary); /* Cream */
   padding: 0.25rem 0.5rem;
   border-radius: 2px;
   font-size: 10px;
@@ -279,27 +287,26 @@
   width: 60px;
 }
 
-
 .product-wishlist {
   position: absolute;
   bottom: 1rem;
   right: 1rem;
-  background: white;
+  background: var(--secondary); /* Cream */
   width: 36px;
   height: 36px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: none;
+  border: 1px solid var(--border);
   cursor: pointer;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   transition: var(--transition);
 }
 
 .product-wishlist:hover {
-  background-color: var(--accent);
-  color: white;
+  background-color: var(--primary); /* Muted blue on hover */
+  border-color: var(--primary);
 }
 
 .product-details {
@@ -310,6 +317,7 @@
   font-size: 1.1rem;
   font-weight: 600;
   margin: 0 0 0.5rem;
+  color: var(--text);
 }
 
 .product-title a {
@@ -331,7 +339,7 @@
 }
 
 .stars {
-  color: #ffc107;
+  color: #F4A261; /* Warm orange to complement blue-cream */
 }
 
 .product-price {
@@ -355,8 +363,8 @@
 }
 
 .discount {
-  background-color: #ffeeee;
-  color: var(--accent);
+  background-color: rgba(255, 0, 0, 0.5); /* Semi-transparent blue */
+  color: var(--secondary); /* Cream */
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   font-size: 0.8rem;
@@ -371,8 +379,8 @@
 .add-to-cart {
   flex-grow: 1;
   padding: 0.75rem;
-  background-color: var(--primary);
-  color: white;
+  background-color: var(--primary); /* Muted blue button */
+  color: var(--secondary); /* Cream text */
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -381,20 +389,21 @@
 }
 
 .add-to-cart:hover {
-  background-color: var(--accent);
+  background-color: #426677; /* Darker blue */
+  color: var(--secondary);
 }
 
 .quick-view {
   width: 40px;
-  background-color: var(--secondary);
-  border: none;
+  background-color: var(--secondary); /* Cream */
+  border: 1px solid var(--border);
   border-radius: 4px;
   cursor: pointer;
   transition: var(--transition);
 }
 
 .quick-view:hover {
-  background-color: var(--border);
+  background-color: var(--primary); /* Muted blue */
 }
 
 .pagination-container {
@@ -428,11 +437,12 @@
 
 .page-item.active .page-link {
   background-color: var(--accent);
-  color: white;
+  color: var(--secondary); /* Cream */
 }
 
 .page-item:not(.active):hover .page-link {
-  background-color: var(--secondary);
+  background-color: var(--primary);
+  color: var(--secondary);
 }
 
 .size-modal {
@@ -443,19 +453,19 @@
   top: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(92, 137, 157, 0.5); /* Blue-tinted overlay */
   justify-content: center;
   align-items: center;
 }
 
 .size-modal-content {
-  background-color: white;
+  background-color: var(--secondary); /* Cream */
   border-radius: 12px;
   max-width: 500px;
   width: 90%;
   padding: 2rem;
   position: relative;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 10px 30px rgba(92, 137, 157, 0.2);
 }
 
 .size-modal-header {
@@ -471,7 +481,7 @@
   font-size: 1.5rem;
   font-weight: 600;
   margin: 0;
-  color: var(--primary);
+  color: var(--primary); /* Muted blue */
 }
 
 .size-modal-close {
@@ -513,11 +523,12 @@
   cursor: pointer;
   font-weight: 600;
   transition: var(--transition);
+  color: var(--text);
 }
 
 .size-option input:checked+label {
   background-color: var(--accent);
-  color: white;
+  color: var(--secondary); /* Cream */
   border-color: var(--accent);
   transform: scale(1.05);
 }
@@ -540,23 +551,25 @@
 .size-modal-cancel {
   flex: 1;
   padding: 1rem;
-  background-color: white;
+  background-color: var(--secondary); /* Cream */
   border: 1px solid var(--border);
   border-radius: 8px;
   cursor: pointer;
   font-weight: 600;
   transition: var(--transition);
+  color: var(--text);
 }
 
 .size-modal-cancel:hover {
-  background-color: var(--secondary);
+  background-color: var(--primary); /* Muted blue */
+  color: var(--secondary);
 }
 
 .size-modal-confirm {
   flex: 1;
   padding: 1rem;
-  background-color: var(--accent);
-  color: white;
+  background-color: var(--primary); /* Muted blue button */
+  color: var(--secondary); /* Cream text */
   border: none;
   border-radius: 8px;
   cursor: pointer;
@@ -565,11 +578,12 @@
 }
 
 .size-modal-confirm:hover {
-  background-color: #e05a5a;
+  background-color: #426677; /* Darker blue */
+  color: var(--secondary);
 }
 
 .size-modal-confirm:disabled {
-  background-color: #ffb6b6;
+  background-color: #A6C2D1; /* Light blue */
   cursor: not-allowed;
 }
 
@@ -582,6 +596,72 @@
 .no-products-message p {
   font-size: 1.2rem;
   color: var(--text-light);
+}
+
+.filter-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.filter-card {
+  background-color: var(--secondary); /* Cream */
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.filter-button {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: var(--primary); /* Muted blue button */
+  color: var(--secondary); /* Cream text */
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.filter-button:hover {
+  background-color: #426677; /* Darker blue */
+  color: var(--secondary);
+}
+
+.refresh-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  cursor: pointer;
+  color: var(--text-light);
+}
+
+.refresh-container:hover {
+  color: var(--accent);
+}
+
+.refresh-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.refresh-text {
+  font-size: 0.9rem;
+}
+
+.price-sort-select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background-color: var(--secondary); /* Cream */
+  font-size: 1rem;
+  cursor: pointer;
+  color: var(--text);
+}
+
+.price-sort-select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 5px rgba(92, 137, 157, 0.3);
 }
 
 @media (max-width: 992px) {
@@ -626,68 +706,4 @@
     width: 3rem;
     height: 3rem;
   }
-}
-
-.filter-bar {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.filter-card {
-  background-color: #f9f9f9;
-  padding: 1rem;
-  border-radius: 8px;
-}
-
-.filter-button {
-  width: 100%;
-  padding: 0.75rem;
-  background-color: #000000;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.filter-button:hover {
-  background-color: #0056b3;
-}
-
-.refresh-container {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-  cursor: pointer;
-  color: #6c757d;
-}
-
-.refresh-container:hover {
-  color: #5a6268;
-}
-
-.refresh-icon {
-  width: 16px;
-  height: 16px;
-}
-
-.refresh-text {
-  font-size: 0.9rem;
-}
-
-.price-sort-select {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background-color: white;
-  font-size: 1rem;
-  cursor: pointer;
-}
-
-.price-sort-select:focus {
-  outline: none;
-  border-color: #007bff;
-  box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
 }

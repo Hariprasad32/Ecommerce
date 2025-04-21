@@ -141,7 +141,7 @@
             let pendingProfileData = null;
             let timerInterval = null;
 
-            // Function to start the 60-second timer
+           
             function startTimer() {
                 let timeLeft = 60;
                 timerDisplay.textContent = timeLeft;
@@ -162,7 +162,7 @@
                 }, 1000);
             }
 
-            // Function to send OTP
+            
             function sendOtp(email) {
                 return fetch('/send-email-otp', {
                     method: 'POST',
@@ -205,7 +205,7 @@
                 });
             }
 
-            // Handle profile image upload
+            
             profileImageInput.addEventListener('change', function() {
                 const file = this.files[0];
                 if (file) {
@@ -255,7 +255,7 @@
                 }
             });
 
-            // Form submission handler
+            
             form.addEventListener('submit', async function(e) {
                 e.preventDefault();
 
@@ -263,7 +263,7 @@
                 const email = document.getElementById('email').value.trim();
                 const phone = document.getElementById('phone').value.trim();
 
-                // Client-side validation
+                
                 if (!name || name.length < 2 || name.length > 50) {
                     Swal.fire({ icon: 'error', title: 'Validation Error', text: 'Name must be between 2 and 50 characters' });
                     return;
@@ -290,7 +290,7 @@
                 }
             });
 
-            // Function to update profile
+           
             function updateProfile(data) {
                 fetch('/edit-profile', {
                     method: 'POST',
@@ -326,7 +326,7 @@
                 });
             }
 
-            // Verify OTP
+           
             verifyEmailBtn.addEventListener('click', function() {
                 const code = document.getElementById('verification-code').value;
                 if (code.length !== 6 || !/^\d{6}$/.test(code)) {
@@ -368,19 +368,19 @@
                 });
             });
 
-            // Resend OTP
+      
             resendCodeBtn.addEventListener('click', function() {
                 if (!resendCodeBtn.disabled) {
                     sendOtp(newEmail);
                 }
             });
 
-            // Cancel button
+          
             cancelBtn.addEventListener('click', function() {
                 window.location.href = '/profile';
             });
 
-            // Close modal
+           
             closeVerificationBtn.addEventListener('click', function() {
                 clearInterval(timerInterval);
                 verificationModal.style.display = 'none';

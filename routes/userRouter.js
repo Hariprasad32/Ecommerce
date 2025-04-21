@@ -30,11 +30,7 @@
     router.post("/products",userController.getProducts); 
 
     // product detail
-    router.get('/productDetails', productController.productDetails);
-
-
-
-
+    router.get('/product-details', productController.productDetails);
 
 
 
@@ -51,20 +47,20 @@
 
     //user profile
     router.get('/profile', userAuth, profileController.getProfile);
-    router.get('/updateProfile', userAuth, profileController.updateProfile);
+    router.get('/update-profile', userAuth, profileController.updateProfile);
     router.post('/edit-profile',userAuth,profileController.editProfile)
     router.post('/send-email-otp',userAuth,profileController.sendEmailOtp);
     router.post('/verify-email-otp',userAuth,profileController.verifyEmailOtp)
-    router.get('/myAddress',userAuth,profileController.myAddress);
-    router.get('/addAddress', userAuth, profileController.addAddress);
-    router.post('/addAddress', userAuth, profileController.addAddress);
-    router.get('/getAddress/:id', userAuth, profileController.getAddress);
-    router.post('/editAddress', userAuth, profileController.editAddress);
-    router.post('/deleteAddress', userAuth, profileController.deleteAddress);
-    router.post('/setDefaultAddress', userAuth, profileController.setDefaultAddress);
+    router.get('/my-address',userAuth,profileController.myAddress);
+    router.get('/add-address', userAuth, profileController.addAddress);
+    router.post('/add-address', userAuth, profileController.addAddress);
+    router.get('/get-address/:id', userAuth, profileController.getAddress);
+    router.post('/edit-address', userAuth, profileController.editAddress);
+    router.post('/delete-address', userAuth, profileController.deleteAddress);
+    router.post('/set-default-address', userAuth, profileController.setDefaultAddress);
     router.post('/upload-profile-image', userAuth, profileController.uploadProfileImage);
-    router.get('/changePassword',userAuth,profileController.getForgotPassword)
-
+    router.get('/change-password',userAuth,profileController.getForgotPassword)
+    router.get('/referrals', userAuth, userController.getReferralDetails);
 
 
     // cart and wishlist
@@ -94,8 +90,8 @@
     router.post('/place-order',userAuth,orderController.placeOrder)
     router.get('/order-success',userAuth,orderController.orderSuccess)
     router.get('/order-detail/:id', orderController.getOrderDetails);
-    router.post('/cancelOrder',userAuth, orderController.cancelOrder);
-    router.post('/returnOrder',userAuth, orderController.submitReturnRequest); 
+    router.post('/cancel-order',userAuth, orderController.cancelOrder);
+    router.post('/return-order',userAuth, orderController.submitReturnRequest); 
     router.get('/download-invoice/:orderId',userAuth,orderController.downloadPdf)
     router.post('/create-razorpay-order', orderController.createRazorpayOrder);
     router.post('/verify-razorpay-payment', orderController.verifyRazorpayPayment);

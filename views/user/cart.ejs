@@ -470,18 +470,15 @@
          <% if (!cart || !cart.items || cart.items.length === 0) { %>style="display: none;"<% } %>>
         <div class="summary-row">
             <span>Subtotal</span>
-            <span id="subtotal">
-                ₹<%= cart && cart.items && cart.items.length > 0 ? calculateSubtotal(cart.items).toFixed(2) : '0.00' %>
-            </span>
+            <span id="subtotal">₹<%= subtotal || '0.00' %></span>
         </div>
         <div class="summary-row">
             <span>Shipping</span>
-            <span id="shipping"><%= cart && cart.items && cart.items.length > 0 ? shippingFee : '0.00' %>
-            
+            <span id="shipping">₹<%= shippingFee || '0.00' %></span>
         </div>
         <div class="summary-row total">
             <span>Total</span>
-            <span id="total">₹<%= totalPrice %></span>
+            <span id="total">₹<%= totalPrice || '0.00' %></span>
         </div>
         <button id="checkout-btn" 
                 class="btn btn-success checkout-btn" 
@@ -543,7 +540,10 @@ function updateCartItemQuantity(productId, size, newQuantity) {
     }
 
     fetch(`/product-sizes/${productId}`)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+            return response.json();
+        })
         .then(data => {
             if (!data.success) {
                 showToast('Failed to fetch product details.');
@@ -580,9 +580,13 @@ function updateCartItemQuantity(productId, size, newQuantity) {
                     productId,
                     size,
                     quantity: newQuantity
-                })
+                }),
+                credentials: 'include'
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                return response.json();
+            })
             .then(data => {
                 if (data.success && data.cart) {
                     if (quantityInput) {
@@ -628,9 +632,13 @@ function removeFromCart(productId, size = null) {
                 body: JSON.stringify({
                     productId,
                     size
-                })
+                }),
+                credentials: 'include'
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                return response.json();
+            })
             .then(data => {
                 if (data.success && data.cart) {
                     const item = document.querySelector(`.item[data-product-id="${productId}"]`);
@@ -677,9 +685,13 @@ function moveToWishlist(productId) {
         },
         body: JSON.stringify({
             productId
-        })
+        }),
+        credentials: 'include'
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
             showToast('Item moved to wishlist!');
@@ -693,10 +705,14 @@ function moveToWishlist(productId) {
         showToast('An error occurred while moving to wishlist.');
     });
 }
+
 function updateCartSummary(cart) {
     const summaryEl = document.getElementById('cart-summary');
     if (!cart || !cart.items || cart.items.length === 0) {
         summaryEl.style.display = 'none';
+        document.getElementById('subtotal').textContent = '₹0.00';
+        document.getElementById('shipping').textContent = '₹0.00';
+        document.getElementById('total').textContent = '₹0.00';
         return;
     }
 
@@ -705,19 +721,23 @@ function updateCartSummary(cart) {
     const subtotal = cart.items.reduce((sum, item) => {
         const itemTotal = item.sizes
             .filter(size => !size.isOutOfStock)
-            .reduce((q, s) => q + (s.quantity * item.price), 0);
+            .reduce((q, s) => q + ((s.quantity || 0) * (item.price || 0)), 0);
         return sum + itemTotal;
     }, 0);
 
-
-    const shipping_far = 40.00;
-
-    const total = subtotal + shipping_fee;
+    const shippingFee = cart.shippingFee || 40.00; // Use backend-provided shippingFee, fallback to 40.00
+    const total = subtotal + shippingFee;
 
     document.getElementById('subtotal').textContent = `₹${subtotal.toFixed(2)}`;
     document.getElementById('shipping').textContent = `₹${shippingFee.toFixed(2)}`;
     document.getElementById('total').textContent = `₹${total.toFixed(2)}`;
+
+    console.log('Cart:', cart);
+    console.log('Subtotal:', subtotal);
+    console.log('Shipping Fee:', shippingFee);
+    console.log('Total:', total);
 }
+
 function showToast(message) {
     const toastEl = document.getElementById('toast');
     if (toastEl) {
@@ -728,15 +748,14 @@ function showToast(message) {
 }
 
 function updateCheckoutButton() {
-    
     const cartItems = JSON.parse(`<%- JSON.stringify(cart && cart.items ? cart.items : []) %>`);
     const checkoutBtn = document.getElementById('checkout-btn');
-    
+
     if (!cartItems || cartItems.length === 0) {
-        checkoutBtn.disabled = false;
+        checkoutBtn.disabled = true;
         return;
     }
-    
+
     const hasInvalidItems = cartItems.some(item => 
         item.isBlocked || 
         item.isUnlisted || 
@@ -745,6 +764,7 @@ function updateCheckoutButton() {
 
     checkoutBtn.disabled = hasInvalidItems;
 }
+
 document.querySelectorAll('.quantity-control button').forEach(button => {
     button.addEventListener('click', (e) => {
         const sizeItem = e.target.closest('.size-item');
@@ -797,7 +817,7 @@ document.querySelectorAll('form').forEach(form => {
 });
 
 document.getElementById('checkout-btn').addEventListener('click', (e) => {
-    const cartItems = `<%- JSON.stringify(cart && cart.items ? cart.items : []) %>`;
+    const cartItems = JSON.parse(`<%- JSON.stringify(cart && cart.items ? cart.items : []) %>`);
     const hasInvalidItems = cartItems.some(item => 
         item.isBlocked || 
         item.isUnlisted || 
@@ -814,7 +834,6 @@ document.getElementById('checkout-btn').addEventListener('click', (e) => {
         });
     }
 });
-
 
 updateCheckoutButton();
 </script>

@@ -124,7 +124,7 @@ const addProducts = async (req, res) => {
             });
         }
 
-        // Image validation - Check file types
+       
         const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/jpg'];
         for (let file of req.files) {
             if (!allowedMimeTypes.includes(file.mimetype)) {
@@ -299,10 +299,10 @@ const editProduct = async (req, res) => {
 
         const data = req.body;
 
-        // Validate uploaded files first
+       
         if (req.files && req.files.length > 0) {
             for (const file of req.files) {
-                // Check if it's an image file
+               
                 if (!file.mimetype.startsWith('image/')) {
                     return res.status(400).json({
                         error: "invalid_file_type",
@@ -310,8 +310,8 @@ const editProduct = async (req, res) => {
                     });
                 }
                 
-                // Check file size (max 5MB)
-                const maxSize = 5 * 1024 * 1024; // 5MB
+               
+                const maxSize = 5 * 1024 * 1024;
                 if (file.size > maxSize) {
                     return res.status(400).json({
                         error: "file_too_large",
@@ -383,7 +383,7 @@ const editProduct = async (req, res) => {
                     continue;
                 }
 
-                // Validate that it's an image type
+               
                 const mimeType = base64Data.match(/data:(.*?);/)?.[1];
                 if (!mimeType.startsWith('image/')) {
                     return res.status(400).json({
@@ -392,10 +392,10 @@ const editProduct = async (req, res) => {
                     });
                 }
 
-                // Validate base64 image size (roughly)
+               
                 const base64Content = base64Data.split(';base64,').pop();
                 const sizeInBytes = Math.ceil((base64Content.length * 3) / 4);
-                if (sizeInBytes > 5 * 1024 * 1024) { // 5MB
+                if (sizeInBytes > 5 * 1024 * 1024) {
                     return res.status(400).json({
                         error: "image_too_large",
                         message: "Image size should not exceed 5MB"
@@ -416,7 +416,7 @@ const editProduct = async (req, res) => {
                 const imageBuffer = Buffer.from(base64Image, 'base64');
 
                 try {
-                    // Check image dimensions
+                    
                     const imageInfo = await sharp(imageBuffer).metadata();
                     if (imageInfo.width < 300 || imageInfo.height < 300) {
                         return res.status(400).json({
@@ -460,7 +460,7 @@ const editProduct = async (req, res) => {
             });
         }
 
-        // Rest of the existing code...
+       
         let categoryId;
         let categoryDoc;
         try {

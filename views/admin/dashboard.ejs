@@ -774,7 +774,7 @@
               <div id="sales-report-content">
                 <div class="summary-card">
                   <div class="summary-item">
-                    <div class="summary-value">₹<%= totalSales.toLocaleString() %></div>
+                    <div class="summary-value"><%= totalSales.toLocaleString() %></div>
                     <div class="summary-label">Total Revenue</div>
                   </div>
                   <div class="summary-item">
@@ -847,10 +847,10 @@
       const downloadPdfBtn = document.getElementById("download-pdf-btn");
       let analyticsInitialized = false;
   
-      // Analytics chart variables
+     
       let productsChart, categoriesChart, brandsChart, salesTimeChart;
   
-      // Chart configurations
+   
       const horizontalBarConfig = {
         type: 'bar',
         options: {
@@ -869,9 +869,7 @@
                     label += ': ';
                   }
                   if (context.parsed.x !== null) {
-                    label += new Intl.NumberFormat('en-IN', { 
-                      style: 'currency', 
-                      currency: 'INR',
+                    label += "+" + new Intl.NumberFormat('en-IN', { 
                       maximumFractionDigits: 0
                     }).format(context.parsed.x);
                   }
@@ -963,7 +961,7 @@
         if (analyticsInitialized) return;
         analyticsInitialized = true;
   
-        // Initialize filter event listeners
+       
         const timeFilter = document.getElementById('time-filter');
         const monthContainer = document.getElementById('month-container');
         const weekContainer = document.getElementById('week-container');
@@ -985,7 +983,7 @@
           }
         });
   
-        // Initialize charts with empty data
+      
         productsChart = new Chart(
           document.getElementById('productsChart'),
           { ...horizontalBarConfig, data: { labels: [], datasets: [{ label: 'Units Sold', data: [] }] } }
@@ -1006,23 +1004,22 @@
           { ...lineChartConfig, data: { labels: [], datasets: [{ label: 'Revenue', data: [] }] } }
         );
   
-        // Fetch initial data
+       
         fetchAnalyticsData();
   
-        // Apply filter button functionality
+      
         applyFilterBtn.addEventListener('click', function() {
           const timePeriod = timeFilter.value;
           const year = document.getElementById('year-filter').value;
           const month = document.getElementById('month-filter').value;
           const week = document.getElementById('week-filter').value;
   
-          // Fetch new data
+        
           fetchAnalyticsData(timePeriod, year, month, week);
   
-          // Update chart titles
+         
           updateChartTitles(timePeriod, year, month, week);
   
-          // Show success message
           showFilterAppliedMessage(timePeriod, year, month, week);
         });
       }
@@ -1032,7 +1029,7 @@
         if (week) params.append('week', week);
   
         try {
-          // Fetch top products
+         
           const productsResponse = await fetch(`/admin/analytics/products?${params}`);
           const productsData = await productsResponse.json();
           productsChart.data.labels = productsData.map(p => p.name);
@@ -1041,7 +1038,7 @@
           productsChart.data.datasets[0].borderColor = 'rgba(58, 134, 255, 1)';
           productsChart.update();
   
-          // Fetch top categories
+        
           const categoriesResponse = await fetch(`/admin/analytics/categories?${params}`);
           const categoriesData = await categoriesResponse.json();
           categoriesChart.data.labels = categoriesData.map(c => c.name);
@@ -1050,7 +1047,7 @@
           categoriesChart.data.datasets[0].borderColor = 'rgba(110, 202, 120, 1)';
           categoriesChart.update();
   
-          // Fetch sales over time
+         
           const salesTimeResponse = await fetch(`/admin/analytics/sales-time?${params}`);
           const salesTimeData = await salesTimeResponse.json();
           let labels;
@@ -1236,7 +1233,7 @@
             const summaryCard = document.querySelector("#sales-report-content .summary-card");
             summaryCard.innerHTML = `
               <div class="summary-item">
-                <div class="summary-value">₹${data.totalSales.toLocaleString()}</div>
+                <div class="summary-value">${data.totalSales.toLocaleString()}</div>
                 <div class="summary-label">Total Revenue</div>
               </div>
               <div class="summary-item">

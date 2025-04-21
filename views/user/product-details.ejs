@@ -190,7 +190,7 @@
         const addToWishlistBtn = document.querySelector('#add-to-wishlist-btn');
         let selectedSize = null;
     
-        // Thumbnail click handler
+        
         thumbnails.forEach((thumbnail, index) => {
             thumbnail.addEventListener('click', () => {
                 thumbnails.forEach(thumb => thumb.classList.remove('active'));
@@ -200,7 +200,7 @@
             });
         });
     
-        // Size selection
+      
         sizeButtons.forEach(button => {
             button.addEventListener('click', () => {
                 if (!button.classList.contains('unavailable')) {
@@ -223,7 +223,7 @@
             });
         });
     
-        // Quantity controls
+      
         qtyDown.addEventListener('click', (e) => {
             e.preventDefault();
             let qty = parseInt(qtyVal.textContent);
@@ -237,7 +237,7 @@
             if (qty < maxQty) qtyVal.textContent = qty + 1;
         });
     
-        // Image zoom
+        
         mainImageSlider.addEventListener('mousemove', (e) => {
             const activeImage = mainImageSlider.querySelector('figure.active img');
             if (!activeImage) return;
@@ -375,7 +375,7 @@ const heartIcon = addToWishlistBtn.querySelector('i');
 let isInWishlist = `<%= isInWishlist %>` ===true;
 console.log("wishilst",isInWishlist)
 
-// Update button appearance based on initial state
+
 updateWishlistButton();
 
 addToWishlistBtn.addEventListener('click', async (e) => {
@@ -390,7 +390,7 @@ addToWishlistBtn.addEventListener('click', async (e) => {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({ productId }),
-            credentials: 'include' // Important for session cookies
+            credentials: 'include'
         });
 
         if (!response.ok) throw new Error('Network response was not ok');
@@ -398,7 +398,7 @@ addToWishlistBtn.addEventListener('click', async (e) => {
         const result = await response.json();
 
         if (result.success) {
-            // Toggle the state
+            
             isInWishlist = !isInWishlist;
             updateWishlistButton();
             

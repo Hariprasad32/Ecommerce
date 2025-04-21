@@ -120,7 +120,7 @@ const addCoupon = async (req, res) => {
             expireOn: new Date(expiryDate),
             offerPrice: offer,
             minimumPrice: minPrice,
-            isListed: new Date(expiryDate) > new Date(), // Set based on expiry
+            isListed: new Date(expiryDate) > new Date(),
             userId: null, 
             isDeleted: false 
         });

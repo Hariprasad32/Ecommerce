@@ -316,7 +316,8 @@
             background: rgba(239, 68, 68, 0.1);
         }
 
-        .coupon-discount {
+        .coupon-discount,
+        .product-discount {
             color: var(--accent-color);
             font-weight: 500;
         }
@@ -458,7 +459,10 @@
                             alt="<%= item.productName || 'Product' %>">
                         <div>
                             <strong><%= item.productName %></strong><br>
-                            Size: <%= item.size %> | Qty: <%= item.quantity %> | ₹<%= item.price.toFixed(2) %>
+                            Size: <%= item.size %> | Qty: <%= item.quantity %> | ₹<%= item.salePrice.toFixed(2) %>
+                            <% if (item.discount > 0) { %>
+                            <br><span style="color: #22c55e;">(Save ₹<%= item.discount.toFixed(2) %>)</span>
+                            <% } %>
                             <% if (item.productOffer > 0) { %>
                             <br><span style="color: #22c55e;">(<%= item.productOffer %>% off)</span>
                             <% } %>
@@ -472,9 +476,9 @@
 
                 <div class="coupon-section">
                     <h3>Have a coupon?</h3>
-                    <div class="coupon-input">
-                        <input type="text" id="coupon-code" placeholder="Enter coupon code">
-                        <button id="apply-coupon" class="btn apply-btn">Apply</button>
+                    <div class="coupon-input" id="coupon-code">
+                       
+                        <button id="apply-coupon" class="btn apply-btn"></button>
                     </div>
                     <button id="choose-coupon-btn" class="btn btn-secondary"
                         style="margin-top: 10px; background: #6b7280;">Choose a Coupon</button>
@@ -486,8 +490,12 @@
 
                 <div class="total-breakdown">
                     <div class="total-row">
-                        <span>Subtotal:</span>
-                        <span id="subtotal">₹<%= totals.subtotal %></span>
+                        <span>Regular Price:</span>
+                        <span id="regular-total">₹<%= totals.regularTotal %></span>
+                    </div>
+                    <div class="total-row" id="product-discount-row" <%= totals.discount == '0.00' ? 'style="display: none;"' : '' %>>
+                        <span>Product Discount:</span>
+                        <span id="product-discount" class="product-discount">-₹<%= totals.discount %></span>
                     </div>
                     <div class="total-row">
                         <span>Shipping:</span>
@@ -605,10 +613,7 @@
     <script>
         const addresses = `<%- JSON.stringify(addresses || []) %>`;
         const cartItemsData = `<%- JSON.stringify(cartItems || []) %>`;
-    
-        const TAX_RATE = 0;
-        const SHIPPING_COST = 40.00;
-    
+
         const addressList = document.getElementById('address-list');
         const orderItems = document.getElementById('order-items');
         const addAddressBtn = document.getElementById('add-address-btn');
@@ -622,15 +627,16 @@
         const couponCodeDisplay = document.getElementById('coupon-code-display');
         const couponDiscountRow = document.getElementById('coupon-discount-row');
         const couponDiscountEl = document.getElementById('coupon-discount');
+        const productDiscountRow = document.getElementById('product-discount-row');
+        const productDiscountEl = document.getElementById('product-discount');
         const chooseCouponBtn = document.getElementById('choose-coupon-btn');
         const couponModal = document.getElementById('coupon-modal');
         const couponList = document.getElementById('coupon-list');
-    
+
         let appliedCoupon = null;
         let couponDiscount = 0;
         let originalTotal = 0;
-    
-        // Fetch and display wallet balance on page load
+
         function fetchWalletBalance() {
             fetch('/check-wallet-balance')
                 .then(response => {
@@ -651,27 +657,27 @@
                     document.getElementById('wallet-balance').textContent = '0.00';
                 });
         }
-    
+
         function updatePaymentOptions() {
             const totalAmountText = document.getElementById('grand-total').textContent;
             const totalAmount = parseFloat(totalAmountText.replace('₹', ''));
-    
+
             const codOption = document.querySelector('.payment-option[data-method="cod"]');
             const codInput = document.getElementById('cod');
-    
+
             if (totalAmount > 1000) {
                 codOption.classList.add('disabled');
                 codOption.style.opacity = '0.6';
                 codOption.style.cursor = 'not-allowed';
                 codInput.disabled = true;
-    
+
                 if (codOption.classList.contains('selected')) {
                     codOption.classList.remove('selected');
                     const razorpayOption = document.querySelector('.payment-option[data-method="razorpay"]');
                     razorpayOption.classList.add('selected');
                     document.getElementById('razorpay').checked = true;
                 }
-    
+
                 if (!document.getElementById('cod-limit-message')) {
                     const messageDiv = document.createElement('div');
                     messageDiv.id = 'cod-limit-message';
@@ -686,30 +692,34 @@
                 codOption.style.opacity = '1';
                 codOption.style.cursor = 'pointer';
                 codInput.disabled = false;
-    
+
                 const message = document.getElementById('cod-limit-message');
                 if (message) {
                     message.remove();
                 }
             }
         }
-    
+
         function updateTotals() {
-            let subtotal = 0;
-    
+            let regularTotal = 0;
+            let productDiscount = 0;
+            let subtotal = 0; 
+
             try {
                 const parsedCartItems = JSON.parse(cartItemsData);
                 parsedCartItems.forEach(item => {
+                    regularTotal += parseFloat(item.regularPrice * item.quantity || 0);
+                    productDiscount += parseFloat(item.discount || 0); 
                     subtotal += parseFloat(item.totalPrice || 0);
                 });
             } catch (e) {
                 console.error("Error parsing cart items:", e);
             }
-    
-            let tax = subtotal * TAX_RATE;
-            let total = subtotal + tax + SHIPPING_COST;
+
+            const shippingCost =40; 
+            let total = subtotal + shippingCost; 
             originalTotal = total;
-    
+
             if (appliedCoupon) {
                 couponDiscount = appliedCoupon.offerPrice;
                 total -= couponDiscount;
@@ -718,14 +728,21 @@
             } else {
                 couponDiscountRow.style.display = 'none';
             }
-    
-            document.getElementById('subtotal').textContent = `₹${subtotal.toFixed(2)}`;
-            document.getElementById('shipping').textContent = `₹${SHIPPING_COST.toFixed(2)}`;
+
+            if (productDiscount > 0) {
+                productDiscountRow.style.display = 'flex';
+                productDiscountEl.textContent = `-₹${productDiscount.toFixed(2)}`;
+            } else {
+                productDiscountRow.style.display = 'none';
+            }
+
+            document.getElementById('regular-total').textContent = `₹${regularTotal.toFixed(2)}`;
+            document.getElementById('shipping').textContent = `₹${shippingCost.toFixed(2)}`;
             document.getElementById('grand-total').textContent = `₹${total.toFixed(2)}`;
-    
+
             updatePaymentOptions();
         }
-    
+
         function applyCoupon(code) {
             fetch(`/apply-coupon?code=${encodeURIComponent(code)}`)
                 .then(response => {
@@ -736,6 +753,10 @@
                 })
                 .then(data => {
                     if (data.success) {
+                        appliedCoupon = data.coupon;
+                 couponCodeDisplay.textContent = appliedCoupon.name;
+            couponTag.classList.add('applied');
+            couponTag.style.display = 'flex'; 
                         if (originalTotal < data.coupon.minimumPrice) {
                             Swal.fire({
                                 icon: 'warning',
@@ -774,14 +795,16 @@
                     });
                 });
         }
-    
+
         function removeCoupon() {
             appliedCoupon = null;
             couponTag.classList.remove('applied');
+            couponCodeDisplay.textContent = '';
             couponInput.value = '';
+            couponTag.style.display = 'none';
             updateTotals();
         }
-    
+
         function openCouponModal() {
             fetch('/get-coupons')
                 .then(response => {
@@ -832,21 +855,21 @@
                     });
                 });
         }
-    
+
         function closeCouponModal() {
             couponModal.style.display = 'none';
         }
-    
+
         function openModal() {
             addressModal.style.display = 'block';
             document.getElementById('address-modal-title').textContent = 'Add New Address';
             addressForm.reset();
         }
-    
+
         function closeModal() {
             addressModal.style.display = 'none';
         }
-    
+
         function saveAddress(e) {
             e.preventDefault();
             const addressData = {
@@ -861,7 +884,7 @@
                 phone: document.getElementById('address-phone').value,
                 isDefault: document.getElementById('address-default').checked
             };
-    
+
             fetch('/addAddress', {
                 method: 'POST',
                 headers: {
@@ -899,11 +922,11 @@
                 });
             });
         }
-    
+
         function placeOrder() {
             const selectedAddress = document.querySelector('input[name="address"]:checked');
             const selectedPaymentInput = document.querySelector('input[name="payment-method"]:checked');
-    
+
             if (!selectedAddress) {
                 Swal.fire({
                     title: 'Missing Address',
@@ -913,7 +936,7 @@
                 });
                 return;
             }
-    
+
             if (!selectedPaymentInput) {
                 Swal.fire({
                     title: 'Missing Payment',
@@ -923,10 +946,10 @@
                 });
                 return;
             }
-    
+
             const selectedPaymentOption = selectedPaymentInput.closest('.payment-option');
             const paymentMethod = selectedPaymentOption.dataset.method;
-    
+
             Swal.fire({
                 title: 'Confirm Order',
                 text: 'Are you sure you want to place this order?',
@@ -939,27 +962,29 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     updateTotals();
-    
+
                     let subtotal = 0;
+                    let productDiscount = 0;
                     try {
                         const parsedCartItems = JSON.parse(cartItemsData);
                         parsedCartItems.forEach(item => {
                             subtotal += parseFloat(item.totalPrice || 0);
+                            productDiscount += parseFloat(item.discount || 0);
                         });
                     } catch (e) {
                         console.error("Error parsing cart items:", e);
                     }
-    
-                    let tax = subtotal * TAX_RATE;
-                    let total = subtotal + tax + SHIPPING_COST;
+
+                    const shippingCost = 40;
+                    let total = subtotal + shippingCost;
                     if (appliedCoupon) {
                         total -= appliedCoupon.offerPrice;
                     }
-    
+
                     const totalAmount = total;
-    
-                    console.log("Total Amount (with coupon applied): ₹", totalAmount.toFixed(2));
-    
+
+                    console.log("Total Amount (with coupon and shipping): ₹", totalAmount.toFixed(2));
+
                     const orderData = {
                         addressId: selectedAddress.dataset.id,
                         paymentMethod: paymentMethod,
@@ -967,10 +992,9 @@
                         amount: totalAmount,
                         couponDiscount: appliedCoupon ? appliedCoupon.offerPrice : 0
                     };
-    
+
                     console.log("Order Data:", orderData);
-    
-                    // Check wallet balance for wallet payment
+
                     if (paymentMethod === 'wallet') {
                         fetch('/check-wallet-balance')
                             .then(response => {
@@ -1007,7 +1031,7 @@
                 }
             });
         }
-    
+
         function processOrder(orderData) {
             Swal.fire({
                 title: 'Processing...',
@@ -1017,7 +1041,7 @@
                     Swal.showLoading();
                 }
             });
-    
+
             fetch('/place-order', {
                 method: 'POST',
                 headers: {
@@ -1027,16 +1051,20 @@
             })
             .then(response => {
                 if (!response.ok) {
+                    console.log("this error is throwing")
                     throw new Error(`Server error: ${response.status}`);
                 }
+                console.log("this is the response",response)
                 return response.json();
             })
             .then(data => {
                 Swal.close();
+                console.log("this is the data from the backend and the data is suceses",data)
                 if (data.success) {
                     if (orderData.paymentMethod === 'cod') {
                         processCODOrder(data.orderId);
                     } else if (orderData.paymentMethod === 'razorpay') {
+                        console.log( "req reached here",data.orderId)
                         processRazorpayOrder(data.orderId, data.amount);
                     } else if (orderData.paymentMethod === 'wallet') {
                         processWalletOrder(data.orderId);
@@ -1058,7 +1086,7 @@
                 });
             });
         }
-    
+
         function processCODOrder(orderId) {
             Swal.fire({
                 title: 'Order Confirmed!',
@@ -1070,7 +1098,7 @@
                 window.location.href = `/order-success?orderId=${orderId}`;
             });
         }
-    
+
         function processWalletOrder(orderId) {
             Swal.fire({
                 title: 'Order Confirmed!',
@@ -1082,7 +1110,7 @@
                 window.location.href = `/order-success?orderId=${orderId}`;
             });
         }
-    
+
         function processRazorpayOrder(orderId, amount) {
             fetch('/create-razorpay-order', {
                 method: 'POST',
@@ -1103,7 +1131,7 @@
                 if (!data.success) {
                     throw new Error(data.message || 'Failed to create Razorpay order');
                 }
-    
+
                 const options = {
                     key: data.key,
                     amount: data.amount,
@@ -1129,7 +1157,7 @@
                         }
                     }
                 };
-    
+
                 const rzp = new Razorpay(options);
                 rzp.open();
             })
@@ -1145,7 +1173,7 @@
                 });
             });
         }
-    
+
         function verifyPayment(response, orderId) {
             const paymentData = {
                 razorpay_order_id: response.razorpay_order_id,
@@ -1153,7 +1181,7 @@
                 razorpay_signature: response.razorpay_signature,
                 orderId: orderId
             };
-    
+
             Swal.fire({
                 title: 'Verifying Payment...',
                 html: 'Please wait.',
@@ -1162,7 +1190,7 @@
                     Swal.showLoading();
                 }
             });
-    
+
             fetch('/verify-razorpay-payment', {
                 method: 'POST',
                 headers: {
@@ -1206,7 +1234,7 @@
                 });
             });
         }
-    
+
         function retryPayment(orderId) {
             Swal.fire({
                 title: 'Retrying Payment',
@@ -1226,7 +1254,7 @@
                 }
             });
         }
-    
+
         function cancelPendingOrder(orderId) {
             fetch('/cancel-order', {
                 method: 'POST',
@@ -1263,8 +1291,7 @@
                 });
             });
         }
-    
-        // Event listeners
+
         addAddressBtn.addEventListener('click', openModal);
         addressForm.addEventListener('submit', saveAddress);
         placeOrderBtn.addEventListener('click', placeOrder);
@@ -1281,11 +1308,11 @@
                 applyCoupon(couponInput.value.trim().toUpperCase());
             }
         });
-    
+
         document.querySelectorAll('.payment-option').forEach(option => {
             option.style.cursor = 'pointer';
             option.style.opacity = '1';
-    
+
             option.addEventListener('click', () => {
                 if (
                     (option.dataset.method === 'cod' && !option.classList.contains('disabled')) ||
@@ -1298,7 +1325,7 @@
                 }
             });
         });
-    
+
         document.querySelectorAll('.address-option').forEach(option => {
             option.addEventListener('click', () => {
                 document.querySelectorAll('.address-option').forEach(opt => opt.classList.remove('selected'));
@@ -1306,8 +1333,7 @@
                 option.querySelector('input').checked = true;
             });
         });
-    
-        // Initialize
+
         updateTotals();
         fetchWalletBalance();
     </script>

@@ -708,7 +708,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-// Modal Functions
+
 function openModal() {
     document.getElementById("couponModal").classList.remove("hidden");
     document.body.style.overflow = "hidden";
@@ -756,7 +756,7 @@ function closeEditModal() {
     document.getElementById("couponEditForm").reset();
 }
 
-// Table row click animation
+
 document.querySelectorAll('.table-row').forEach(row => {
     row.addEventListener('click', function(e) {
         if (!e.target.closest('.action-icon')) {

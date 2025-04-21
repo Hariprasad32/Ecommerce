@@ -779,14 +779,14 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        // Update the UI
+                        
                         const selectElement = document.querySelector(
                             `.product-status-select[data-order-id="${orderId}"][data-item-index="${itemIndex}"]`
                             );
                         selectElement.value = status;
                         selectElement.setAttribute('data-previous-value', status);
 
-                        // Disable select if status is Delivered or Cancelled
+                        
                         if (status === 'Delivered' || status === 'Cancelled') {
                             selectElement.disabled = true;
                         }
@@ -815,7 +815,7 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        // Update the UI
+                       
                         const selectElement = document.getElementById('overall-status');
                         selectElement.value = status;
                         selectElement.setAttribute('data-previous-value', status);
@@ -834,16 +834,16 @@
         function handleReturnRequest(orderId, itemIndex, returnReason) {
             openModal('return-modal');
 
-            // Display return reason
+          
             document.getElementById('return-reason').textContent = returnReason || 'No reason provided';
 
-            // Set up approval handler
+          
             document.getElementById('approve-return').onclick = function () {
                 processReturn(orderId, itemIndex, 'approve');
                 closeModal('return-modal');
             };
 
-            // Set up rejection handler
+          
             document.getElementById('reject-return').onclick = function () {
                 processReturn(orderId, itemIndex, 'reject');
                 closeModal('return-modal');
@@ -866,13 +866,13 @@
                     if (data.success) {
                         showToast('Success', data.message, 'success');
 
-                        // If approved, refresh the page to update UI
+                      
                         if (action === 'approve') {
                             setTimeout(() => {
                                 window.location.reload();
                             }, 2000);
                         } else {
-                            // Remove return badge and button if rejected
+                       
                             const productContainer = document.querySelector(
                                 `.product-item[data-order-id="${orderId}"][data-item-index="${itemIndex}"]`);
                             const returnBadge = productContainer.querySelector('.status-badge.status-returned');
@@ -891,7 +891,7 @@
                 });
         }
 
-        // Modal functions
+       
         function openModal(modalId) {
             const modal = document.getElementById(modalId);
             modal.style.display = 'flex';
@@ -902,26 +902,26 @@
             modal.style.display = 'none';
         }
 
-        // Toast notification functions
+        
         function showToast(title, message, type = 'success') {
             const toast = document.getElementById('toast');
             const toastTitle = document.getElementById('toast-title');
             const toastMessage = document.getElementById('toast-message');
 
-            // Remove existing toast classes
+            
             toast.classList.remove('toast-success', 'toast-error', 'toast-warning');
 
-            // Add appropriate class
+          
             toast.classList.add(`toast-${type}`);
 
-            // Set content
+           
             toastTitle.textContent = title;
             toastMessage.textContent = message;
 
-            // Show toast
+           
             toast.classList.add('show');
 
-            // Hide after 5 seconds
+          
             setTimeout(hideToast, 5000);
         }
 
@@ -930,7 +930,7 @@
             toast.classList.remove('show');
         }
 
-        // Close modals when clicking outside of the modal content
+       
         window.onclick = function (event) {
             const modals = document.getElementsByClassName('modal');
             for (let i = 0; i < modals.length; i++) {

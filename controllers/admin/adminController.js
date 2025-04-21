@@ -13,7 +13,7 @@ const loadLogin = async (req, res) => {
             return res.redirect("/admin/dashboard");
         }
         return res.render("admin-login", {
-            message: null // Initial load, no message
+            message: null 
         });
     } catch (error) {
         console.log("Admin login error:", error);
@@ -249,7 +249,7 @@ const loadSalesReport = async (req, res) => {
         const limit = 10;
         const download = req.query.download;
 
-        // Create filter based on date range
+       
         let dateFilter = {};
         const now = new Date();
 
@@ -291,13 +291,13 @@ const loadSalesReport = async (req, res) => {
                 break;
         }
 
-        // Match only delivered items
+       
         const matchDeliveredItems = {
             ...dateFilter,
             'items.status': 'Delivered'
         };
 
-        // Aggregate data for summary statistics
+      
         const totalSalesData = await Order.aggregate([
             {
                 $match: matchDeliveredItems
@@ -342,14 +342,14 @@ const loadSalesReport = async (req, res) => {
         const totalDiscount = totalSalesData[0]?.totalDiscount || 0;
         const totalOrderCount = totalSalesData[0]?.totalOrderCount || 0;
 
-        // Calculate pagination
+      
         const totalOrders = await Order.countDocuments(matchDeliveredItems);
         const totalPages = Math.ceil(totalOrders / limit);
         console.log("Total pages:", totalPages);
 
-        // Handle download requests
+      
         if (download) {
-            // Get all orders for the report, not just paginated ones
+          
             const allSales = await Order.find(matchDeliveredItems)
                 .populate('userId', 'name')
                 .sort({ orderDate: -1 })
@@ -368,7 +368,7 @@ const loadSalesReport = async (req, res) => {
             }
         }
 
-        // For regular page view or AJAX requests
+       
         const sales = await Order.find(matchDeliveredItems)
             .populate('userId', 'name')
             .sort({ orderDate: -1 })
@@ -392,7 +392,7 @@ const loadSalesReport = async (req, res) => {
             });
         }
 
-        // Regular page render
+        
         return res.render("admin/dashboard", {
             page: "reports",
             sales,
@@ -427,25 +427,25 @@ const loadSalesReport = async (req, res) => {
     }
 };
 
-// Generate Excel report
+
 function generateExcel(res, orders, totals, period, startDate, endDate) {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Wear Aura Sales Report');
     
-    // Add title and metadata
+   
     worksheet.mergeCells('A1:H1');
     const titleCell = worksheet.getCell('A1');
     titleCell.value = 'Wear Aura Sales Report - Delivered Items';
     titleCell.font = { size: 16, bold: true };
     titleCell.alignment = { horizontal: 'center' };
     
-    // Add report generation date
+    
     worksheet.mergeCells('A2:H2');
     const dateCell = worksheet.getCell('A2');
     dateCell.value = `Report generated on: ${new Date().toLocaleString()}`;
     dateCell.alignment = { horizontal: 'center' };
     
-    // Add period information
+    
     worksheet.mergeCells('A3:H3');
     const periodCell = worksheet.getCell('A3');
     const periodMap = {
@@ -458,7 +458,7 @@ function generateExcel(res, orders, totals, period, startDate, endDate) {
     periodCell.value = `Period: ${periodMap[period] || 'All Time'}`;
     periodCell.alignment = { horizontal: 'center' };
     
-    // Add summary section
+    
     worksheet.mergeCells('A5:C5');
     worksheet.getCell('A5').value = 'Summary';
     worksheet.getCell('A5').font = { bold: true };
@@ -472,7 +472,7 @@ function generateExcel(res, orders, totals, period, startDate, endDate) {
     worksheet.getCell('A8').value = 'Total Discount:';
     worksheet.getCell('B8').value = `₹${totals.totalDiscount.toLocaleString()}`;
     
-    // Add headers
+    
     const headers = [
         'Order ID',
         'Customer Name',

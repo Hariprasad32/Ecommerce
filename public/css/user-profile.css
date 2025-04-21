@@ -1,4 +1,3 @@
-/* styles.css */
 * {
     margin: 0;
     padding: 0;
@@ -7,8 +6,8 @@
 }
 
 body {
-    background-color: #f5f5f5;
-    color: #333;
+    background-color: #FFFCEF; /* Light cream */
+    color: #2A3F4D; /* Dark blue-gray */
 }
 
 .container {
@@ -20,7 +19,7 @@ body {
 .sidebar {
     width: 300px;
     background-color: #fff;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 2px 0 5px rgba(92, 137, 157, 0.1); /* Blue-tinted shadow */
     display: flex;
     flex-direction: column;
 }
@@ -28,16 +27,16 @@ body {
 .profile-preview {
     padding: 20px;
     text-align: center;
-    border-bottom: 1px solid #eee;
+    /* Removed border-bottom */
+    margin-bottom: 15px; /* Added spacing to separate from nav */
 }
-
 .profile-image {
     width: 100px;
     height: 100px;
     border-radius: 50%;
     overflow: hidden;
     margin: 0 auto 15px;
-    border: 3px solid #f0f0f0;
+    border: 3px solid #5c899D; /* Muted blue */
 }
 
 .profile-image img {
@@ -49,27 +48,28 @@ body {
 .profile-preview h3 {
     margin-bottom: 5px;
     font-size: 18px;
+    color: #2A3F4D; /* Dark blue-gray */
 }
 
 .profile-preview p {
-    color: #666;
+    color: #4A5A66; /* Lighter blue-gray */
     font-size: 14px;
 }
-
 
 nav ul {
     list-style: none;
 }
 
 nav ul li {
-    border-bottom: 1px solid #eee;
+    /* Removed border-bottom */
+    margin-bottom: 1px; /* Subtle spacing between items */
 }
 
 nav ul li a {
     display: flex;
     align-items: center;
     padding: 15px 20px;
-    color: #333;
+    color: #2A3F4D; /* Dark blue-gray */
     text-decoration: none;
     transition: all 0.3s ease;
 }
@@ -81,33 +81,34 @@ nav ul li a i {
 }
 
 nav ul li a:hover {
-    background-color: #f9f9f9;
-    color: #4a90e2;
+    background-color: #5c899D; /* Muted blue */
+    color: #FFFCEF; /* Light cream */
 }
 
 nav ul li.active a {
-    background-color: #4a90e2;
-    color: #fff;
+    background-color: #426677; /* Darker blue */
+    color: #FFFCEF; /* Light cream */
 }
 
 .logout-btn {
     padding: 20px;
-    border-top: 1px solid #eee;
+    /* Removed border-top */
+    margin-top: 15px; /* Added spacing to separate from nav */
 }
 
 .logout-btn a {
     display: block;
     padding: 10px;
     text-align: center;
-    background-color: #f9f9f9;
-    color: #333;
+    background-color: #FFFCEF; /* Light cream */
+    color: #2A3F4D; /* Dark blue-gray */
     border-radius: 4px;
     text-decoration: none;
     transition: all 0.3s ease;
 }
 
 .logout-btn a:hover {
-    background-color: #ff5252;
+    background-color: #e74c3c; /* Retain red for logout */
     color: #fff;
 }
 
@@ -115,7 +116,7 @@ nav ul li.active a {
 .main-content {
     flex-grow: 1;
     padding: 30px;
-    background-color: #f9f9f9;
+    background-color: #F6F4E8; /* Slightly darker cream */
 }
 
 .header {
@@ -127,44 +128,45 @@ nav ul li.active a {
 
 .header h2 {
     font-size: 24px;
-    color: #333;
+    color: #2A3F4D; /* Dark blue-gray */
 }
 
 .btn {
     display: inline-block;
     padding: 10px 20px;
-    background-color: #4a90e2;
-    color: #fff;
+    background-color: #5c899D; /* Muted blue */
+    color: #FFFCEF; /* Light cream */
     border-radius: 4px;
     text-decoration: none;
     transition: all 0.3s ease;
 }
 
 .btn:hover {
-    background-color: #3a7bca;
+    background-color: #426677; /* Darker blue */
+    color: #FFFCEF; /* Light cream */
 }
 
 /* Profile details styles */
 .profile-details {
     background-color: #fff;
     border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 0 10px rgba(92, 137, 157, 0.05); /* Blue-tinted shadow */
     overflow: hidden;
 }
 
 .detail-section {
     padding: 20px;
-    border-bottom: 1px solid #eee;
+    /* Removed border-bottom */
+    margin-bottom: 15px; /* Added spacing between sections */
 }
 
 .detail-section:last-child {
-    border-bottom: none;
+    margin-bottom: 0; /* No extra spacing at the end */
 }
-
 .detail-section h3 {
     margin-bottom: 15px;
     font-size: 18px;
-    color: #333;
+    color: #2A3F4D; /* Dark blue-gray */
 }
 
 .detail-row {
@@ -176,11 +178,12 @@ nav ul li.active a {
 .detail-label {
     width: 150px;
     font-weight: 500;
-    color: #666;
+    color: #4A5A66; /* Lighter blue-gray */
 }
 
 .detail-value {
     flex-grow: 1;
+    color: #2A3F4D; /* Dark blue-gray */
 }
 
 .detail-value.address {
@@ -192,7 +195,7 @@ nav ul li.active a {
 }
 
 .link {
-    color: #4a90e2;
+    color: #F4A261; /* Warm orange */
     text-decoration: none;
     font-size: 14px;
 }
@@ -203,7 +206,7 @@ nav ul li.active a {
 
 .action-btn {
     margin-left: 10px;
-    color: #4a90e2;
+    color: #F4A261; /* Warm orange */
     text-decoration: none;
     font-size: 14px;
 }
@@ -221,43 +224,49 @@ nav ul li.active a {
     display: flex;
     align-items: center;
     padding: 12px 0;
-    border-bottom: 1px solid #eee;
+    /* Removed border-bottom */
+    margin-bottom: 10px; /* Added spacing between items */
 }
 
 .order-item:last-child {
-    border-bottom: none;
+    margin-bottom: 0; /* No extra spacing at the end */
 }
 
 .order-id {
     width: 120px;
     font-weight: 500;
+    color: #2A3F4D; /* Dark blue-gray */
 }
 
 .order-date {
     width: 150px;
+    color: #4A5A66; /* Lighter blue-gray */
 }
 
 .order-status {
     width: 100px;
+    color: #2A3F4D; /* Dark blue-gray */
 }
 
 .order-total {
     width: 100px;
     font-weight: 500;
+    color: #2A3F4D; /* Dark blue-gray */
 }
 
 .view-btn {
     margin-left: auto;
     padding: 5px 15px;
-    background-color: #f5f5f5;
-    color: #333;
+    background-color: #FFFCEF; /* Light cream */
+    color: #2A3F4D; /* Dark blue-gray */
     border-radius: 4px;
     text-decoration: none;
     font-size: 14px;
 }
 
 .view-btn:hover {
-    background-color: #e0e0e0;
+    background-color: #5c899D; /* Muted blue */
+    color: #FFFCEF; /* Light cream */
 }
 
 /* Modal styles */
@@ -269,21 +278,28 @@ nav ul li.active a {
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+    overflow: auto;
+    background-color: rgba(92, 137, 157, 0.5); /* Semi-transparent blue */
 }
 
 .modal-content {
     background-color: #fff;
-    margin: 15% auto;
-    padding: 20px;
+    margin: 5% auto;
+    padding: 30px;
     border-radius: 8px;
-    width: 400px;
-    max-width: 90%;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 16px rgba(92, 137, 157, 0.2); /* Blue-tinted shadow */
+    max-width: 600px;
+    width: 90%;
+    animation: modalFadeIn 0.3s;
+}
+
+@keyframes modalFadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .close {
-    color: #aaa;
+    color: #4A5A66; /* Lighter blue-gray */
     float: right;
     font-size: 28px;
     font-weight: bold;
@@ -291,15 +307,17 @@ nav ul li.active a {
 }
 
 .close:hover {
-    color: #333;
+    color: #2A3F4D; /* Dark blue-gray */
 }
 
 .modal-content h2 {
     margin-bottom: 15px;
+    color: #2A3F4D; /* Dark blue-gray */
 }
 
 .modal-content p {
     margin-bottom: 15px;
+    color: #4A5A66; /* Lighter blue-gray */
 }
 
 .modal-content ul {
@@ -312,7 +330,7 @@ nav ul li.active a {
 }
 
 .modal-content ul li a {
-    color: #4a90e2;
+    color: #F4A261; /* Warm orange */
     text-decoration: none;
 }
 
@@ -322,21 +340,34 @@ nav ul li.active a {
 
 /* Form styles (for edit pages) */
 .form-group {
-    margin-bottom: 20px;
+    margin-bottom: 1.5rem;
 }
 
 .form-group label {
+    font-weight: 600;
     display: block;
-    margin-bottom: 8px;
-    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: #2A3F4D; /* Dark blue-gray */
 }
 
-.form-group input, .form-group select, .form-group textarea {
+.form-group input,
+.form-group select,
+.form-group textarea {
     width: 100%;
     padding: 10px;
-    border: 1px solid #ddd;
+    border: 1px solid #A6C2D1; /* Light blue */
     border-radius: 4px;
-    font-size: 16px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    color: #2A3F4D; /* Dark blue-gray */
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #5c899D; /* Muted blue */
+    box-shadow: 0 0 0 2px rgba(92, 137, 157, 0.2);
 }
 
 .form-group textarea {
@@ -348,46 +379,18 @@ nav ul li.active a {
     display: flex;
     justify-content: flex-end;
     gap: 10px;
-    margin-top: 20px;
+    margin-top: 2rem;
 }
 
 .btn-secondary {
-    background-color: #f5f5f5;
-    color: #333;
+    background-color: #FFFCEF; /* Light cream */
+    color: #2A3F4D; /* Dark blue-gray */
+    border: 1px solid #A6C2D1; /* Light blue */
 }
 
 .btn-secondary:hover {
-    background-color: #e0e0e0;
-}
-
-
-@media (max-width: 768px) {
-    .container {
-        flex-direction: column;
-    }
-    
-    .sidebar {
-        width: 100%;
-        margin-bottom: 20px;
-    }
-    
-    .main-content {
-        padding: 20px;
-    }
-    
-    .order-item {
-        flex-wrap: wrap;
-    }
-    
-    .order-id, .order-date, .order-status, .order-total {
-        width: 50%;
-        margin-bottom: 10px;
-    }
-    
-    .view-btn {
-        margin-left: 0;
-        width: 100%;
-    }
+    background-color: #5c899D; /* Muted blue */
+    color: #FFFCEF; /* Light cream */
 }
 
 /* Address List Layout */
@@ -400,34 +403,34 @@ nav ul li.active a {
 }
 
 .address-card {
-    flex: 0 0 calc(33.333% - 20px); /* Three cards per row with gap */
-    min-width: 250px; /* Minimum width for small screens */
-    border: 1px solid #e0e0e0;
+    flex: 0 0 calc(33.333% - 20px);
+    min-width: 250px;
+    border: none; /* Removed border */
     border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 5px rgba(92, 137, 157, 0.05); /* Blue-tinted shadow */
     transition: all 0.3s ease;
     position: relative;
     background-color: #fff;
 }
 
 .address-card:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px rgba(92, 137, 157, 0.1);
     transform: translateY(-2px);
 }
 
 .address-card.default {
-    border-color: #4a90e2;
+    box-shadow: 0 2px 5px rgba(244, 162, 97, 0.3); /* Orange-tinted shadow for default */
 }
 
 .address-card-header {
     padding: 15px;
-    border-bottom: 1px solid #f0f0f0;
-    position: relative;
+    /* Removed border-bottom */
+    margin-bottom: 10px; /* Added spacing */
 }
 
 .default-badge {
-    background-color: #4a90e2;
-    color: white;
+    background-color: #F4A261; /* Warm orange */
+    color: #2A3F4D; /* Dark blue-gray */
     padding: 4px 8px;
     border-radius: 4px;
     font-size: 12px;
@@ -444,37 +447,34 @@ nav ul li.active a {
 .address-card-body p {
     margin: 5px 0;
     line-height: 1.4;
-    color: #555;
+    color: #4A5A66; /* Lighter blue-gray */
 }
 
 .address-card-body p:first-child {
     font-weight: bold;
-    color: #333;
+    color: #2A3F4D; /* Dark blue-gray */
 }
 
 .address-card-actions {
     padding: 10px 15px;
-    border-top: 1px solid #f0f0f0;
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 10px;
+    /* Removed border-top */
+    margin-top: 10px; /* Added spacing */
 }
 
 .address-card-actions a {
-    color: #4a90e2;
+    color: #F4A261; /* Warm orange */
     text-decoration: none;
     font-size: 14px;
     transition: color 0.2s;
 }
 
 .address-card-actions a:hover {
-    color: #2a6fc9;
+    color: #D68A49; /* Darker orange */
     text-decoration: underline;
 }
 
 .address-card-actions .delete-address {
-    color: #e74c3c;
+    color: #e74c3c; /* Retain red for delete */
 }
 
 .address-card-actions .delete-address:hover {
@@ -484,26 +484,28 @@ nav ul li.active a {
 /* Responsive adjustments */
 @media (max-width: 992px) {
     .address-card {
-        flex: 0 0 calc(50% - 20px); /* Two cards per row on medium screens */
+        flex: 0 0 calc(50% - 20px);
     }
 }
 
 @media (max-width: 576px) {
     .address-card {
-        flex: 0 0 100%; /* One card per row on mobile */
+        flex: 0 0 100%;
     }
     
     .address-list {
         gap: 15px;
+        margin-left: 0;
     }
 }
+
 .pagination {
     margin-left: 0px;
 }
 
 /* Form validation styles */
 .error-message {
-    color: #e74c3c;
+    color: #e74c3c; /* Retain red for errors */
     font-size: 0.8rem;
     margin-top: 0.25rem;
     display: block;
@@ -520,63 +522,6 @@ nav ul li.active a {
     background-color: rgba(46, 204, 113, 0.1) !important;
 }
 
-/* Modal styles enhancement */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0, 0, 0, 0.5);
-}
-
-.modal-content {
-    background-color: white;
-    margin: 5% auto;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-    max-width: 600px;
-    width: 90%;
-    animation: modalFadeIn 0.3s;
-}
-
-@keyframes modalFadeIn {
-    from { opacity: 0; transform: translateY(-20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* Form styling improvements */
-.form-group {
-    margin-bottom: 1.5rem;
-}
-
-.form-group label {
-    font-weight: 600;
-    display: block;
-    margin-bottom: 0.5rem;
-}
-
-.form-group input,
-.form-group select {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-}
-
-.form-group input:focus,
-.form-group select:focus {
-    outline: none;
-    border-color: #3498db;
-    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
-}
-
 /* Buttons styling */
 .btn {
     padding: 10px 16px;
@@ -584,21 +529,4 @@ nav ul li.active a {
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-}
-
-.btn-secondary {
-    background-color: #f1f1f1;
-    color: #333;
-    border: 1px solid #ddd;
-}
-
-.btn-secondary:hover {
-    background-color: #e0e0e0;
-}
-
-.form-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    margin-top: 2rem;
 }

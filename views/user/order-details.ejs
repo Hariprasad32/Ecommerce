@@ -553,7 +553,7 @@ function cancelOrder(orderId, productId, orderMainId) {
     }).then((result) => {
         if (result.isConfirmed) {
             $.ajax({
-                url: `/cancelOrder`, 
+                url: `/cancel-order`, 
                 method: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify({ 
@@ -620,7 +620,7 @@ async function retryPayment(orderId) {
             }
 
             if (data.success && data.orderId && data.amount && data.key) {
-                // Initialize Razorpay payment
+        
                 const options = {
                     key: data.key,
                     amount: data.amount,
@@ -628,7 +628,7 @@ async function retryPayment(orderId) {
                     order_id: data.orderId,
                     handler: async function (response) {
                         try {
-                            // Verify payment
+                      
                             const verifyResponse = await fetch('/verify-razorpay-payment', {
                                 method: 'POST',
                                 headers: {
@@ -713,7 +713,7 @@ function openReturnModal(orderId, productId) {
         }
 
         $.ajax({
-            url: '/returnOrder',
+            url: '/return-order',
             method: 'POST',
             contentType: 'application/json',
             data: JSON.stringify({ 

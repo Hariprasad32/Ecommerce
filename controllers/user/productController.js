@@ -68,8 +68,8 @@ const productDetails = async (req, res) => {
        
 
     } catch (error) {
-        console.error("Product details error:", error);
-        return res.status(500).send("Server error");
+        // console.error("Product details error:", error);
+        return res.status(500).redirect("/404-page");
     }
 }
 

@@ -46,7 +46,7 @@
                                 <% if (!address.isDefault) { %>
                                     <a href="#" class="make-default" data-id="<%= address._id %>">Set as Default</a>
                                 <% } %>
-                                <a href="/editAddress" class="edit-address" data-id="<%= address._id %>">Edit</a>
+                                <a href="/edit-address" class="edit-address" data-id="<%= address._id %>">Edit</a>
                                 <a href="deleteAddress" class="delete-address" data-id="<%= address._id %>">Delete</a>
                             </div>
                         </div>
@@ -221,10 +221,10 @@
         const modalTitle = document.getElementById('address-modal-title');
         const addressIdInput = document.getElementById('address-id');
     
-        // Get userId from server-side
-        const userId = '<%= user._id %>'; // Use the user ID passed from the server
+      
+        const userId = '<%= user._id %>'; 
         
-        // Form validation variables
+        
         const nameInput = document.getElementById('address-full-name');
         const line1Input = document.getElementById('address-line1');
         const cityInput = document.getElementById('address-city');
@@ -233,7 +233,7 @@
         const phoneInput = document.getElementById('address-phone');
         const countryInput = document.getElementById('address-country');
     
-        // Validation error messages
+       
         const nameError = document.getElementById('name-error');
         const line1Error = document.getElementById('address-line1-error');
         const cityError = document.getElementById('city-error');
@@ -242,7 +242,7 @@
         const phoneError = document.getElementById('phone-error');
         const countryError = document.getElementById('country-error');
         
-        // Real-time validation
+        
         nameInput.addEventListener('input', () => validateField(nameInput, nameError, validateName));
         line1Input.addEventListener('input', () => validateField(line1Input, line1Error, validateAddress));
         cityInput.addEventListener('input', () => validateField(cityInput, cityError, validateRequired));
@@ -251,7 +251,7 @@
         phoneInput.addEventListener('input', () => validateField(phoneInput, phoneError, validatePhone));
         countryInput.addEventListener('change', () => validateField(countryInput, countryError, validateRequired));
         
-        // Validation functions
+        
         function validateName(value) {
             if (!value.trim()) return 'Full name is required';
             if (value.trim().length < 3) return 'Name should be at least 3 characters';
@@ -284,7 +284,7 @@
             const errorMessage = validationFunction(input.value);
             errorElement.textContent = errorMessage;
             
-            // Add visual feedback
+            
             if (errorMessage) {
                 input.classList.add('input-error');
                 input.classList.remove('input-success');
@@ -296,7 +296,7 @@
             return !errorMessage;
         }
         
-        // Add listeners for "Add address" links
+       
         addAddressLinks.forEach(link => {
             link.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -309,7 +309,7 @@
             });
         });
         
-        // Add new address button
+       
         if (addAddressBtn) {
             addAddressBtn.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -322,28 +322,28 @@
             });
         }
         
-        // Close modal button
+       
         if (closeModalBtn) {
             closeModalBtn.addEventListener('click', function() {
                 addressModal.style.display = 'none';
             });
         }
         
-        // Cancel button
+       
         if (cancelAddressBtn) {
             cancelAddressBtn.addEventListener('click', function() {
                 addressModal.style.display = 'none';
             });
         }
         
-        // Window click to close modal
+       
         window.addEventListener('click', function(event) {
             if (event.target === addressModal) {
                 addressModal.style.display = 'none';
             }
         });
     
-        // Function to clear validation errors
+       
         function clearValidationErrors() {
             nameError.textContent = '';
             line1Error.textContent = '';
@@ -354,7 +354,7 @@
             countryError.textContent = '';
         }
         
-        // Reset form visual styles
+       
         function resetFormStyles() {
             const inputs = addressForm.querySelectorAll('input, select');
             inputs.forEach(input => {
@@ -362,7 +362,7 @@
             });
         }
     
-        // Function to validate form
+      
         function validateForm() {
             let isValid = true;
             
@@ -386,7 +386,7 @@
             return isValid;
         }
         
-        // Form submission
+      
                         if (addressForm) {
                     addressForm.addEventListener('submit', async function(e) {
                         e.preventDefault();
@@ -419,7 +419,7 @@
 
                         try {
                             const addressId = addressIdInput.value;
-                            const endpoint = addressId ? '/editAddress' : '/addAddress'; 
+                            const endpoint = addressId ? '/edit-address' : '/add-address'; 
                             const method = 'POST';          
 
                             if (addressId) {
@@ -529,7 +529,7 @@
                                 }
                             });
                             
-                            const response = await fetch('/deleteAddress', {
+                            const response = await fetch('/delete-address', {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json'
@@ -585,7 +585,7 @@
                         }
                     });
                     
-                    const response = await fetch('/setDefaultAddress', {
+                    const response = await fetch('/set-default-address', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -636,7 +636,7 @@
                     }
                 });
                 
-                const response = await fetch(`/getAddress/${addressId}`, {
+                const response = await fetch(`/get-address/${addressId}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json'

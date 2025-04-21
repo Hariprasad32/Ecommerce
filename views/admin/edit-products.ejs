@@ -260,22 +260,22 @@
     const file = event.target.files[0];
     if (!file) return;
     
-    // Check number of images
+   
     if (uploadedImages.length >= MAX_IMAGES) {
         displayErrorMessage('images-error', `You can only upload a maximum of ${MAX_IMAGES} images`);
         event.target.value = '';
         return;
     }
     
-    // File type validation - support all image types
+   
     if (!file.type.startsWith('image/')) {
         displayErrorMessage('images-error', 'Please upload only image files');
         event.target.value = '';
         return;
     }
     
-    // File size validation (5MB max)
-    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+   
+    const maxSize = 5 * 1024 * 1024;
     if (file.size > maxSize) {
         displayErrorMessage('images-error', 'Image size should not exceed 5MB');
         event.target.value = '';
@@ -284,17 +284,17 @@
     
     const reader = new FileReader();
     reader.onload = function (e) {
-        // Create an image to check dimensions
+       
         const img = new Image();
         img.onload = function() {
-            // Dimension validation (minimum 300x300 pixels)
+            
             if (img.width < 300 || img.height < 300) {
                 displayErrorMessage('images-error', 'Image dimensions should be at least 300x300 pixels');
                 event.target.value = '';
                 return;
             }
             
-            // Continue with cropper if image passes validation
+           
             const cropperContainer = document.getElementById('cropperContainer');
             const saveButton = document.getElementById('saveButton');
             cropperContainer.style.display = 'block';
@@ -361,11 +361,11 @@
         const ctx = resizedCanvas.getContext('2d');
         ctx.drawImage(croppedCanvas, 0, 0, width, height);
         
-        // Always output as PNG for consistency after processing
+       
         resizedCanvas.toBlob(
             (blob) => {
-                // Check final blob size
-                if (blob.size > 2 * 1024 * 1024) { // 2MB limit for final processed image
+              
+                if (blob.size > 2 * 1024 * 1024) { 
                     displayErrorMessage('images-error', 'Processed image size exceeds 2MB limit');
                     return;
                 }
@@ -424,7 +424,7 @@
                 };
                 reader2.readAsDataURL(blob);
             },
-            'image/png', // Always use PNG for consistency
+            'image/png', 
             0.9
         );
     });

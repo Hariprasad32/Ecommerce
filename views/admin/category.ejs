@@ -235,15 +235,14 @@ textarea.form-control {
     text-transform: uppercase;
 }
 
-/* ✅ Fix Table Column Widths */
-.table th:nth-child(1), .table td:nth-child(1) { width: 15%; } /* Name */
-.table th:nth-child(2), .table td:nth-child(2) { width: 25%; } /* Description */
-.table th:nth-child(3), .table td:nth-child(3) { width: 15%; } /* Offer */
-.table th:nth-child(4), .table td:nth-child(4) { width: 15%; } /* Offer Price */
-.table th:nth-child(5), .table td:nth-child(5) { width: 10%; } /* Status */
-.table th:nth-child(6), .table td:nth-child(6) { width: 20%; } /* Actions */
 
-/* ✅ Fix Button Alignment in Table */
+.table th:nth-child(1), .table td:nth-child(1) { width: 15%; } 
+.table th:nth-child(2), .table td:nth-child(2) { width: 25%; } 
+.table th:nth-child(3), .table td:nth-child(3) { width: 15%; } 
+.table th:nth-child(4), .table td:nth-child(4) { width: 15%; } 
+.table th:nth-child(5), .table td:nth-child(5) { width: 10%; } 
+.table th:nth-child(6), .table td:nth-child(6) { width: 20%; } 
+
 .table td button {
     display: inline-block;
     margin: 5px;
@@ -526,22 +525,22 @@ textarea.form-control {
         function handleFormSubmit(event) {
             event.preventDefault();
     
-            // Validate form
+           
             if (!validateForm()) {
                 return;
             }
     
-            // Get form data
+          
             const name = document.getElementById("name").value.trim();
             const description = document.getElementById("description").value.trim();
     
-            // Send data to server
+            
             fetch('/admin/addCategory', {
-    method: 'POST',  // ✅ Fixed case sensitivity
+    method: 'POST',  
     headers: {
         'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ name, description }) // ✅ Ensuring JSON format
+    body: JSON.stringify({ name, description })
 })
 .then(response => {
     if (!response.ok) {
@@ -584,7 +583,7 @@ textarea.form-control {
             const description = document.getElementById("description").value.trim();
             let isValid = true;
     
-            // Name Validation
+            
             if (name === "") {
                 displayErrorMessage("name-error", "Please enter a name");
                 isValid = false;
@@ -593,7 +592,7 @@ textarea.form-control {
                 isValid = false;
             }
     
-            // Description Validation
+            
             if (description === "") {
                 displayErrorMessage("description-error", "Please enter a description");
                 isValid = false;

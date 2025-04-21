@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="/css/user-profile.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* Existing styles unchanged */
         .orders-table {
             width: 100%;
             border-collapse: separate;
@@ -15,12 +14,12 @@
             background-color: #ffffff;
             border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 12px rgba(92, 137, 157, 0.05); /* Blue-tinted shadow */
         }
 
         .orders-table thead {
-            background: #4a90e2;
-            color: #ffffff;
+            background: #5c899D; /* Muted blue */
+            color: #FFFCEF; /* Light cream */
         }
 
         .orders-table th,
@@ -29,6 +28,7 @@
             text-align: left;
             font-size: 15px;
             font-weight: 500;
+            border: none; /* Removed borders */
         }
 
         .orders-table th {
@@ -38,21 +38,22 @@
         }
 
         .orders-table tbody tr {
-            border-bottom: 1px solid #f1f3f5;
+            border: none; /* Removed border-bottom */
             transition: background 0.3s ease, transform 0.2s ease;
+            margin-bottom: 10px; /* Added spacing */
         }
 
         .orders-table tbody tr:hover {
-            background-color: #f8f9fa;
+            background-color: #F6F4E8; /* Slightly darker cream */
             transform: translateY(-2px);
         }
 
         .orders-table tbody tr:last-child {
-            border-bottom: none;
+            margin-bottom: 0; /* No extra spacing */
         }
 
         .orders-table td {
-            color: #2d3436;
+            color: #2A3F4D; /* Dark blue-gray */
         }
 
         .order-status {
@@ -70,35 +71,35 @@
         }
 
         .order-status.pending {
-            background-color: #ffeaa7;
-            color: #d63031;
+            background-color: #FFE8CC; /* Soft orange */
+            color: #D68A49; /* Darker orange */
         }
 
         .order-status.processing {
-            background-color: #74b9ff;
-            color: #ffffff;
+            background-color: #A6C2D1; /* Light blue */
+            color: #2A3F4D; /* Dark blue-gray */
         }
 
         .order-status.shipped {
-            background-color: #a29bfe;
-            color: #ffffff;
+            background-color: #8AACC8; /* Muted blue-gray */
+            color: #FFFCEF; /* Light cream */
         }
 
         .order-status.delivered {
-            background-color: #55efc4;
-            color: #2d3436;
+            background-color: #B8D1C2; /* Light green from shop page */
+            color: #2A3F4D; /* Dark blue-gray */
         }
 
         .order-status.cancelled {
-            background-color: #ff7675;
-            color: #ffffff;
+            background-color: #FF7675; /* Retain red, harmonized */
+            color: #FFFCEF; /* Light cream */
         }
 
         .btn-view {
             display: inline-block;
             padding: 8px 16px;
-            background: #4a90e2;
-            color: #ffffff;
+            background: #5c899D; /* Muted blue */
+            color: #FFFCEF; /* Light cream */
             text-decoration: none;
             border-radius: 8px;
             font-size: 13px;
@@ -107,22 +108,23 @@
         }
 
         .btn-view:hover {
-            background: #357abd;
+            background: #426677; /* Darker blue */
             transform: translateY(-2px);
         }
 
         .no-orders {
             text-align: center;
             padding: 40px;
-            background-color: #ffffff;
+            background-color: #FFFCEF; /* Light cream */
             border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 12px rgba(92, 137, 157, 0.05); /* Blue-tinted shadow */
         }
 
         .no-orders p {
             font-size: 16px;
-            color: #7f8c8d;
+            color: #4A5A66; /* Lighter blue-gray */
             margin: 0;
+            border: none; /* Ensure no border */
         }
 
         @media (max-width: 768px) {
@@ -133,7 +135,7 @@
             .orders-table tbody tr {
                 display: block;
                 margin-bottom: 20px;
-                border: 1px solid #dfe6e9;
+                border: none; /* Removed border */
                 border-radius: 8px;
                 padding: 15px;
                 background-color: #ffffff;
@@ -144,17 +146,17 @@
                 justify-content: space-between;
                 padding: 10px 0;
                 font-size: 14px;
-                border-bottom: 1px solid #f1f3f5;
+                border: none; /* Removed border-bottom */
             }
 
             .orders-table td:last-child {
-                border-bottom: none;
+                margin-bottom: 0; /* No extra spacing */
             }
 
             .orders-table td:before {
                 content: attr(data-label);
                 font-weight: 600;
-                color: #2d3436;
+                color: #2A3F4D; /* Dark blue-gray */
             }
         }
 
@@ -168,8 +170,8 @@
 
         .pagination button {
             padding: 8px 16px;
-            background-color: #4a90e2;
-            color: #ffffff;
+            background-color: #5c899D; /* Muted blue */
+            color: #FFFCEF; /* Light cream */
             border: none;
             border-radius: 8px;
             cursor: pointer;
@@ -178,17 +180,18 @@
         }
 
         .pagination button:disabled {
-            background-color: #b0c4de;
+            background-color: #A6C2D1; /* Light blue */
             cursor: not-allowed;
         }
 
         .pagination button:hover:not(:disabled) {
-            background-color: #357abd;
+            background-color: #426677; /* Darker blue */
         }
 
         .pagination span {
             font-size: 14px;
-            color: #2d3436;
+            color: #2A3F4D; /* Dark blue-gray */
+            border: none; /* Ensure no border */
         }
 
         .controls-wrapper {
@@ -212,7 +215,7 @@
         .search-bar input {
             width: 100%;
             padding: 10px 40px 10px 16px;
-            border: 1px solid #dfe6e9;
+            border: 1px solid #A6C2D1; /* Light blue */
             border-radius: 8px;
             font-size: 14px;
             background-color: #ffffff;
@@ -221,8 +224,8 @@
 
         .search-bar input:focus {
             outline: none;
-            border-color: #4a90e2;
-            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+            border-color: #5c899D; /* Muted blue */
+            box-shadow: 0 0 0 3px rgba(92, 137, 157, 0.2); /* Blue-tinted shadow */
         }
 
         .search-bar button {
@@ -232,7 +235,7 @@
             transform: translateY(-50%);
             background: none;
             border: none;
-            color: #7f8c8d;
+            color: #4A5A66; /* Lighter blue-gray */
             cursor: pointer;
             padding: 0;
             font-size: 16px;
@@ -240,7 +243,24 @@
         }
 
         .search-bar button:hover {
-            color: #4a90e2;
+            color: #5c899D; /* Muted blue */
+        }
+
+        .filter-controls select {
+            padding: 10px;
+            border: 1px solid #A6C2D1; /* Light blue */
+            border-radius: 8px;
+            background-color: #FFFCEF; /* Light cream */
+            color: #2A3F4D; /* Dark blue-gray */
+            font-size: 14px;
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+        }
+
+        .filter-controls select:focus {
+            outline: none;
+            border-color: #5c899D; /* Muted blue */
+            box-shadow: 0 0 0 3px rgba(92, 137, 157, 0.2);
         }
 
         @media (max-width: 768px) {
@@ -269,8 +289,8 @@
         }
 
         .loading-spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #4a90e2;
+            border: 4px solid #F6F4E8; /* Slightly darker cream */
+            border-top: 4px solid #5c899D; /* Muted blue */
             border-radius: 50%;
             width: 40px;
             height: 40px;
@@ -280,6 +300,11 @@
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+
+        /* Ensure no borders on text elements */
+        p, h2, span, td, th, a, div {
+            border: none !important; /* Override any potential borders */
         }
     </style>
 </head>
@@ -372,24 +397,20 @@
             const statusFilter = document.getElementById('status-filter');
             const loadingOverlay = document.getElementById('loading-overlay');
 
-            // Show loading spinner during navigation
             function showLoading() {
                 loadingOverlay.style.display = 'flex';
             }
 
-            // Handle filter changes by submitting to backend
             if (orderFilter) {
-    orderFilter.addEventListener('change', function() {
-        statusFilter.value = this.value === 'all' ? '' : this.value;
-        // Reset to page 1 when filtering
-        const currentUrl = new URL(window.location.href);
-        currentUrl.searchParams.set('page', 1);
-        showLoading();
-        searchForm.submit();
-    });
-}
+                orderFilter.addEventListener('change', function() {
+                    statusFilter.value = this.value === 'all' ? '' : this.value;
+                    const currentUrl = new URL(window.location.href);
+                    currentUrl.searchParams.set('page', 1);
+                    showLoading();
+                    searchForm.submit();
+                });
+            }
 
-            // Clear search when user clicks the "x" in search field
             if (searchInput) {
                 searchInput.addEventListener('search', function() {
                     if (this.value === '') {
@@ -400,7 +421,6 @@
                 });
             }
 
-            // Handle form submission
             if (searchForm) {
                 searchForm.addEventListener('submit', function() {
                     showLoading();
@@ -409,28 +429,25 @@
         });
 
         function changePage(newPage) {
-    const currentUrl = new URL(window.location.href);
-    currentUrl.searchParams.set('page', newPage);
-    
-    // Preserve other query parameters if they exist
-    const search = document.getElementById('order-search').value;
-    if (search) {
-        currentUrl.searchParams.set('search', search);
-    }
-    
-    const statusFilter = document.getElementById('order-filter').value;
-    if (statusFilter && statusFilter !== 'all') {
-        currentUrl.searchParams.set('status', statusFilter);
-    } else {
-        currentUrl.searchParams.delete('status');
-    }
-    
-    // Show loading overlay
-    document.getElementById('loading-overlay').style.display = 'flex';
-    
-    // Navigate to the new URL
-    window.location.href = currentUrl.toString();
-}
+            const currentUrl = new URL(window.location.href);
+            currentUrl.searchParams.set('page', newPage);
+            
+            const search = document.getElementById('order-search').value;
+            if (search) {
+                currentUrl.searchParams.set('search', search);
+            }
+            
+            const statusFilter = document.getElementById('order-filter').value;
+            if (statusFilter && statusFilter !== 'all') {
+                currentUrl.searchParams.set('status', statusFilter);
+            } else {
+                currentUrl.searchParams.delete('status');
+            }
+            
+            document.getElementById('loading-overlay').style.display = 'flex';
+            
+            window.location.href = currentUrl.toString();
+        }
     </script>
 </body>
 </html>

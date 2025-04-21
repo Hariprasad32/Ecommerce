@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Referrals</title>
+    <link rel="stylesheet" href="/css/user-profile.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Global styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #FFFCEF; /* Light cream */
+            color: #2A3F4D; /* Dark blue-gray */
+        }
+
+        /* Container (Bootstrap override) */
+        .container1 {
+            width: 100%;
+            margin: 40px auto;
+            padding: 0 15px;
+            padding-left: 100px;
+        }
+
+        /* Headings */
+        h1.mb-4 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: #2A3F4D; /* Dark blue-gray */
+            margin-bottom: 30px;
+            border: none; /* Ensure no border */
+        }
+
+        h2.card-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #2A3F4D; /* Dark blue-gray */
+            margin-bottom: 20px;
+            border: none; /* Ensure no border */
+        }
+
+        h3.text-success {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2ecc71; /* Retain green for wallet balance */
+            margin-bottom: 15px;
+            border: none; /* Ensure no border */
+        }
+
+        h5 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2A3F4D; /* Dark blue-gray */
+            margin-bottom: 15px;
+            border: none; /* Ensure no border */
+        }
+
+        /* Cards (Bootstrap override) */
+        .card {
+            background-color: #ffffff;
+            border: none; /* Remove Bootstrap border */
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(92, 137, 157, 0.05); /* Blue-tinted shadow */
+            margin-bottom: 30px;
+        }
+
+        .card-body {
+            padding: 25px;
+            color: #2A3F4D; /* Dark blue-gray */
+        }
+
+        .card p {
+            font-size: 1rem;
+            color: #4A5A66; /* Lighter blue-gray */
+            margin-bottom: 15px;
+            border: none; /* Ensure no border */
+        }
+
+        /* Input group (Bootstrap override) */
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .form-control {
+            background-color: #FFFCEF; /* Light cream */
+            border: 1px solid #A6C2D1; /* Light blue */
+            border-radius: 8px;
+            color: #2A3F4D; /* Dark blue-gray */
+            font-size: 1rem;
+            padding: 10px 15px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #5c899D; /* Muted blue */
+            box-shadow: 0 0 0 3px rgba(92, 137, 157, 0.2); /* Blue-tinted shadow */
+        }
+
+        .form-control[readonly] {
+            background-color: #F6F4E8; /* Slightly darker cream */
+            cursor: default;
+        }
+
+        /* Buttons (Bootstrap override) */
+        .btn-primary {
+            background-color: #5c899D; /* Muted blue */
+            border: none;
+            color: #FFFCEF; /* Light cream */
+            font-weight: 600;
+            font-size: 1rem;
+            padding: 10px 20px;
+            border-radius: 8px;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #426677; /* Darker blue */
+            transform: translateY(-2px);
+        }
+
+        /* Links */
+        .text-primary {
+            color: #F4A261 !important; /* Warm orange, override Bootstrap */
+            text-decoration: none;
+            transition: color 0.3s ease;
+            border: none; /* Ensure no border */
+        }
+
+        .text-primary:hover {
+            color: #D68A49; /* Darker orange */
+            text-decoration: underline;
+        }
+
+        /* Scoped list styling for referral instructions */
+        .referral-instructions ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .referral-instructions ul li {
+            font-size: 1rem;
+            color: #4A5A66; /* Lighter blue-gray */
+            margin-bottom: 10px;
+            position: relative;
+            padding-left: 20px;
+            border: none; /* Ensure no border */
+        }
+
+        .referral-instructions ul li:before {
+            content: "\f058"; /* Font Awesome check-circle */
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            color: #5c899D; /* Muted blue */
+            position: absolute;
+            left: 0;
+            top: 2px;
+        }
+
+        /* Wallet and Stats Cards */
+        .h-100 .card-body {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .col-md-6 .card p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Table (Bootstrap override) */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .table thead {
+            background-color: #5c899D; /* Muted blue */
+            color: #FFFCEF; /* Light cream */
+        }
+
+        .table th,
+        .table td {
+            padding: 15px 20px;
+            text-align: left;
+            font-size: 15px;
+            font-weight: 500;
+            border: none; /* Remove borders */
+        }
+
+        .table th {
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .table tbody tr {
+            transition: background 0.3s ease, transform 0.2s ease;
+            margin-bottom: 10px; /* Spacing instead of borders */
+        }
+
+        .table tbody tr:hover {
+            background-color: #F6F4E8; /* Slightly darker cream */
+            transform: translateY(-2px);
+        }
+
+        .table tbody tr:last-child {
+            margin-bottom: 0; /* No extra spacing */
+        }
+
+        .table td {
+            color: #2A3F4D; /* Dark blue-gray */
+        }
+
+        /* Ensure no borders on text elements */
+        p, h1, h2, h3, h5, span, td, th, a, div, li {
+            border: none !important; /* Override any potential borders */
+        }
+
+        /* Override potential partial list styles */
+        .sidebar nav ul,
+        footer ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .sidebar nav ul li,
+        footer ul li {
+            padding: 0;
+            margin: 0;
+            border: none;
+        }
+
+        .sidebar nav ul li:before,
+        footer ul li:before {
+            content: none !important; /* Remove check-circle from partials */
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                margin: 20px auto;
+                padding: 0 10px;
+            }
+
+            h1.mb-4 {
+                font-size: 2rem;
+            }
+
+            h2.card-title {
+                font-size: 1.5rem;
+            }
+
+            .card {
+                margin-bottom: 20px;
+            }
+
+            .table thead {
+                display: none;
+            }
+
+            .table tbody tr {
+                display: block;
+                margin-bottom: 20px;
+                padding: 15px;
+                background-color: #ffffff;
+                border-radius: 8px;
+                box-shadow: 0 2px 5px rgba(92, 137, 157, 0.05);
+            }
+
+            .table td {
+                display: flex;
+                justify-content: space-between;
+                padding: 10px 0;
+                font-size: 14px;
+            }
+
+            .table td:before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: #2A3F4D; /* Dark blue-gray */
+            }
+
+            .table td:not(:last-child) {
+                margin-bottom: 10px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .input-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .form-control {
+                width: 100%;
+            }
+
+            .btn-primary {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="maindiv">
+    <%- include("../../views/partials/user/profile/profile") %>
+    
+    <div class="container1 my-5">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="mb-4">Your Referrals</h1>
+                
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h2 class="card-title">Your Referral Code</h2>
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" value="<%= referralCode %>" id="referralCode" readonly>
+                            <button class="btn btn-primary" type="button" onclick="copyReferralCode()">Copy</button>
+                        </div>
+                        
+                        <div class="mt-3 referral-instructions">
+                            <h5>How it works:</h5>
+                            <ul>
+                                <li>Share your referral code with friends</li>
+                                <li>When they sign up, they get ₹100 in their wallet</li>
+                                <li>You get ₹200 for each friend who signs up</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h2 class="card-title">Referral Statistics</h2>
+                                <p>Total people referred: <%= referredUsers ? referredUsers.length : 0 %></p>
+                                <% if(referredBy) { %>
+                                    <p>You were referred by: <%= referredBy.name %></p>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <% if(referredUsers && referredUsers.length > 0) { %>
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title">People You've Referred</h2>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th data-label="Name">Name</th>
+                                        <th data-label="Email">Email</th>
+                                        <th data-label="Date Joined">Date Joined</th>
+                                        <th data-label="Bonus Earned">Bonus Earned</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% referredUsers.forEach(function(user) { %>
+                                    <tr>
+                                        <td data-label="Name"><%= user.name %></td>
+                                        <td data-label="Email"><%= user.email %></td>
+                                        <td data-label="Date Joined"><%= new Date(user.createdOn).toLocaleDateString() %></td>
+                                        <td data-label="Bonus Earned">₹200</td>
+                                    </tr>
+                                    <% }); %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <% } else { %>
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title">People You've Referred</h2>
+                        <p>You haven't referred anyone yet. Share your code to start earning!</p>
+                    </div>
+                </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</div>
+    
+    <%- include("../../views/partials/user/footer") %>
+    
+    <script>
+        function copyReferralCode() {
+            const copyText = document.getElementById("referralCode");
+            copyText.select();
+            copyText.setSelectionRange(0, 99999);
+            document.execCommand("copy");
+            alert("Referral code copied to clipboard: " + copyText.value);
+        }
+    </script>
+</body>
+</html>

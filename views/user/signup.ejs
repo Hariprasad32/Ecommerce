@@ -174,6 +174,11 @@
           </div>
           <div id="error5" class="error-message"></div>
         </div>
+        <div class="form-group">
+          <label for="Referalcode" style="display: flex;" placeholder="optional">Referal Code <p style="font-size: small; padding-top: 3.5px;">(optional)</p></label>
+          <input type="text" id="referalCode" name="referralCode">
+          <div id="error3" class="error-message"></div>
+        </div>
         <button type="submit" class="btn">Register</button>
         <a href="/auth/google" class="google-btn">
           <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google Logo" width="20" height="20" style="margin-right: 10px;">
@@ -197,6 +202,7 @@
       const confirmPassword = document.getElementById('confirmpassword');
       const togglePassword = document.getElementById('togglePassword');
       const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+      const referalCode = document.getElementById('referalCode')
       const error1 = document.getElementById('error1');
       const error2 = document.getElementById('error2');
       const error3 = document.getElementById('error3');

@@ -127,12 +127,12 @@
     </div>
 
     <script>
-        // Get orderId from URL query parameter
+        
         const urlParams = new URLSearchParams(window.location.search);
         const orderId = urlParams.get('orderId') || 'N/A';
         document.getElementById('order-id').textContent = orderId;
 
-        // Retry Payment Function (from your previous code)
+        
         function retryPayment(orderId) {
             console.log('Retrying payment for order:', orderId);
 
@@ -144,7 +144,7 @@
                 confirmButtonColor: '#22c55e',
                 cancelButtonColor: '#ef4444',
                 confirmButtonText: 'Proceed',
-                cancelButtonText: 'Cancel Order'
+                cancelButtonText: 'Cancel'
             }).then((result) => {
                 if (result.isConfirmed) {
                     fetch('/retry-payment', {
@@ -220,7 +220,7 @@
             });
         }
 
-        // Verify Payment Function
+       
         function verifyPayment(response, orderId) {
             const paymentData = {
                 razorpay_order_id: response.razorpay_order_id,
@@ -274,45 +274,16 @@
             });
         }
 
-        // Cancel Order Function
-        function cancelPendingOrder(orderId) {
-            fetch('/cancel-order', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ orderId, productId: null, orderMainId: orderId })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    Swal.fire({
-                        title: 'Order Cancelled',
-                        text: 'Your order has been cancelled successfully.',
-                        icon: 'info',
-                        confirmButtonColor: '#3b82f6'
-                    }).then(() => {
-                        window.location.href = '/'; // Redirect to homepage or cart
-                    });
-                } else {
-                    throw new Error(data.message || 'Failed to cancel order');
-                }
-            })
-            .catch(err => {
-                Swal.fire({
-                    title: 'Error',
-                    text: 'Failed to cancel order: ' + err.message,
-                    icon: 'error',
-                    confirmButtonColor: '#3b82f6'
-                });
-            });
-        }
+   
 
-        // Event Listeners
+  
         document.getElementById('retry-btn').addEventListener('click', () => {
             retryPayment(orderId);
         });
 
         document.getElementById('order-details-btn').addEventListener('click', () => {
-            window.location.href = `/order-details?orderId=${orderId}`;
+            console.log(orderId)
+            window.location.href = `/order-detail/${orderId}`;
         });
     </script>
 </body>
