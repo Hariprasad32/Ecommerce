@@ -93,8 +93,8 @@ const updateOrderStatus = async (req, res) => {
 
      
         const result = await Order.updateMany(
-            { _id: orderId },
-            { $set: { orderStatus: status } }
+            { _id: orderId,"items._id":itemId },
+            { $set: { "items.$.status": status } }
         );
 
         if (result.matchedCount === 0) {
@@ -148,9 +148,15 @@ const updateProductItemStatus = async (req, res) => {
             await order.save();
 
            
-            const allItemsHaveSameStatus = order.items.every(item => item.status === status);
+            const allItemsHaveSameStatus = order.items.every(item => item.status !=="Pending" );
             if (allItemsHaveSameStatus) {
-                order.orderStatus = status;
+                order.orderStatus = "Completed";
+                await order.save();
+            }
+
+            const allItemsHaveDiffrentStatus = order.items.some(item => item.status !=="Pending" );
+            if (allItemsHaveDiffrentStatus) {
+                order.orderStatus = "Processing";
                 await order.save();
             }
 

@@ -215,8 +215,7 @@ const placeOrder = async (req, res) => {
         const { addressId, paymentMethod, couponCode, amount, couponDiscount } = req.body;
         const userId = req.session.user;
 
-        console.log("PlaceOrder - Input:", { userId, addressId, paymentMethod, amount, couponCode, couponDiscount });
-
+       
         if (!userId) {
             console.error("PlaceOrder - No user session");
             return res.status(401).json({
@@ -260,7 +259,7 @@ const placeOrder = async (req, res) => {
             });
         }
 
-        // Validate stock
+      
         for (const item of cart.items) {
             const product = item.productId;
             for (const size of item.sizes) {
@@ -276,7 +275,7 @@ const placeOrder = async (req, res) => {
             }
         }
 
-        // Validate coupon
+    
         let appliedCoupon = null;
         let totalCouponDiscount = parseInt(couponDiscount) || 0;
         if (couponCode) {
@@ -460,7 +459,7 @@ const placeOrder = async (req, res) => {
        
           
 
-        // Update wallet for wallet payment
+        
         if (paymentMethod === 'wallet') {
             console.log("PlaceOrder - Attempting wallet deduction:", { userId, amount });
             const updatedUser = await User.findByIdAndUpdate(
@@ -492,19 +491,19 @@ const placeOrder = async (req, res) => {
             });
         }
 
-        // Update user order history
+      
         const orderIds = orders.map(order => order._id);
         await User.findByIdAndUpdate(userId, {
             $push: { orderHistory: { $each: orderIds } }
         });
         console.log("PlaceOrder - Order history updated:", orderIds);
 
-        // Clear cart
+        
         cart.items = [];
         await cart.save();
         console.log("PlaceOrder - Cart cleared");
 
-        // Validate total amount
+        
         const subtotalAfterDiscount = orders.reduce((sum, order) => sum + order.totalAmount, 0);
         const calculatedTotal = subtotalAfterDiscount + SHIPPING_COST;
 

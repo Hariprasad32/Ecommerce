@@ -538,24 +538,7 @@
                     </p>
                     <p><strong>Payment Method:</strong> <%= firstOrder.paymentMethod %></p>
                     <p><strong>Payment Status:</strong> <%= firstOrder.paymentStatus %></p>
-                    <p>
-                        <strong>Overall Order Status:</strong>
-                        <select class="status-select" data-order-id="<%= firstOrder._id %>" id="overall-status">
-                            <option value="Pending" <%= firstOrder.orderStatus === 'Pending' ? 'selected' : '' %>>
-                                Pending</option>
-                            <option value="Processing" <%= firstOrder.orderStatus === 'Processing' ? 'selected' : '' %>>
-                                Processing</option>
-                            <option value="Shipped" <%= firstOrder.orderStatus === 'Shipped' ? 'selected' : '' %>>
-                                Shipped</option>
-                            <option value="Delivered" <%= firstOrder.orderStatus === 'Delivered' ? 'selected' : '' %>>
-                                Delivered</option>
-                            <option value="Cancelled" <%= firstOrder.orderStatus === 'Cancelled' ? 'selected' : '' %>>
-                                Cancelled</option>
-                            <% if (firstOrder.orderStatus === 'Returned') { %>
-                            <option value="Returned" selected>Returned</option>
-                            <% } %>
-                        </select>
-                    </p>
+                   
                 </div>
             </div>
 
@@ -590,7 +573,6 @@
                     No Image
                     <% } %>
                 </div>
-
                 <div class="product-details">
                     <p><strong>Product Name:</strong> <%= item.productName || 'N/A' %></p>
                     <p><strong>Size:</strong> <%= item.size || 'N/A' %></p>
@@ -598,13 +580,18 @@
                     <p><strong>Original Price:</strong>
                         <%= item.price !== undefined && item.price !== null ? '₹' + item.price.toLocaleString('en-IN', { minimumFractionDigits: 2 }) : 'N/A' %>
                     </p>
-                    <p><strong>Discount:</strong> <%= item.discount !== undefined ? item.discount + '%' : '0%' %></p>
+                    <p><strong>Discount:</strong>
+                        <% if (item.price !== undefined && item.price !== null && item.finalPrice !== undefined && item.finalPrice !== null && item.price > 0) { %>
+                            <%= (((item.price - item.finalPrice) / item.price) * 100).toFixed(2) + '%' %>
+                        <% } else { %>
+                            0%
+                        <% } %>
+                    </p>
                     <p><strong>Final Price:</strong>
                         <%= item.finalPrice !== undefined && item.finalPrice !== null ? '₹' + item.finalPrice.toLocaleString('en-IN', { minimumFractionDigits: 2 }) : 'N/A' %>
                     </p>
                     <% if (item.returnRequested) { %>
-                    <p><strong>Return Status:</strong> <span class="status-badge status-returned">Return
-                            Requested</span></p>
+                    <p><strong>Return Status:</strong> <span class="status-badge status-returned">Return Requested</span></p>
                     <% } %>
                 </div>
 

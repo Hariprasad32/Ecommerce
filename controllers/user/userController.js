@@ -80,17 +80,17 @@ const verifyOtp = async (req, res) => {
             const user = req.session.userData;
             const passwordHash = await securePassword(user.password);
 
-            // Generate unique referral code for new user
+            
             let referralCode = generateReferralCode();
             let codeExists = await User.findOne({ referralCode });
 
-            // Make sure the code is unique
+           
             while(codeExists) {
                 referralCode = generateReferralCode();
                 codeExists = await User.findOne({ referralCode });
             }
 
-            // Create new user object with referral code
+            
             const saveUserData = new User({
                 name: user.name,
                 email: user.email,
@@ -101,15 +101,15 @@ const verifyOtp = async (req, res) => {
                 wallet: 0,
             });
 
-            // Check if the user used a referral code
+            
             if (user.referralCode) {
                 const referrer = await User.findOne({ referralCode: user.referralCode });
                 
                 if (referrer) {
-                    // Set referredBy to the referrer's ID
+                  
                     saveUserData.referredBy = referrer._id;
                     
-                    // Add 100₹ to new user's wallet
+                   
                     saveUserData.wallet = 100;
                     saveUserData.walletTransactions = [{
                         amount: 100,
@@ -117,7 +117,7 @@ const verifyOtp = async (req, res) => {
                         description: 'Signup bonus from referral'
                     }];
                     
-                    // Add 200₹ to referrer's wallet
+                   
                     referrer.wallet += 200;
                     referrer.walletTransactions.push({
                         amount: 200,
@@ -125,10 +125,10 @@ const verifyOtp = async (req, res) => {
                         description: `Referral bonus from ${saveUserData.name}`
                     });
                     
-                    // Add new user to referrer's referredUsers array
+                    
                     referrer.referredUsers.push(saveUserData._id);
                     
-                    // Save the referrer
+                   
                     await referrer.save();
                 }
             }
@@ -231,13 +231,13 @@ const signup = async (req, res) => {
             phone,
             password,
             cpassword,
-            referralCode // Add referral code to the form data
+            referralCode 
         } = req.body
 
         if (password !== cpassword) {
             return res.render("signup", {
                 message: "password does not match",
-                referralCode // Pass back the referral code in case of error
+                referralCode 
             })
         }
         console.log("password checked")
@@ -248,18 +248,18 @@ const signup = async (req, res) => {
         if (findUser) {
             return res.render("signup", {
                 message: "user Already exist",
-                referralCode // Pass back the referral code in case of error
+                referralCode 
             })
         }
         console.log("user checked")
 
-        // Validate referral code if provided
+      
         if (referralCode) {
             const referrer = await User.findOne({ referralCode });
             if (!referrer) {
                 return res.render("signup", {
                     message: "Invalid referral code",
-                    referralCode: "" // Clear invalid code
+                    referralCode: ""
                 });
             }
         }
@@ -274,7 +274,7 @@ const signup = async (req, res) => {
         if (!phone) {
             return res.render("signup", {
                 message: "phone number id required",
-                referralCode // Pass back the referral code in case of error
+                referralCode
             })
         }
 
@@ -284,7 +284,7 @@ const signup = async (req, res) => {
             password,
             phone,
             name,
-            referralCode // Store referral code in session
+            referralCode 
         };
 
         res.render("verify-otp");
@@ -368,7 +368,7 @@ const logout = async (req, res) => {
     }
 }
 
-// New controller to get user's referral details
+
 const getReferralDetails = async (req, res) => {
     try {
         if (!req.session.user) {
@@ -384,7 +384,7 @@ const getReferralDetails = async (req, res) => {
             return res.status(404).render('404-page');
         }
 
-        // Calculate total earned from referrals
+       
         const totalEarned = user.referredUsers ? user.referredUsers.length * 200 : 0;
 
         res.render('referral-details', {
