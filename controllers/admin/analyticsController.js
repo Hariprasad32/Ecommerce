@@ -132,44 +132,71 @@ const getTopCategories = async(req,res) =>{
 };
 
 
- const getSalesOverTime = async (req, res) => {
-    const { timePeriod = 'monthly', year = new Date().getFullYear(), month = new Date().getMonth(), week } = req.query;
-    const { startDate, endDate } = getDateRange(timePeriod, year, month, week);
-  
-    try {
+const getSalesOverTime = async (req, res) => {
+  const { timePeriod = 'monthly' } = req.query;
+
+  try {
       let groupBy;
       if (timePeriod === 'yearly') {
-        groupBy = { $year: '$orderDate' };
+          groupBy = {
+              year: { $year: '$orderDate' }
+          };
       } else if (timePeriod === 'monthly') {
-        groupBy = { $month: '$orderDate' };
+          groupBy = {
+              year: { $year: '$orderDate' },
+              month: { $month: '$orderDate' }
+          };
       } else if (timePeriod === 'weekly') {
-        groupBy = { $week: '$orderDate' };
+          groupBy = {
+              year: { $year: '$orderDate' },
+              month: { $month: '$orderDate' },
+              week: { $week: '$orderDate' }
+          };
       } else if (timePeriod === 'daily') {
-        groupBy = { $dayOfMonth: '$orderDate' };
+          groupBy = {
+              year: { $year: '$orderDate' },
+              month: { $month: '$orderDate' },
+              day: { $dayOfMonth: '$orderDate' }
+          };
       }
-  
+
       const salesOverTime = await Order.aggregate([
-        { 
-          $match: { 
-            orderDate: { $gte: startDate, $lt: endDate }, 
-            orderStatus: { $nin: ['Cancelled', 'Returned'] } 
-          } 
-        },
-        {
-          $group: {
-            _id: groupBy,
-            totalRevenue: { $sum: '$totalAmount' },
+          { 
+              $match: { 
+                  orderStatus: { $nin: ['Cancelled', 'Returned'] } 
+              } 
           },
-        },
-        { $sort: { _id: 1 } },
+          {
+              $group: {
+                  _id: groupBy,
+                  totalRevenue: { $sum: '$totalAmount' }
+              }
+          },
+          { 
+              $sort: { 
+                  '_id.year': 1,
+                  '_id.month': 1,
+                  '_id.week': 1,
+                  '_id.day': 1
+              } 
+          },
+          {
+              $project: {
+                  _id: timePeriod === 'yearly' ? '$_id.year' : timePeriod === 'monthly' ? '$_id.month' : timePeriod === 'weekly' ? '$_id.week' : '$_id.day',
+                  year: '$_id.year',
+                  month: '$_id.month',
+                  day: '$_id.day',
+                  totalRevenue: 1
+              }
+          }
       ]);
-  
+
       res.status(200).json(salesOverTime);
-    } catch (error) {
+  } catch (error) {
       console.error('Error fetching sales over time:', error);
       res.status(500).json({ error: 'Failed to fetch sales over time' });
-    }
-  };
+  }
+};
 
 
   module.exports ={

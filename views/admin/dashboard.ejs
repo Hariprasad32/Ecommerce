@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -8,6 +7,8 @@
   <title>Admin Dashboard</title>
   <!-- Include Chart.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+  <!-- Include SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://kit.fontawesome.com/your-fontawesome-kit.js" crossorigin="anonymous"></script>
   <style>
     :root {
@@ -643,7 +644,15 @@
                     <td><%= order.items[0]?.productName || 'N/A' %></td>
                     <td><%= order.orderDate ? new Date(order.orderDate).toLocaleDateString() : 'N/A' %></td>
                     <td>₹<%= order.totalAmount.toLocaleString() %></td>
-                    <td><span class="status <%= order.orderStatus %>"><%= order.orderStatus %></span></td>
+                    <td>
+                      <% if (order.items && order.items.length > 0) { %>
+                        <% order.items.forEach(item => { %>
+                          <span class="status <%= item.status %>"><%= item.status %></span><br>
+                        <% }); %>
+                      <% } else { %>
+                        <span class="status N/A">N/A</span>
+                      <% } %>
+                    </td>
                   </tr>
                   <% }); %>
                 </tbody>
@@ -722,6 +731,15 @@
               </div>
               <div class="chart-container">
                 <canvas id="categoriesChart"></canvas>
+              </div>
+            </div>
+
+            <div class="chart-card">
+              <div class="chart-header">
+                <h3 class="chart-title">Overall Sales Performance</h3>
+              </div>
+              <div class="chart-container">
+                <canvas id="overallSalesChart"></canvas>
               </div>
             </div>
 
@@ -808,10 +826,17 @@
                       <td><%= sale.orderDate ? new Date(sale.orderDate).toLocaleDateString() : 'N/A' %></td>
                       <td><%= sale.items.length %></td>
                       <td>₹<%= sale.totalAmount ? sale.totalAmount.toLocaleString() : '0' %></td>
-                      <td><%= sale.couponDiscount + sale.items.reduce((sum, item) => sum + (item.discount || 0), 0) %>
-                      </td>
+                      <td><%= sale.couponDiscount + sale.items.reduce((sum, item) => sum + (item.discount || 0), 0) %></td>
                       <td>₹<%= sale.totalAmount ? sale.totalAmount.toLocaleString() : '0' %></td>
-                      <td><span class="status <%= sale.orderStatus %>"><%= sale.orderStatus || 'N/A' %></span></td>
+                      <td>
+                        <% if (sale.items && sale.items.length > 0) { %>
+                          <% sale.items.forEach(item => { %>
+                            <span class="status <%= item.status %>"><%= item.status %></span><br>
+                          <% }); %>
+                        <% } else { %>
+                          <span class="status N/A">N/A</span>
+                        <% } %>
+                      </td>
                       <td><%= sale.paymentMethod || 'N/A' %></td>
                     </tr>
                     <% }); %>
@@ -846,11 +871,9 @@
       const customDateFields = document.getElementById("custom-date-fields");
       const downloadPdfBtn = document.getElementById("download-pdf-btn");
       let analyticsInitialized = false;
-  
-     
-      let productsChart, categoriesChart, brandsChart, salesTimeChart;
-  
-   
+
+      let productsChart, categoriesChart, overallSalesChart, salesTimeChart;
+
       const horizontalBarConfig = {
         type: 'bar',
         options: {
@@ -898,7 +921,7 @@
           }
         }
       };
-  
+
       const lineChartConfig = {
         type: 'line',
         options: {
@@ -956,17 +979,16 @@
           }
         }
       };
-  
+
       function initializeAnalytics() {
         if (analyticsInitialized) return;
         analyticsInitialized = true;
-  
-       
+
         const timeFilter = document.getElementById('time-filter');
         const monthContainer = document.getElementById('month-container');
         const weekContainer = document.getElementById('week-container');
         const applyFilterBtn = document.getElementById('apply-filter');
-  
+
         timeFilter.addEventListener('change', function() {
           if (this.value === 'yearly') {
             monthContainer.style.display = 'none';
@@ -982,54 +1004,60 @@
             weekContainer.style.display = 'block';
           }
         });
-  
-      
+
         productsChart = new Chart(
           document.getElementById('productsChart'),
           { ...horizontalBarConfig, data: { labels: [], datasets: [{ label: 'Units Sold', data: [] }] } }
         );
-  
+
         categoriesChart = new Chart(
           document.getElementById('categoriesChart'),
           { ...horizontalBarConfig, data: { labels: [], datasets: [{ label: 'Sales Amount', data: [] }] } }
         );
-  
-        brandsChart = new Chart(
-          document.getElementById('brandsChart'),
-          { ...horizontalBarConfig, data: { labels: [], datasets: [{ label: 'Revenue (₹)', data: [] }] } }
+
+        overallSalesChart = new Chart(
+          document.getElementById('overallSalesChart'),
+          { ...lineChartConfig, data: { labels: [], datasets: [{ label: 'Revenue', data: [] }] } }
         );
-  
+
         salesTimeChart = new Chart(
           document.getElementById('salesTimeChart'),
           { ...lineChartConfig, data: { labels: [], datasets: [{ label: 'Revenue', data: [] }] } }
         );
-  
-       
+
         fetchAnalyticsData();
-  
-      
+
         applyFilterBtn.addEventListener('click', function() {
           const timePeriod = timeFilter.value;
           const year = document.getElementById('year-filter').value;
           const month = document.getElementById('month-filter').value;
           const week = document.getElementById('week-filter').value;
-  
-        
+
           fetchAnalyticsData(timePeriod, year, month, week);
-  
-         
+
           updateChartTitles(timePeriod, year, month, week);
-  
+
           showFilterAppliedMessage(timePeriod, year, month, week);
         });
       }
-  
+
       async function fetchAnalyticsData(timePeriod = 'monthly', year = new Date().getFullYear(), month = new Date().getMonth(), week) {
-        const params = new URLSearchParams({ timePeriod, year, month });
-        if (week) params.append('week', week);
-  
+        const params = new URLSearchParams({ timePeriod });
+        // Only include year, month, or week for products and categories, not for sales-time to get full history
+        const historicalParams = new URLSearchParams({ timePeriod });
+        if (timePeriod === 'yearly') {
+          params.append('year', year);
+        } else if (timePeriod === 'monthly') {
+          params.append('year', year);
+          params.append('month', month);
+        } else if (timePeriod === 'weekly' || timePeriod === 'daily') {
+          params.append('year', year);
+          params.append('month', month);
+          params.append('week', week);
+        }
+
         try {
-         
+          // Fetch products data (filtered by selected period)
           const productsResponse = await fetch(`/admin/analytics/products?${params}`);
           const productsData = await productsResponse.json();
           productsChart.data.labels = productsData.map(p => p.name);
@@ -1037,8 +1065,8 @@
           productsChart.data.datasets[0].backgroundColor = 'rgba(58, 134, 255, 0.8)';
           productsChart.data.datasets[0].borderColor = 'rgba(58, 134, 255, 1)';
           productsChart.update();
-  
-        
+
+          // Fetch categories data (filtered by selected period)
           const categoriesResponse = await fetch(`/admin/analytics/categories?${params}`);
           const categoriesData = await categoriesResponse.json();
           categoriesChart.data.labels = categoriesData.map(c => c.name);
@@ -1046,23 +1074,61 @@
           categoriesChart.data.datasets[0].backgroundColor = 'rgba(110, 202, 120, 0.8)';
           categoriesChart.data.datasets[0].borderColor = 'rgba(110, 202, 120, 1)';
           categoriesChart.update();
-  
-         
-          const salesTimeResponse = await fetch(`/admin/analytics/sales-time?${params}`);
+
+          // Fetch sales-time data (full history for the selected timePeriod)
+          const salesTimeResponse = await fetch(`/admin/analytics/sales-time?${historicalParams}`);
           const salesTimeData = await salesTimeResponse.json();
-          let labels;
+
+          let labels = [];
+          let data = [];
+
           if (timePeriod === 'yearly') {
-            labels = salesTimeData.map(d => `Year ${d._id}`);
+            // Generate labels for all years from the earliest year in data
+            const years = salesTimeData.map(d => d._id).sort((a, b) => a - b);
+            labels = years.map(year => `Year ${year}`);
+            data = years.map(year => {
+              const record = salesTimeData.find(d => d._id === year);
+              return record ? record.totalRevenue : 0;
+            });
           } else if (timePeriod === 'monthly') {
+            // Generate labels for all months from the earliest date in data
             const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            labels = salesTimeData.map(d => monthNames[d._id - 1]);
+            const months = salesTimeData.map(d => ({ year: d.year, month: d._id })).sort((a, b) => a.year - b.year || a.month - b.month);
+            labels = months.map(m => `${monthNames[m.month - 1]} ${m.year}`);
+            data = months.map(m => {
+              const record = salesTimeData.find(d => d._id === m.month && d.year === m.year);
+              return record ? record.totalRevenue : 0;
+            });
           } else if (timePeriod === 'weekly') {
-            labels = salesTimeData.map(d => `Week ${d._id}`);
+            // Generate labels for all weeks from the earliest date in data
+            const weeks = salesTimeData.map(d => ({ year: d.year, month: d.month, week: d._id })).sort((a, b) => a.year - b.year || a.month - b.month || a.week - b.week);
+            labels = weeks.map(w => `Week ${w.week}, ${w.month}/${w.year}`);
+            data = weeks.map(w => {
+              const record = salesTimeData.find(d => d._id === w.week && d.month === w.month && d.year === w.year);
+              return record ? record.totalRevenue : 0;
+            });
           } else if (timePeriod === 'daily') {
-            labels = salesTimeData.map(d => `Day ${d._id}`);
+            // Generate labels for all days from the earliest date in data
+            const days = salesTimeData.map(d => ({ year: d.year, month: d.month, day: d._id })).sort((a, b) => a.year - b.year || a.month - b.month || a.day - b.day);
+            labels = days.map(d => `${d.day}/${d.month}/${d.year}`);
+            data = days.map(d => {
+              const record = salesTimeData.find(d => d._id === d.day && d.month === d.month && d.year === d.year);
+              return record ? record.totalRevenue : 0;
+            });
           }
+
+          // Update Overall Sales Chart
+          overallSalesChart.data.labels = labels;
+          overallSalesChart.data.datasets[0].data = data;
+          overallSalesChart.data.datasets[0].backgroundColor = 'rgba(255, 99, 132, 0.2)';
+          overallSalesChart.data.datasets[0].borderColor = 'rgba(255, 99, 132, 1)';
+          overallSalesChart.data.datasets[0].tension = 0.4;
+          overallSalesChart.data.datasets[0].fill = true;
+          overallSalesChart.update();
+
+          // Update Sales Time Chart
           salesTimeChart.data.labels = labels;
-          salesTimeChart.data.datasets[0].data = salesTimeData.map(d => d.totalRevenue);
+          salesTimeChart.data.datasets[0].data = data;
           salesTimeChart.data.datasets[0].backgroundColor = 'rgba(138, 123, 247, 0.2)';
           salesTimeChart.data.datasets[0].borderColor = 'rgba(138, 123, 247, 1)';
           salesTimeChart.data.datasets[0].tension = 0.4;
@@ -1070,34 +1136,39 @@
           salesTimeChart.update();
         } catch (error) {
           console.error('Error fetching analytics data:', error);
-          alert('Failed to load analytics data. Please try again.');
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to load analytics data. Please try again.',
+            confirmButtonColor: '#3a86ff'
+          });
         }
       }
-  
+
       function updateChartTitles(timePeriod, year, month, week) {
         const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-        let timeLabel = '';
-  
+        let timeLabel = 'Historical Data';
+
         if (timePeriod === 'yearly') {
-          timeLabel = `Year ${year}`;
+          timeLabel = `All Years`;
         } else if (timePeriod === 'monthly') {
-          timeLabel = `${monthNames[month]} ${year}`;
+          timeLabel = `All Months`;
         } else if (timePeriod === 'weekly') {
-          timeLabel = `Week ${week}, ${monthNames[month]} ${year}`;
+          timeLabel = `All Weeks`;
         } else if (timePeriod === 'daily') {
-          timeLabel = `Week ${week}, ${monthNames[month]} ${year} (Daily View)`;
+          timeLabel = `All Days`;
         }
-  
+
         document.querySelector('.chart-title').textContent = `Best Selling Products (Top 10) - ${timeLabel}`;
         document.querySelectorAll('.chart-title')[1].textContent = `Best Selling Categories (Top 10) - ${timeLabel}`;
-        document.querySelectorAll('.chart-title')[2].textContent = `Best Selling Brands (Top 10) - ${timeLabel}`;
+        document.querySelectorAll('.chart-title')[2].textContent = `Overall Sales Performance - ${timeLabel}`;
         document.querySelectorAll('.chart-title')[3].textContent = `Sales Performance - ${timeLabel}`;
       }
-  
+
       function showFilterAppliedMessage(timePeriod, year, month, week) {
         const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
         let timeLabel = '';
-  
+
         if (timePeriod === 'yearly') {
           timeLabel = `Year ${year}`;
         } else if (timePeriod === 'monthly') {
@@ -1107,7 +1178,7 @@
         } else if (timePeriod === 'daily') {
           timeLabel = `Week ${week}, ${monthNames[month]} ${year} (Daily View)`;
         }
-  
+
         const notification = document.createElement('div');
         notification.style.position = 'fixed';
         notification.style.top = '20px';
@@ -1120,9 +1191,9 @@
         notification.style.zIndex = '1000';
         notification.style.transition = 'opacity 0.5s';
         notification.textContent = `Filter applied: ${timeLabel}`;
-  
+
         document.body.appendChild(notification);
-  
+
         setTimeout(() => {
           notification.style.opacity = '0';
           setTimeout(() => {
@@ -1130,7 +1201,7 @@
           }, 500);
         }, 3000);
       }
-  
+
       tabButtons.forEach(button => {
         button.addEventListener("click", function () {
           const tabId = this.getAttribute("data-tab");
@@ -1138,7 +1209,7 @@
           tabPanes.forEach(pane => pane.classList.remove("active"));
           this.classList.add("active");
           document.getElementById(tabId).classList.add("active");
-  
+
           if (tabId === "analytics") {
             initializeAnalytics();
           } else if (tabId === "reports") {
@@ -1149,7 +1220,7 @@
           }
         });
       });
-  
+
       salesReportForm.addEventListener("submit", function (e) {
         e.preventDefault();
         const formData = new FormData(this);
@@ -1161,7 +1232,7 @@
         };
         fetchSalesReport(params);
       });
-  
+
       downloadPdfBtn.addEventListener("click", function () {
         const formData = new FormData(salesReportForm);
         const params = {
@@ -1174,20 +1245,20 @@
         window.location.href = `/admin/sales-report?${query}`;
       });
 
-        const downloadExcelBtn = document.getElementById("download-excel-btn");
+      const downloadExcelBtn = document.getElementById("download-excel-btn");
 
-        downloadExcelBtn.addEventListener("click", function () {
-          const formData = new FormData(salesReportForm);
-          const params = {
-            period: formData.get("period"),
-            startDate: formData.get("startDate"),
-            endDate: formData.get("endDate"),
-            download: "excel"
-          };
-          const query = new URLSearchParams(params).toString();
-          window.location.href = `/admin/sales-report?${query}`;
-        });
-  
+      downloadExcelBtn.addEventListener("click", function () {
+        const formData = new FormData(salesReportForm);
+        const params = {
+          period: formData.get("period"),
+          startDate: formData.get("startDate"),
+          endDate: formData.get("endDate"),
+          download: "excel"
+        };
+        const query = new URLSearchParams(params).toString();
+        window.location.href = `/admin/sales-report?${query}`;
+      });
+
       function updatePaginationListeners() {
         const paginationButtons = document.querySelectorAll(".pagination-btn");
         paginationButtons.forEach(btn => {
@@ -1195,7 +1266,7 @@
           btn.addEventListener("click", handlePaginationClick);
         });
       }
-  
+
       function handlePaginationClick(e) {
         e.preventDefault();
         const page = this.getAttribute("data-page");
@@ -1210,13 +1281,13 @@
           fetchSalesReport(params);
         }
       }
-  
+
       updatePaginationListeners();
-  
+
       periodSelect.addEventListener("change", function () {
         customDateFields.classList.toggle("d-none", this.value !== "custom");
       });
-  
+
       function fetchSalesReport(params) {
         const query = new URLSearchParams(params).toString();
         fetch(`/admin/sales-report?ajax=true&${query}`, {
@@ -1241,33 +1312,43 @@
                 <div class="summary-label">Total Orders</div>
               </div>
             `;
-  
+
             const tableBody = document.getElementById("sales-table-body");
             tableBody.innerHTML = data.sales.map(sale => `
-              <tr>
-                <td>${sale.orderId}</td>
-                <td>${sale.userId ? sale.userId.name : "Unknown"}</td>
-                <td>${sale.orderDate ? new Date(sale.orderDate).toLocaleDateString() : "N/A"}</td>
-                <td>${sale.items.length}</td>
-                <td>₹${sale.totalAmount ? sale.totalAmount.toLocaleString() : "0"}</td>
-                <td>₹${sale.totalAmount ? sale.totalAmount.toLocaleString() : "0"}</td>
-                <td><span class="status ${sale.orderStatus}">${sale.orderStatus || "N/A"}</span></td>
-                <td>${sale.paymentMethod || "N/A"}</td>
-              </tr>
+             <tr>
+              <td>${sale.orderId}</td>
+              <td>${sale.userId ? sale.userId.name : "Unknown"}</td>
+              <td>${sale.orderDate ? new Date(sale.orderDate).toLocaleDateString() : "N/A"}</td>
+              <td>${sale.items.length}</td>
+              <td>₹${sale.totalAmount ? sale.totalAmount.toLocaleString() : "0"}</td>
+              <td>₹${sale.totalAmount ? sale.totalAmount.toLocaleString() : "0"}</td>
+              <td>
+                ${sale.items && sale.items.length > 0
+                  ? sale.items.map(item => `<span class="status ${item.status}">${item.status}</span>`).join('<br>')
+                  : '<span class="status N/A">N/A</span>'
+                }
+              </td>
+              <td>${sale.paymentMethod || "N/A"}</td>
+            </tr>
             `).join("");
-  
+
             const pagination = document.getElementById("pagination");
             pagination.innerHTML = `
               <a href="#" class="pagination-btn ${data.currentPage <= 1 ? "disabled" : ""}" data-page="${data.currentPage - 1}">Previous</a>
               <span class="page-info">Page ${data.currentPage} of ${data.totalPages}</span>
               <a href="#" class="pagination-btn ${data.currentPage >= data.totalPages ? "disabled" : ""}" data-page="${data.currentPage + 1}">Next</a>
             `;
-  
+
             updatePaginationListeners();
           })
           .catch(error => {
             console.error("Error fetching sales report:", error);
-            alert("Failed to load sales report. Please try again.");
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'Failed to load sales report. Please try again.',
+              confirmButtonColor: '#3a86ff'
+            });
           });
       }
     });
